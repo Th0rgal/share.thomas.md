@@ -61,6 +61,17 @@ export default function ReportClient() {
         </span>
         <span>·</span>
         <span>Quorum: Claude Fable 5.1, GPT-6 Astra, Argon</span>
+        <span>·</span>
+        <span>
+          Remediation PR:{" "}
+          <a
+            href="https://github.com/ethereum/EthLib/pull/55"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ethereum/EthLib#55
+          </a>
+        </span>
       </div>
 
       <p>

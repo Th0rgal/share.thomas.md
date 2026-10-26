@@ -6,6 +6,7 @@ export async function GET() {
     "",
     "- **Date**: October 2026",
     "- **Target**: https://github.com/ethereum/EthLib/tree/57af539e81b8c6f0f54c8b4da3adbc77b122a100",
+    "- **Remediation PR**: https://github.com/ethereum/EthLib/pull/55",
     "- **Quorum**: Claude Fable 5.1, GPT-6 Astra, Argon",
     "",
     "I allocated some compute to review ethereum/EthLib, an executable Lean 4 specification and formal verification library for Ethereum primitives (SSZ, RLP, EIP-4844 & EIP-7594 PeerDAS KZG, BLS12-381, and Keccak-256). We did not review every single line of upstream specs, but we ran a multi-round formal audit across the codebase and proof suite until our quorum of models (Claude Fable 5.1, GPT-6 Astra, and Argon) converged and found no remaining issues.",
