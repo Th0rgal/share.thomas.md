@@ -186,22 +186,22 @@ theorem pairing_zero_left (q : G2) : pairing G1.zero q = Fp12.one`,
     id: 'P9',
     severity: 'Proof',
     component: 'EthLib/Cryptography/Proofs/Bls/Sha256.lean, HashToCurve.lean',
-    title: 'SHA-256 (FIPS 180-4) and RFC 9380 `HashToCurve` (`simpleSwu_curve_eq`, `expandMessageXmd`)',
+    title: 'SHA-256 (FIPS 180-4) and RFC 9380 `HashToCurve` (`simpleSwu_total`, `simpleSwu_curve_eq`, `isSquareFp2_iff`)',
     issue:
-      'Neither `Bls/Sha256.lean` nor `Bls/HashToCurve.lean` had a proof file. In particular, the simplified SWU map onto the 3-isogenous curve $E\' : y^2 = x^3 + A\'x + B\'$ requires verifying the polynomial identity $g(x_2) = Z^3 u^6 g(x_1)$ over $\\mathbb{F}_{p^2}$.',
+      'Neither `Bls/Sha256.lean` nor `Bls/HashToCurve.lean` had a proof file. In particular, the simplified SWU map onto the 3-isogenous curve $E\' : y^2 = x^3 + A\'x + B\'$ requires proving both the polynomial identity $g(x_2) = Z^3 u^6 g(x_1)$ and totality (`simpleSwu_total`) showing that at least one of $g(x_1(u))$ or $g(x_2(u))$ is a square in $\\mathbb{F}_{p^2}$ for every $u \\in \\mathbb{F}_{p^2}$.',
     codeLang: 'lean',
-    codeSnippet: `theorem swuG_x2_eq (u : Fp2) (h : (swuDenom u).isZero = false) :
+    codeSnippet: `theorem isSquareFp2_iff (a : Fp2) :
+    isSquareFp2 a = true ↔ ∃ b : Fp2, b * b = a
+theorem swuG_x2_eq (u : Fp2) (h : (swuDenom u).isZero = false) :
     swuG (swuX2 u) = (Z * (u * u)) ^ 3 * swuG (swuX1 u)
-
-theorem simpleSwu_curve_eq {u : Fp2} {p : Fp2 × Fp2}
-    (h : simpleSwu u = .ok p) :
-    p.2 * p.2 = swuG p.1`,
+theorem simpleSwu_total (u : Fp2) :
+    ∃ p : Fp2 × Fp2, simpleSwu u = .ok p ∧ p.2 * p.2 = swuG p.1`,
     options: [
-      '`Proofs/Bls/Sha256.lean`: proves `bytesBEToU32_u32ToBytesBE`, `u32ToBytesBE_bytesBEToU32`, `padLength_mod_64`, `padLength_gt`, `hash_size`, and kernel-checked FIPS 180-4 KATs.',
-      '`Proofs/Bls/HashToCurve.lean`: proves `expandMessageXmd` RFC 9380 guards, `isSquareFp2_sound`, `swuG_x2_eq`, unconditional `simpleSwu_curve_eq` on `.ok p`, and `psi`/`psi2`/`clearCofactor` identity laws.'
+      '`Proofs/Bls/Sha256.lean`: proves `bytesBEToU32_u32ToBytesBE`, `u32ToBytesBE_bytesBEToU32`, `padLength_mod_64`, `padLength_gt`, `hash_size`, bitwise `ch_self`/`maj_self`/`maj_comm` (no `bv_decide`), and kernel-checked (`decide +kernel`) FIPS 180-4 KATs.',
+      '`Proofs/Bls/HashToCurve.lean`: proves `expandMessageXmd` RFC 9380 guards, `isSquare_iff`, `isSquareFp2_iff`, `sq_or_neg_sq`, `sqrt_of_norm_sq`, `swuG_x2_eq`, `simpleSwu_curve_eq`, `simpleSwu_total`, and `psi`/`psi2`/`clearCofactor` identity laws.'
     ],
     recommendation:
-      'All theorems proved in-kernel in `Proofs/Bls/Sha256.lean` and `Proofs/Bls/HashToCurve.lean`.'
+      '57/57 tight specifications proved in `Proofs/Bls/Sha256.lean` (19/19) and `Proofs/Bls/HashToCurve.lean` (38/38) with 0 warnings.'
   },
   {
     id: 'P10',

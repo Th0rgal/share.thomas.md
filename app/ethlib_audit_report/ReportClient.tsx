@@ -327,19 +327,19 @@ export default function ReportClient({
           href="/ethlib_compress_proofs"
           className={`report-tab ${activeTab === "compress" ? "is-active" : ""}`}
         >
-          G1 Compress Proofs
+          G1 Compress Proofs (#99)
         </a>
         <a
           href="/ethlib_bls_proofs"
           className={`report-tab ${activeTab === "bls" ? "is-active" : ""}`}
         >
-          BLS Tower &amp; Signatures Proofs
+          BLS Tower &amp; Signatures (#100)
         </a>
         <a
           href="/ethlib_kzg_xmss_proofs"
           className={`report-tab ${activeTab === "kzg" ? "is-active" : ""}`}
         >
-          KZG &amp; PeerDAS Proofs
+          KZG &amp; PeerDAS Proofs (#101)
         </a>
       </nav>
 

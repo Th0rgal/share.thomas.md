@@ -22,9 +22,10 @@ export default function EthLibCompressProofsPage() {
   return (
     <ReportClient
       title="EthLib BLS12-381 G1 Compression Proofs"
-      subtitle="Eliminating all 8 bv_decide solver axioms and proving converse canonical round-trip theorems in Proofs/Bls/Compress.lean."
       items={COMPRESS_PROOFS}
-      mdPath="/ethlib_compress_proofs.md"
+      prNumber={99}
+      rawMdHref="/ethlib_compress_proofs.md"
+      activeTab="compress"
     />
   );
 }

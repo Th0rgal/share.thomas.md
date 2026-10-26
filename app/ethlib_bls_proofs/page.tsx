@@ -22,9 +22,10 @@ export default function EthLibBlsProofsPage() {
   return (
     <ReportClient
       title="EthLib BLS12-381 Complete Proof Suite"
-      subtitle="Unconditional Fp2/Fp6/Fp12 Field instances, G2 96-byte serialization round-trips, total optimal Ate pairing specs, SHA-256 KATs, SWU curve proofs, and BLS signatures."
       items={BLS_PROOFS}
-      mdPath="/ethlib_bls_proofs.md"
+      prNumber={100}
+      rawMdHref="/ethlib_bls_proofs.md"
+      activeTab="bls"
     />
   );
 }

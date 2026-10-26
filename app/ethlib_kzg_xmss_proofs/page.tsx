@@ -22,9 +22,10 @@ export default function EthLibKzgXmssProofsPage() {
   return (
     <ReportClient
       title="EthLib KZG & XMSS Proof Suite"
-      subtitle="EIP-4844 & EIP-7594 PeerDAS KZG polynomial evaluation homomorphisms, g1LincombPoints validation, vanishing polynomials, ceremony checks, and XMSS Blake2s KATs."
       items={KZG_XMSS_PROOFS}
-      mdPath="/ethlib_kzg_xmss_proofs.md"
+      prNumber={101}
+      rawMdHref="/ethlib_kzg_xmss_proofs.md"
+      activeTab="kzg"
     />
   );
 }
