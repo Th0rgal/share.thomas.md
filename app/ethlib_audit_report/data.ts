@@ -76,18 +76,20 @@ partial def millerLoop (n : Nat) (R0 P : EmbeddedPoint) : Fp12 := ...`,
     id: 'F4',
     severity: 'High',
     component: 'EthLib/Cryptography/Proofs/**',
-    title: 'Proof coverage gaps and `native_decide` contamination of `G1.uncompress_compress`',
+    title: 'Proof coverage gaps and `bv_decide` / `native_decide` contamination in `Compress` and `Blake2s`',
     issue:
-      'In-kernel axiom auditing (`Lean.collectAxioms`) showed that `G1.uncompress_compress` depends on `native_decide` solely because `uncompress_infinityBytes` used `by native_decide`, and `Blake2s.sigma_row_permutation` used 10 `native_decide` calls on a $10 \\times 16$ table. In addition, $\\mathbb{F}_{p^2}$, $\\mathbb{F}_{p^6}$, $\\mathbb{F}_{p^{12}}$, $\\mathbb{G}_2$, `Pairing`, `HashToCurve`, `Sha256`, and `Signatures` had zero proof files.',
+      'In-kernel axiom auditing (`Lean.collectAxioms`) showed that `G1.uncompress_compress` and `Blake2s` depended on `bv_decide` (10 uses across `Proofs/Bls/Compress.lean` and `Proofs/Xmss/Blake2s.lean`) and `native_decide` (`uncompress_infinityBytes`, `sigma_row_permutation`, and 1-block KATs). In addition, $\\mathbb{F}_{p^2}$, $\\mathbb{F}_{p^6}$, $\\mathbb{F}_{p^{12}}$, $\\mathbb{G}_2$, `Pairing`, `HashToCurve`, `Sha256`, `Signatures`, converse canonical $\\mathbb{G}_1$ decompression (`G1.compress_uncompress`), and polynomial evaluation homomorphisms in `Kzg/Polynomials` had missing proof suites.',
     codeLang: 'lean',
     codeSnippet: `private theorem uncompress_infinityBytes :
-    uncompress infinityBytes = .ok G1.zero := by native_decide`,
+    uncompress infinityBytes = .ok G1.zero := by native_decide
+private theorem byte_flag_roundtrip (b : UInt8) (h : b < 0x20) :
+    ((b ||| 0x80) &&& 0x1f) = b := by bv_decide`,
     options: [
-      'Option A: Replace `native_decide` in `uncompress_infinityBytes` and `sigma_row_permutation` with kernel reductions (`decide`), and add `Proofs/Bls/Pairing.lean`.',
-      'Option B: Keep `native_decide` in the trusted computing base.'
+      'Option A: Eliminate all 10 `bv_decide` uses and avoidable `native_decide` calls with kernel proofs, add `Proofs/Bls/{Fp2,Fp6,Fp12,G2,Pairing,Sha256,HashToCurve,Signatures}.lean`, prove `G1.compress_uncompress`, and expand `Proofs/Kzg/{Polynomials,Core,Cells,Recovery}.lean`.',
+      'Option B: Keep `bv_decide` and `native_decide` in the trusted computing base and leave the remaining BLS/KZG modules unverified.'
     ],
     recommendation:
-      'Option A. Eliminating `native_decide` from `G1.uncompress_compress` and `sigma_row_permutation` keeps core algebraic theorems purely inside the Lean kernel.'
+      'Option A. PR #55 eliminates 100% of `bv_decide` uses across the repo, removes `native_decide` from `uncompress_infinityBytes`, `sigma_row_permutation`, and 1-block Blake2s KATs, and adds 809 kernel-checked theorems across BLS, KZG, and XMSS.'
   },
   {
     id: 'F5',
