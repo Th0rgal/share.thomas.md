@@ -1,6 +1,5 @@
-import { BLS_PROOFS } from "../ethlib_audit_report/data";
-import { renderMarkdownReport } from "../ethlib_audit_report.md/route";
+import { BLS_PROOFS, renderMarkdownReport } from "../ethlib_audit_report/data";
 
 export async function GET() {
-  return renderMarkdownReport("EthLib BLS12-381 Complete Proof Suite", BLS_PROOFS);
+  return renderMarkdownReport("EthLib BLS12-381 Complete Proof Suite", BLS_PROOFS, 100);
 }

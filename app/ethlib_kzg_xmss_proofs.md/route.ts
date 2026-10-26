@@ -1,6 +1,5 @@
-import { KZG_XMSS_PROOFS } from "../ethlib_audit_report/data";
-import { renderMarkdownReport } from "../ethlib_audit_report.md/route";
+import { KZG_XMSS_PROOFS, renderMarkdownReport } from "../ethlib_audit_report/data";
 
 export async function GET() {
-  return renderMarkdownReport("EthLib KZG & XMSS Proof Suite", KZG_XMSS_PROOFS);
+  return renderMarkdownReport("EthLib KZG & XMSS Proof Suite", KZG_XMSS_PROOFS, 101);
 }
