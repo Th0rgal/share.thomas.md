@@ -89,6 +89,17 @@
   --sev-low-bg: rgba(46, 43, 38, 0.05);
   --sev-low-border: rgba(46, 43, 38, 0.2);
   --sev-low-text: #57534b;
+
+  --syn-kw: #8b3422;
+  --syn-cmd: #6d3b7e;
+  --syn-type: #1f5c6e;
+  --syn-fn: #2d5339;
+  --syn-str: #4e6322;
+  --syn-num: #8a510c;
+  --syn-cmt: #857e72;
+  --syn-op: #5c564c;
+  --code-bg: #f5f2ea;
+  --inline-code-bg: rgba(46, 43, 38, 0.065);
 }
 
 html.dark,
@@ -116,6 +127,17 @@ html.dark,
   --sev-low-bg: rgba(227, 221, 210, 0.06);
   --sev-low-border: rgba(227, 221, 210, 0.2);
   --sev-low-text: #b8b1a5;
+
+  --syn-kw: #e5937c;
+  --syn-cmd: #c79be0;
+  --syn-type: #7ec1d6;
+  --syn-fn: #9ec9a6;
+  --syn-str: #b4c97e;
+  --syn-num: #e6b873;
+  --syn-cmt: #8b8479;
+  --syn-op: #b0a99d;
+  --code-bg: #171513;
+  --inline-code-bg: rgba(227, 221, 210, 0.09);
 }
 
 * {
@@ -550,31 +572,98 @@ body {
   border-radius: 0 6px 6px 0;
 }
 
+.code-block-wrap {
+  margin: 0.7rem 0;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--code-bg);
+  overflow: hidden;
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.32rem 0.85rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  background: var(--wash);
+}
+
 pre.code-snippet {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
-  line-height: 1.48;
-  background: var(--wash);
-  border: 1px solid var(--rule);
-  border-radius: 7px;
-  padding: 0.7rem 0.85rem;
+  font-size: 0.81rem;
+  line-height: 1.54;
+  background: transparent;
+  border: 0;
+  padding: 0.78rem 0.92rem;
   overflow-x: auto;
-  margin: 0.6rem 0;
+  margin: 0;
   color: var(--ink);
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0, 'clig' 0, 'calt' 0;
 }
 
 code {
   font-family: var(--font-mono);
-  font-size: 0.86em;
-  background: var(--wash);
-  padding: 0.1em 0.32em;
+  font-size: 0.84em;
+  background: var(--inline-code-bg);
+  border: 1px solid var(--rule);
+  padding: 0.08em 0.34em;
   border-radius: 4px;
+  color: var(--ink);
+  font-variant-ligatures: none;
 }
 
 pre code {
   background: transparent;
+  border: 0;
   padding: 0;
   font-size: inherit;
+}
+
+.tok-kw {
+  color: var(--syn-kw);
+  font-weight: 600;
+}
+
+.tok-cmd {
+  color: var(--syn-cmd);
+  font-weight: 600;
+}
+
+.tok-type {
+  color: var(--syn-type);
+}
+
+.tok-fn {
+  color: var(--syn-fn);
+}
+
+.tok-str {
+  color: var(--syn-str);
+}
+
+.tok-num {
+  color: var(--syn-num);
+}
+
+.tok-cmt {
+  color: var(--syn-cmt);
+  font-style: italic;
+}
+
+.tok-op {
+  color: var(--syn-op);
+}
+
+.katex {
+  font-size: 1.01em;
 }
 
 .coverage-table-wrap {

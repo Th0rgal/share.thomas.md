@@ -1,7 +1,242 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+import katex from "katex";
 import { FINDINGS, Finding, Severity } from "./data";
+
+function renderFormattedText(text: string): React.ReactNode[] {
+  const tokenRegex = /(\$[^$]+\$|`[^`]+`)/g;
+  const parts = text.split(tokenRegex);
+  return parts.map((part, idx) => {
+    if (part.startsWith("$") && part.endsWith("$") && part.length > 2) {
+      const math = part.slice(1, -1);
+      const html = katex.renderToString(math, {
+        throwOnError: false,
+        displayMode: false,
+      });
+      return (
+        <span
+          key={idx}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      );
+    }
+    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
+      return <code key={idx}>{part.slice(1, -1)}</code>;
+    }
+    return <React.Fragment key={idx}>{part}</React.Fragment>;
+  });
+}
+
+const LEAN_KEYWORDS = new Set([
+  "def",
+  "partial",
+  "theorem",
+  "private",
+  "protected",
+  "let",
+  "in",
+  "do",
+  "if",
+  "then",
+  "else",
+  "for",
+  "match",
+  "with",
+  "by",
+  "return",
+  "throw",
+  "fun",
+  "where",
+  "structure",
+  "inductive",
+  "instance",
+  "native_decide",
+  "decide",
+  "termination_by",
+  "decreasing_by",
+]);
+
+const C_KEYWORDS = new Set([
+  "extern",
+  "for",
+  "if",
+  "else",
+  "return",
+  "const",
+  "void",
+  "char",
+  "int",
+  "uint8_t",
+  "uint64_t",
+  "size_t",
+  "LEAN_EXPORT",
+]);
+
+const PY_KEYWORDS = new Set([
+  "import",
+  "from",
+  "def",
+  "return",
+  "if",
+  "else",
+  "for",
+  "in",
+]);
+
+function highlightLine(
+  line: string,
+  lang: "lean" | "c" | "python" | "sh" = "lean"
+): React.ReactNode[] {
+  // Check for full/trailing single-line comments first
+  let codePart = line;
+  let commentPart = "";
+
+  if (lang === "lean") {
+    const idx = line.indexOf("--");
+    if (idx !== -1) {
+      codePart = line.slice(0, idx);
+      commentPart = line.slice(idx);
+    }
+  } else if (lang === "python" || lang === "sh") {
+    const idx = line.indexOf("#");
+    if (idx !== -1) {
+      codePart = line.slice(0, idx);
+      commentPart = line.slice(idx);
+    }
+  } else if (lang === "c") {
+    const idx = line.indexOf("//");
+    if (idx !== -1) {
+      codePart = line.slice(0, idx);
+      commentPart = line.slice(idx);
+    }
+  }
+
+  const tokenPattern =
+    /(\/\*[\s\S]*?\*\/|"(?:[^"\\]|\\.)*"|#[a-zA-Z_]\w*|\b\d+\b|\b[A-Za-z_][A-Za-z0-9_']*\b|:=|==|≤|!=|->|\+\+|\.[a-zA-Z_]\w*)/g;
+
+  const nodes: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = tokenPattern.exec(codePart)) !== null) {
+    if (match.index > lastIndex) {
+      nodes.push(codePart.slice(lastIndex, match.index));
+    }
+    const tok = match[0];
+    const key = `${match.index}-${tok}`;
+
+    if (tok.startsWith("/*")) {
+      nodes.push(
+        <span key={key} className="tok-cmt">
+          {tok}
+        </span>
+      );
+    } else if (tok.startsWith('"')) {
+      nodes.push(
+        <span key={key} className="tok-str">
+          {tok}
+        </span>
+      );
+    } else if (tok.startsWith("#")) {
+      nodes.push(
+        <span key={key} className="tok-cmd">
+          {tok}
+        </span>
+      );
+    } else if (/^\d+$/.test(tok)) {
+      nodes.push(
+        <span key={key} className="tok-num">
+          {tok}
+        </span>
+      );
+    } else if (/^(:=|==|≤|!=|->|\+\+)$/.test(tok)) {
+      nodes.push(
+        <span key={key} className="tok-op">
+          {tok}
+        </span>
+      );
+    } else if (tok.startsWith(".")) {
+      nodes.push(
+        <span key={key} className="tok-fn">
+          {tok}
+        </span>
+      );
+    } else if (
+      (lang === "lean" && LEAN_KEYWORDS.has(tok)) ||
+      (lang === "c" && C_KEYWORDS.has(tok)) ||
+      (lang === "python" && PY_KEYWORDS.has(tok))
+    ) {
+      nodes.push(
+        <span key={key} className="tok-kw">
+          {tok}
+        </span>
+      );
+    } else if (tok === "true" || tok === "false" || tok === "panic!") {
+      nodes.push(
+        <span key={key} className="tok-cmd">
+          {tok}
+        </span>
+      );
+    } else if (/^[A-Z]/.test(tok) || tok === "lean_object") {
+      nodes.push(
+        <span key={key} className="tok-type">
+          {tok}
+        </span>
+      );
+    } else {
+      nodes.push(tok);
+    }
+
+    lastIndex = tokenPattern.lastIndex;
+  }
+
+  if (lastIndex < codePart.length) {
+    nodes.push(codePart.slice(lastIndex));
+  }
+
+  if (commentPart) {
+    nodes.push(
+      <span key="cmt" className="tok-cmt">
+        {commentPart}
+      </span>
+    );
+  }
+
+  return nodes;
+}
+
+function renderCodeBlock(
+  snippet: string,
+  lang: "lean" | "c" | "python" | "sh" = "lean"
+) {
+  const langLabel =
+    lang === "lean"
+      ? "Lean 4"
+      : lang === "c"
+        ? "C"
+        : lang === "python"
+          ? "Python"
+          : "Shell";
+  const lines = snippet.split("\n");
+  return (
+    <div className="code-block-wrap">
+      <div className="code-block-header">
+        <span>{langLabel}</span>
+      </div>
+      <pre className="code-snippet">
+        <code>
+          {lines.map((line, i) => (
+            <React.Fragment key={i}>
+              {highlightLine(line, lang)}
+              {i < lines.length - 1 ? "\n" : null}
+            </React.Fragment>
+          ))}
+        </code>
+      </pre>
+    </div>
+  );
+}
 
 export default function ReportClient() {
   const [openIds, setOpenIds] = useState<Record<string, boolean>>({});
@@ -127,7 +362,9 @@ export default function ReportClient() {
                   {finding.severity}
                 </span>
                 <span className="finding-title-wrap">
-                  <span className="finding-title">{finding.title}</span>
+                  <span className="finding-title">
+                    {renderFormattedText(finding.title)}
+                  </span>
                   <span className="finding-component">{finding.component}</span>
                 </span>
                 <span className="finding-chevron" aria-hidden="true">
@@ -139,19 +376,16 @@ export default function ReportClient() {
                 <div className="finding-body">
                   <div className="finding-block">
                     <div className="finding-block-label">Issue</div>
-                    <p>{finding.issue}</p>
-                    {finding.codeSnippet && (
-                      <pre className="code-snippet">
-                        <code>{finding.codeSnippet}</code>
-                      </pre>
-                    )}
+                    <p>{renderFormattedText(finding.issue)}</p>
+                    {finding.codeSnippet &&
+                      renderCodeBlock(finding.codeSnippet, finding.codeLang)}
                   </div>
 
                   <div className="finding-block">
                     <div className="finding-block-label">Options</div>
                     <ul className="options-list">
                       {finding.options.map((opt) => (
-                        <li key={opt}>{opt}</li>
+                        <li key={opt}>{renderFormattedText(opt)}</li>
                       ))}
                     </ul>
                   </div>
@@ -159,7 +393,7 @@ export default function ReportClient() {
                   <div className="finding-block">
                     <div className="finding-block-label">Recommendation</div>
                     <div className="recommendation-box">
-                      <p>{finding.recommendation}</p>
+                      <p>{renderFormattedText(finding.recommendation)}</p>
                     </div>
                   </div>
                 </div>
