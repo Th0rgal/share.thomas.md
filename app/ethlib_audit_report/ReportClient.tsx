@@ -55,6 +55,7 @@ const LEAN_KEYWORDS = new Set([
   "decide",
   "termination_by",
   "decreasing_by",
+  "revert",
 ]);
 
 const C_KEYWORDS = new Set([
@@ -88,7 +89,6 @@ function highlightLine(
   line: string,
   lang: "lean" | "c" | "python" | "sh" = "lean"
 ): React.ReactNode[] {
-  // Check for full/trailing single-line comments first
   let codePart = line;
   let commentPart = "";
 
@@ -238,7 +238,21 @@ function renderCodeBlock(
   );
 }
 
-export default function ReportClient() {
+export interface ReportClientProps {
+  title?: string;
+  items?: Finding[];
+  prNumber?: number;
+  rawMdHref?: string;
+  activeTab?: "all" | "compress" | "bls" | "kzg";
+}
+
+export default function ReportClient({
+  title = "ethereum/EthLib Audit & Proofs",
+  items = FINDINGS,
+  prNumber = 55,
+  rawMdHref = "/ethlib_audit_report.md",
+  activeTab = "all",
+}: ReportClientProps) {
   const [openIds, setOpenIds] = useState<Record<string, boolean>>({});
   const [filterSeverity, setFilterSeverity] = useState<Severity | "all">("all");
 
@@ -248,7 +262,7 @@ export default function ReportClient() {
 
   const expandAll = () => {
     const next: Record<string, boolean> = {};
-    for (const f of FINDINGS) {
+    for (const f of items) {
       next[f.id] = true;
     }
     setOpenIds(next);
@@ -260,46 +274,74 @@ export default function ReportClient() {
 
   const filteredFindings =
     filterSeverity === "all"
-      ? FINDINGS
-      : FINDINGS.filter((f) => f.severity === filterSeverity);
+      ? items
+      : items.filter((f) => f.severity === filterSeverity);
 
   const allExpanded =
     filteredFindings.length > 0 &&
     filteredFindings.every((f) => Boolean(openIds[f.id]));
 
   const counts = {
-    all: FINDINGS.length,
-    High: FINDINGS.filter((f) => f.severity === "High").length,
-    Medium: FINDINGS.filter((f) => f.severity === "Medium").length,
-    Low: FINDINGS.filter((f) => f.severity === "Low").length,
+    all: items.length,
+    Proof: items.filter((f) => f.severity === "Proof").length,
+    High: items.filter((f) => f.severity === "High").length,
+    Medium: items.filter((f) => f.severity === "Medium").length,
+    Low: items.filter((f) => f.severity === "Low").length,
   };
 
   return (
     <article className="is-posts">
-      <h1 className="title-display">ethereum/EthLib Audit Findings</h1>
+      <h1 className="title-display">{title}</h1>
 
       <div className="report-subtitle not-prose">
         <a
-          href="https://github.com/ethereum/EthLib/tree/57af539e81b8c6f0f54c8b4da3adbc77b122a100"
+          href="https://github.com/ethereum/EthLib"
           target="_blank"
           rel="noopener noreferrer"
         >
-          ethereum/EthLib@57af539
+          ethereum/EthLib
         </a>
         {" · "}
         <span>
           PR:{" "}
           <a
-            href="https://github.com/ethereum/EthLib/pull/55"
+            href={`https://github.com/ethereum/EthLib/pull/${prNumber}`}
             target="_blank"
             rel="noopener noreferrer"
           >
-            ethereum/EthLib#55
+            ethereum/EthLib#{prNumber}
           </a>
         </span>
         {" · "}
-        <a href="/ethlib_audit_report.md">Raw .md</a>
+        <a href={rawMdHref}>Raw .md</a>
       </div>
+
+      <nav className="report-tabs not-prose" aria-label="PR Reports">
+        <a
+          href="/ethlib_audit_report"
+          className={`report-tab ${activeTab === "all" ? "is-active" : ""}`}
+        >
+          Overview &amp; Spec Fixes (#55)
+        </a>
+        <a
+          href="/ethlib_compress_proofs"
+          className={`report-tab ${activeTab === "compress" ? "is-active" : ""}`}
+        >
+          G1 Compress Proofs
+        </a>
+        <a
+          href="/ethlib_bls_proofs"
+          className={`report-tab ${activeTab === "bls" ? "is-active" : ""}`}
+        >
+          BLS Tower &amp; Signatures Proofs
+        </a>
+        <a
+          href="/ethlib_kzg_xmss_proofs"
+          className={`report-tab ${activeTab === "kzg" ? "is-active" : ""}`}
+        >
+          KZG &amp; PeerDAS Proofs
+        </a>
+      </nav>
 
       <div className="toolbar-row not-prose">
         <div className="filter-group">
@@ -310,27 +352,42 @@ export default function ReportClient() {
           >
             All ({counts.all})
           </button>
-          <button
-            type="button"
-            className={`filter-chip ${filterSeverity === "High" ? "is-active" : ""}`}
-            onClick={() => setFilterSeverity("High")}
-          >
-            High ({counts.High})
-          </button>
-          <button
-            type="button"
-            className={`filter-chip ${filterSeverity === "Medium" ? "is-active" : ""}`}
-            onClick={() => setFilterSeverity("Medium")}
-          >
-            Medium ({counts.Medium})
-          </button>
-          <button
-            type="button"
-            className={`filter-chip ${filterSeverity === "Low" ? "is-active" : ""}`}
-            onClick={() => setFilterSeverity("Low")}
-          >
-            Low ({counts.Low})
-          </button>
+          {counts.Proof > 0 && (
+            <button
+              type="button"
+              className={`filter-chip ${filterSeverity === "Proof" ? "is-active" : ""}`}
+              onClick={() => setFilterSeverity("Proof")}
+            >
+              Proofs ({counts.Proof})
+            </button>
+          )}
+          {counts.High > 0 && (
+            <button
+              type="button"
+              className={`filter-chip ${filterSeverity === "High" ? "is-active" : ""}`}
+              onClick={() => setFilterSeverity("High")}
+            >
+              High ({counts.High})
+            </button>
+          )}
+          {counts.Medium > 0 && (
+            <button
+              type="button"
+              className={`filter-chip ${filterSeverity === "Medium" ? "is-active" : ""}`}
+              onClick={() => setFilterSeverity("Medium")}
+            >
+              Medium ({counts.Medium})
+            </button>
+          )}
+          {counts.Low > 0 && (
+            <button
+              type="button"
+              className={`filter-chip ${filterSeverity === "Low" ? "is-active" : ""}`}
+              onClick={() => setFilterSeverity("Low")}
+            >
+              Low ({counts.Low})
+            </button>
+          )}
         </div>
 
         <button
@@ -346,6 +403,7 @@ export default function ReportClient() {
         {filteredFindings.map((finding: Finding) => {
           const isOpen = Boolean(openIds[finding.id]);
           const sevLower = finding.severity.toLowerCase();
+          const isProof = finding.severity === "Proof";
           return (
             <div
               key={finding.id}
@@ -375,14 +433,18 @@ export default function ReportClient() {
               {isOpen && (
                 <div className="finding-body">
                   <div className="finding-block">
-                    <div className="finding-block-label">Issue</div>
+                    <div className="finding-block-label">
+                      {isProof ? "Specification & Scope" : "Issue"}
+                    </div>
                     <p>{renderFormattedText(finding.issue)}</p>
                     {finding.codeSnippet &&
                       renderCodeBlock(finding.codeSnippet, finding.codeLang)}
                   </div>
 
                   <div className="finding-block">
-                    <div className="finding-block-label">Options</div>
+                    <div className="finding-block-label">
+                      {isProof ? "Theorems Proved" : "Options"}
+                    </div>
                     <ul className="options-list">
                       {finding.options.map((opt) => (
                         <li key={opt}>{renderFormattedText(opt)}</li>
@@ -391,7 +453,9 @@ export default function ReportClient() {
                   </div>
 
                   <div className="finding-block">
-                    <div className="finding-block-label">Recommendation</div>
+                    <div className="finding-block-label">
+                      {isProof ? "Verification Status" : "Recommendation"}
+                    </div>
                     <div className="recommendation-box">
                       <p>{renderFormattedText(finding.recommendation)}</p>
                     </div>

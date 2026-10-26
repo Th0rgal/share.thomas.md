@@ -1,19 +1,18 @@
-import { FINDINGS } from "../ethlib_audit_report/data";
+import { FINDINGS, type Finding } from "../ethlib_audit_report/data";
 
-export async function GET() {
+export function renderMarkdownReport(title: string, items: Finding[]): Response {
   const lines: string[] = [
-    "# ethereum/EthLib Audit Findings",
+    `# ${title}`,
     "",
-    "- **Target**: https://github.com/ethereum/EthLib/tree/57af539e81b8c6f0f54c8b4da3adbc77b122a100",
-    "- **PR**: https://github.com/ethereum/EthLib/pull/55",
+    "- **Repository**: https://github.com/ethereum/EthLib",
     "",
   ];
 
-  for (const f of FINDINGS) {
+  for (const f of items) {
     lines.push(`## ${f.id} [${f.severity}]: ${f.title}`);
     lines.push(`- **Component**: \`${f.component}\``);
     lines.push("");
-    lines.push("### Issue");
+    lines.push(f.severity === "Proof" ? "### Specification & Scope" : "### Issue");
     lines.push(f.issue);
     lines.push("");
     if (f.codeSnippet) {
@@ -22,12 +21,12 @@ export async function GET() {
       lines.push("```");
       lines.push("");
     }
-    lines.push("### Options");
+    lines.push(f.severity === "Proof" ? "### Theorems Proved" : "### Options");
     for (const opt of f.options) {
       lines.push(`- ${opt}`);
     }
     lines.push("");
-    lines.push("### Recommendation");
+    lines.push(f.severity === "Proof" ? "### Verification Status" : "### Resolution");
     lines.push(f.recommendation);
     lines.push("");
   }
@@ -37,4 +36,8 @@ export async function GET() {
       "Content-Type": "text/markdown; charset=utf-8",
     },
   });
+}
+
+export async function GET() {
+  return renderMarkdownReport("EthLib Formal Proofs & Audit Findings", FINDINGS);
 }

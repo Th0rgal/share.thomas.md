@@ -90,6 +90,10 @@
   --sev-low-border: rgba(46, 43, 38, 0.2);
   --sev-low-text: #57534b;
 
+  --sev-proof-bg: rgba(34, 118, 68, 0.09);
+  --sev-proof-border: rgba(34, 118, 68, 0.28);
+  --sev-proof-text: #1c6138;
+
   --syn-kw: #8b3422;
   --syn-cmd: #6d3b7e;
   --syn-type: #1f5c6e;
@@ -127,6 +131,10 @@ html.dark,
   --sev-low-bg: rgba(227, 221, 210, 0.06);
   --sev-low-border: rgba(227, 221, 210, 0.2);
   --sev-low-text: #b8b1a5;
+
+  --sev-proof-bg: rgba(72, 184, 116, 0.14);
+  --sev-proof-border: rgba(72, 184, 116, 0.34);
+  --sev-proof-text: #8ce0ad;
 
   --syn-kw: #e5937c;
   --syn-cmd: #c79be0;
@@ -486,6 +494,45 @@ body {
   background: var(--sev-low-bg);
   border-color: var(--sev-low-border);
   color: var(--sev-low-text);
+}
+
+.sev-proof {
+  background: var(--sev-proof-bg);
+  border-color: var(--sev-proof-border);
+  color: var(--sev-proof-text);
+}
+
+.report-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 1.35rem 0;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.report-tab {
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+  padding: 5px 11px;
+  border-radius: 7px;
+  border: 1px solid var(--rule);
+  color: var(--ink-muted);
+  text-decoration: none !important;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.report-tab:hover {
+  border-color: var(--rule-strong);
+  color: var(--ink);
+}
+
+.report-tab.is-active {
+  border-color: var(--rule-strong);
+  background: var(--wash-hover);
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .finding-title-wrap {
