@@ -212,21 +212,18 @@ body {
 .theme-btn {
   appearance: none;
   background: transparent;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  padding: 4px 10px;
-  font: inherit;
-  font-size: 0.76rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-muted);
+  border: 0;
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
 .theme-btn:hover {
-  border-color: var(--rule-strong);
-  color: var(--ink);
+  opacity: 0.75;
 }
 
 .is-posts {
