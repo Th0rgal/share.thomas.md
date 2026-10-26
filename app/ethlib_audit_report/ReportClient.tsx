@@ -42,13 +42,25 @@ export default function ReportClient() {
     Low: FINDINGS.filter((f) => f.severity === "Low").length,
   };
 
-  return (
-    <article>
-      <h1>Formal Audit &amp; Quorum Review of ethereum/EthLib</h1>
+  const highIds = FINDINGS.filter((f) => f.severity === "High")
+    .map((f) => f.id)
+    .join(", ");
+  const mediumIds = FINDINGS.filter((f) => f.severity === "Medium")
+    .map((f) => f.id)
+    .join(", ");
+  const lowIds = FINDINGS.filter((f) => f.severity === "Low")
+    .map((f) => f.id)
+    .join(", ");
 
-      <div className="report-meta">
+  return (
+    <article className="is-posts">
+      <h1 className="title-display">
+        Formal Audit &amp; Quorum Review of ethereum/EthLib
+      </h1>
+
+      <div className="report-subtitle not-prose">
         <span>October 2026</span>
-        <span>·</span>
+        {" · "}
         <span>
           Target:{" "}
           <a
@@ -59,9 +71,9 @@ export default function ReportClient() {
             ethereum/EthLib@57af539
           </a>
         </span>
-        <span>·</span>
+        {" · "}
         <span>Quorum: Claude Fable 5.1, GPT-6 Astra, Argon</span>
-        <span>·</span>
+        {" · "}
         <span>
           Remediation PR:{" "}
           <a
@@ -71,6 +83,10 @@ export default function ReportClient() {
           >
             ethereum/EthLib#55
           </a>
+        </span>
+        {" · "}
+        <span>
+          <a href="/ethlib_audit_report.md">Raw .md</a>
         </span>
       </div>
 
@@ -102,62 +118,64 @@ export default function ReportClient() {
         considered, and our quorum recommendation.
       </p>
 
-      <div className="summary-grid">
-        <div className="summary-stat">
+      <div className="stats-grid not-prose">
+        <div className="stat-card">
+          <div className="stat-value">{counts.all}</div>
           <div className="stat-label">Total Findings</div>
-          <div className="stat-value">14</div>
-          <div className="stat-note">Quorum-verified across 3 rounds</div>
+          <div className="stat-sub">Quorum-verified across 3 rounds</div>
         </div>
-        <div className="summary-stat">
+        <div className="stat-card">
+          <div className="stat-value">{counts.High}</div>
           <div className="stat-label">High Severity</div>
-          <div className="stat-value">4</div>
-          <div className="stat-note">F1, F2, F3, F4 (spec &amp; soundness)</div>
+          <div className="stat-sub">{highIds} (spec &amp; soundness)</div>
         </div>
-        <div className="summary-stat">
+        <div className="stat-card">
+          <div className="stat-value">{counts.Medium}</div>
           <div className="stat-label">Medium Severity</div>
-          <div className="stat-value">6</div>
-          <div className="stat-note">F5, F6, F7, F8, F9, F10</div>
+          <div className="stat-sub">{mediumIds}</div>
         </div>
-        <div className="summary-stat">
+        <div className="stat-card">
+          <div className="stat-value">{counts.Low}</div>
           <div className="stat-label">Low / Info</div>
-          <div className="stat-value">4</div>
-          <div className="stat-note">F11, F12, F13, F14</div>
+          <div className="stat-sub">{lowIds}</div>
         </div>
       </div>
 
-      <h2>Quorum-Verified Findings</h2>
+      <hr className="qr-divider" />
+
+      <h2 className="section-heading">Quorum-Verified Findings</h2>
 
       <p>
         Click on any finding below to expand the full analysis, minimal Lean 4
         reproducer, remediation options, and quorum recommendation.
       </p>
 
-      <div className="findings-toolbar">
-        <div className="findings-filter-group">
+      <div className="toolbar-row not-prose">
+        <div className="filter-group">
           <button
             type="button"
-            className={`toolbar-btn ${filterSeverity === "all" ? "active" : ""}`}
+            className={`filter-chip ${filterSeverity === "all" ? "is-active" : ""}`}
             onClick={() => setFilterSeverity("all")}
           >
             All ({counts.all})
           </button>
           <button
             type="button"
-            className={`toolbar-btn ${filterSeverity === "High" ? "active" : ""}`}
+            className={`filter-chip ${filterSeverity === "High" ? "is-active" : ""}`}
             onClick={() => setFilterSeverity("High")}
           >
             High ({counts.High})
           </button>
           <button
             type="button"
-            className={`toolbar-btn ${filterSeverity === "Medium" ? "active" : ""}`}
+            className={`filter-chip ${filterSeverity === "Medium" ? "is-active" : ""}`}
             onClick={() => setFilterSeverity("Medium")}
           >
             Medium ({counts.Medium})
           </button>
           <button
             type="button"
-            className={`toolbar-btn ${filterSeverity === "Low" ? "active" : ""}`}
+            className={`filter-chip ${filterSeverity === "Low" ? "is-active" : ""}`}
             onClick={() => setFilterSeverity("Low")}
           >
             Low ({counts.Low})
@@ -166,7 +184,7 @@ export default function ReportClient() {
 
         <button
           type="button"
-          className="toolbar-btn"
+          className="toggle-link"
           onClick={allExpanded ? collapseAll : expandAll}
         >
           {allExpanded ? "Collapse all" : "Expand all"}
@@ -180,8 +198,7 @@ export default function ReportClient() {
           return (
             <div
               key={finding.id}
-              className="finding-card"
-              data-open={isOpen ? "true" : "false"}
+              className={`finding-card ${isOpen ? "is-open" : ""}`}
             >
               <button
                 type="button"
@@ -190,54 +207,50 @@ export default function ReportClient() {
                 aria-expanded={isOpen}
               >
                 <span className="finding-id">{finding.id}</span>
-                <span className={`severity-badge severity-${sevLower}`}>
+                <span className={`sev-badge sev-${sevLower}`}>
                   {finding.severity}
                 </span>
-                <div className="finding-title-wrap">
-                  <p className="finding-title">{finding.title}</p>
-                  <div className="finding-subtitle">
-                    <span className="finding-file">{finding.component}</span>
-                  </div>
-                </div>
+                <span className="finding-title-wrap">
+                  <span className="finding-title">{finding.title}</span>
+                  <span className="finding-component">{finding.component}</span>
+                </span>
                 <span className="finding-chevron" aria-hidden="true">
-                  ›
+                  {isOpen ? "−" : "+"}
                 </span>
               </button>
 
               {isOpen && (
-                <div className="finding-details">
-                  <div className="detail-section">
-                    <div className="detail-heading">Context</div>
+                <div className="finding-body">
+                  <div className="finding-block">
+                    <div className="finding-block-label">Context</div>
                     <p>{finding.context}</p>
                   </div>
 
-                  <div className="detail-section">
-                    <div className="detail-heading">
+                  <div className="finding-block">
+                    <div className="finding-block-label">
                       What seems to be the issue
                     </div>
                     <p>{finding.issue}</p>
                     {finding.codeSnippet && (
-                      <pre>
+                      <pre className="code-snippet">
                         <code>{finding.codeSnippet}</code>
                       </pre>
                     )}
                   </div>
 
-                  <div className="detail-section">
-                    <div className="detail-heading">
+                  <div className="finding-block">
+                    <div className="finding-block-label">
                       Possible options to fix it
                     </div>
-                    <div className="options-list">
+                    <ul className="options-list">
                       {finding.options.map((opt) => (
-                        <div key={opt} className="option-item">
-                          <p>{opt}</p>
-                        </div>
+                        <li key={opt}>{opt}</li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
 
-                  <div className="detail-section">
-                    <div className="detail-heading">
+                  <div className="finding-block">
+                    <div className="finding-block-label">
                       Quorum Recommendation (Fable 5.1 · Astra · Argon)
                     </div>
                     <div className="recommendation-box">
@@ -251,41 +264,55 @@ export default function ReportClient() {
         })}
       </div>
 
-      <h2>Subsystem Proof Coverage Matrix</h2>
+      <hr className="qr-divider" />
+
+      <h2 className="section-heading">Subsystem Proof Coverage Matrix</h2>
 
       <p>
         Part of finding F10 is that different subsystems in EthLib currently sit
         at very different stages of formal verification. The table below
         summarizes the proof status of each module at commit{" "}
-        <code>57af539</code> and after our remediation pull request.
+        <code>57af539</code> and after our remediation pull request (
+        <a
+          href="https://github.com/ethereum/EthLib/pull/55"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          ethereum/EthLib#55
+        </a>
+        ).
       </p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Subsystem</th>
-            <th>Module</th>
-            <th>Status</th>
-            <th>Notes &amp; PR Additions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {PROOF_COVERAGE.map((row) => (
-            <tr key={row.subsystem}>
-              <td>
-                <strong>{row.subsystem}</strong>
-              </td>
-              <td>
-                <code>{row.module}</code>
-              </td>
-              <td>{row.status}</td>
-              <td>{row.notes}</td>
+      <div className="coverage-table-wrap not-prose">
+        <table className="coverage-table">
+          <thead>
+            <tr>
+              <th>Subsystem</th>
+              <th>Module</th>
+              <th>Status</th>
+              <th>Notes &amp; PR Additions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {PROOF_COVERAGE.map((row) => (
+              <tr key={row.subsystem}>
+                <td>
+                  <strong>{row.subsystem}</strong>
+                </td>
+                <td>
+                  <code>{row.module}</code>
+                </td>
+                <td>{row.status}</td>
+                <td>{row.notes}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <h2>Methodology &amp; Note</h2>
+      <hr className="qr-divider" />
+
+      <h2 className="section-heading">Methodology &amp; Note</h2>
 
       <p>
         We ran this review by combining Lean 4 type-checking and counterexample
