@@ -641,6 +641,20 @@ theorem verify_tampered_path :
   }
 )
 
+BLS_PROOFS.push({
+  id: 'P24', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingSignedG1.lean',
+  title: 'Signed executable pairing: additivity and scalar law in G1',
+  issue: 'The actual signed optimal-Ate implementation is now proved additive in its G1 argument when the G2 input is a generator multiple. The proof covers infinity, tangent, and inverse branches.',
+  codeLang: 'lean',
+  codeSnippet: `theorem pairing_add_g1_generator_mulNat {p t : G1}
+    (hp : G1.Valid p) (ht : G1.Valid t) (k : Nat) :
+    pairing (G1.add p t) (G2.mulNat G2.generator k) =
+      pairing p (G2.mulNat G2.generator k) *
+      pairing t (G2.mulNat G2.generator k)`,
+  options: ['The signed Miller evaluation is connected to the executable pairing, including its conjugation.', 'A second theorem derives the natural-scalar law in G1 and proves representation invariance.'],
+  recommendation: 'The full build and fresh transitive axiom checks passed. This establishes one argument on the stated domain. The G2 argument, general subgroup coverage, and nondegeneracy remain open.'
+})
+
 export const FINDINGS: Finding[] = [
   ...AUDIT_FINDINGS,
   ...COMPRESS_PROOFS,
