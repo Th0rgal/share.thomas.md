@@ -579,6 +579,12 @@ BLS_PROOFS.push(
   }
 )
 
+BLS_PROOFS.push(
+  { id: 'P18', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/FinalExponentiation.lean', title: 'Final exponentiation lands in the r-torsion target for nonzero Miller values', issue: 'The extension tower cardinalities and the exact final exponent are proved in the kernel.', codeLang: 'lean', codeSnippet: `theorem finalExponentiation_pow_modulus {f : Fp12} (hf : f ≠ 0) :
+  finalExponentiation f ^ Fr.modulus = 1`, options: ['Finite cardinalities of Fp2, Fp6, and Fp12 are derived from coordinate equivalences.', 'The divisibility of the scalar modulus is checked by kernel reduction.', 'The theorem requires a nonzero input and does not prove Miller non-vanishing or pairing bilinearity.'], recommendation: 'Checked with standard Lean axioms only. Full optimal-Ate bilinearity and non-degeneracy remain open.' },
+  { id: 'P19', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Kzg/Interpolation.lean', title: 'Successful coefficient interpolation reproduces samples at distinct nodes', issue: 'The executable interpolation loop is proved correct at every supplied node when inputs have equal length, nodes are pairwise distinct, and the function returns `.ok`.', codeLang: 'lean', codeSnippet: `theorem interpolatePolynomialcoeff_eval_at_of_distinct ...`, options: ['The proof follows the actual monadic multiplication and accumulation loops.', 'Distinctness is required because the implementation does not reject duplicate nodes.', 'The success hypothesis remains explicit because size-limit failures are part of the executable specification.'], recommendation: 'Checked with standard Lean axioms only. Unconditional KZG opening and recovery correctness remain open.' }
+)
+
 export const FINDINGS: Finding[] = [
   ...AUDIT_FINDINGS,
   ...COMPRESS_PROOFS,
