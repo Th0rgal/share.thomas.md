@@ -181,7 +181,7 @@ theorem pairing_zero_left (q : G2) : pairing G1.zero q = Fp12.one`,
       '`millerLoop_inf_left`, `millerLoop_inf_right`, `finalExponentiation_one`, `pairing_zero_left`, `pairing_zero_right`, and `pairingCheck_empty`.'
     ],
     recommendation:
-      'Boundary and identity laws are proved. P20 adds reduced Tate bilinearity; P21 proves executable Miller non-vanishing. P25 adds signed-Ate bilinearity and nondegeneracy on generator spans; arbitrary-subgroup coverage remains open.'
+      'Boundary and identity laws are proved. P20 adds reduced Tate bilinearity; P21 proves executable Miller non-vanishing. P25 adds signed-Ate bilinearity and nondegeneracy on generator spans; P28 extends these laws to arbitrary accepted subgroup inputs.'
   },
   {
     id: 'P9',
@@ -224,7 +224,7 @@ theorem simpleSwu_total (u : Fp2) :
       '`coreVerifyPoint_sound` and `coreVerify_sound`: `coreVerify pkBytes msg sigBytes = true` implies valid 48-byte pubkey, 96-byte subgroup-checked signature, successful `hashToG2`, and `pairingCheck = true`.'
     ],
     recommendation:
-      'These theorems expose validation and the pairing equation checked by the implementation. End-to-end signature and aggregate completeness remain open and require the missing pairing and hash-to-subgroup proofs.'
+      'These theorems expose validation and the pairing equation checked by the implementation. Pairing and hash-to-subgroup prerequisites are now available; end-to-end signature and aggregate completeness remain separate protocol statements.'
   }
 ]
 
@@ -333,7 +333,7 @@ theorem g1LincombPoints_size_mismatch (points : Array Bls.G1) (scalars : Array F
       '`Proofs/Kzg/CeremonyChecks.lean` (24/24) & `Proofs/Xmss/Blake2s.lean` (14/14): proves concrete `G1`/`G2` `CeremonyChecks` laws and kernel-checked (`decide +kernel`) `Blake2s` known-answer digests (`hash_empty`, `hash_abc`, `hash_one_full_block`, `hash_block_and_tail`).'
     ],
     recommendation:
-      'The integrated main PR now proves `ConcreteBlsLaws` and uses it internally. Ceremony consistency still requires `SubgroupExponents`; the standalone KZG PR retains the pairing-law parameter until the BLS dependency lands. KZG/cell completeness, trusted-setup consistency, and Reed-Solomon reconstruction remain open. The two Verify known-answer theorems are now kernel-checked (P23). KeyGen and Sign still retain native evaluation.'
+      'The integrated main PR now proves `ConcreteBlsLaws` and uses it internally. Ceremony consistency still requires `SubgroupExponents`; the standalone KZG PR retains the pairing-law parameter until the BLS dependency lands. P29 proves coefficient recovery. KZG/cell completeness and trusted-setup consistency remain open. The two Verify known-answer theorems are now kernel-checked (P23). KeyGen and Sign still retain native evaluation.'
   }
 ]
 
@@ -590,7 +590,7 @@ KZG_XMSS_PROOFS.push(
     (hdistinct : ∀ i j, i < xs.size → j < xs.size → i ≠ j → xs[i]! ≠ xs[j]!)
     (h : interpolatePolynomialcoeff xs ys = .ok out)
     {k : Nat} (hk : k < xs.size) :
-    evalPolyAt out xs[k]! = ys[k]!`, options: ['The proof follows the actual monadic multiplication and accumulation loops.', 'Distinctness is required because the implementation does not reject duplicate nodes.', 'The success hypothesis remains explicit because size-limit failures are part of the executable specification.'], recommendation: 'Checked with standard Lean axioms only. Unconditional KZG opening and recovery correctness remain open.' }
+    evalPolyAt out xs[k]! = ys[k]!`, options: ['The proof follows the actual monadic multiplication and accumulation loops.', 'Distinctness is required because the implementation does not reject duplicate nodes.', 'The success hypothesis remains explicit because size-limit failures are part of the executable specification.'], recommendation: 'Checked with standard Lean axioms only. P29 proves recovery under the valid-sample contract. KZG opening completeness remains separate.' }
 )
 
 BLS_PROOFS.push(
@@ -611,7 +611,7 @@ BLS_PROOFS.push(
 theorem pairing_pow_modulus {p : G1} {q : G2}
     (hp : G1.Valid p) (hq : G2.Valid q) : pairing p q ^ Fr.modulus = 1`,
     options: ['The proof connects the actual bit recurrence to formal line functions and their numerator/denominator.', 'Concrete curve equations establish separation of evaluation points from all Miller factors.', 'Nonzero output does not establish pairing non-degeneracy: the constant-one map is also nonzero.'],
-    recommendation: 'Fresh build and transitive axiom checks passed. Non-degeneracy still requires a nontrivial pairing value and the relevant scalar laws.'
+    recommendation: 'Fresh build and transitive axiom checks passed. P25 supplies the nontrivial generator certificate; P28 establishes nondegeneracy on arbitrary accepted subgroups.'
   },
   {
     id: 'P22', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingPsi.lean, CofactorGenerator.lean, CofactorEndomorphism.lean',
@@ -652,7 +652,7 @@ BLS_PROOFS.push({
       pairing p (G2.mulNat G2.generator k) *
       pairing t (G2.mulNat G2.generator k)`,
   options: ['The signed Miller evaluation is connected to the executable pairing, including its conjugation.', 'A second theorem derives the natural-scalar law in G1 and proves representation invariance.'],
-  recommendation: 'The full build and fresh transitive axiom checks passed. This establishes one argument on the stated domain. P25 now adds the G2 scalar law and generator-span nondegeneracy. General subgroup coverage remains open.'
+  recommendation: 'The full build and fresh transitive axiom checks passed. This establishes one argument on the stated domain. P25 now adds the G2 scalar law and generator-span nondegeneracy. P28 now establishes arbitrary accepted-subgroup coverage.'
 })
 
 BLS_PROOFS.push({
@@ -676,7 +676,7 @@ KZG_XMSS_PROOFS.push({
   title: 'Recovery: exact coset FFT inversion and nonzero denominators',
   issue: 'Coset FFT round trips are proved for the actual 8192-point domain. FFT entries are connected to polynomial evaluations, and every denominator entry in the recovery shifted coset is proved nonzero.',
   options: ['Interpolation success and sample correctness hold under explicit capacity and distinct-node conditions.', 'The constructed vanishing polynomial has no roots on the shifted recovery domain.', 'The executable coefficient arrays are connected to mathematical polynomials and degree bounds.'],
-  recommendation: 'These checked bridges support reconstruction. The complete valid-input numerator/product identity, final recovery correctness, KZG/cell completeness, and setup consistency are still being proved.'
+  recommendation: 'These checked bridges support reconstruction. P29 completes the valid-input coefficient-recovery proof. KZG/cell completeness and setup consistency remain in progress.'
 })
 
 BLS_PROOFS.push({
@@ -692,6 +692,35 @@ theorem G2.exists_mul_generator_of_inSubgroup {P : G2}
     ∃ a : Fr, G2.toPoint P = G2.toPoint (G2.mul G2.generator a)`,
   options: ['Kernel certificates establish prime-order torsion points and independent 13- and 23-torsion components.', 'An elementary bound of two affine points per x-coordinate forces the cofactor-kernel subgroup to be the entire finite curve group.', 'No assumed curve order, subgroup premise on the cofactor input, or native evaluation is used.'],
   recommendation: 'Independent integrated build and endpoint axiom checks pass with standard Lean axioms only. Equality for subgroup spanning is curve-group equality, not raw projective-coordinate equality.'
+})
+
+BLS_PROOFS.push({
+  id: 'P28', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingSubgroup.lean, PairingSubgroupNondegenerate.lean',
+  title: 'Signed-Ate bilinearity and nondegeneracy on arbitrary accepted subgroups',
+  issue: 'The actual signed executable pairing now has addition and natural-scalar laws for arbitrary valid G2 inputs accepted by the subgroup check. Nondegeneracy holds for arbitrary valid accepted G1 and G2 representatives.',
+  codeLang: 'lean',
+  codeSnippet: `theorem pairing_eq_one_iff_of_inSubgroup {p : G1} {q : G2}
+    (hp : G1.Valid p) (hq : G2.Valid q)
+    (hps : G1.inSubgroup p = true) (hqs : G2.inSubgroup q = true) :
+    pairing p q = 1 ↔ p.isInfinity = true ∨ q.isInfinity = true`,
+  options: ['Both accepted subgroups are proved to be their generator spans using independent cardinality arguments.', 'Projective representations are transported by curve-group equality and proven executable pairing invariance.', 'Neither subgroup spanning nor the desired pairing law is assumed.'],
+  recommendation: 'Fresh integrated build and endpoint audits pass. Axioms are only propext, Classical.choice, and Quot.sound.'
+})
+
+KZG_XMSS_PROOFS.push({
+  id: 'P29', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Kzg/RecoveryReconstruction.lean',
+  title: 'Exact executable coefficient recovery from any valid half of the cells',
+  issue: 'For a 4096-coefficient polynomial, at least 64 distinct in-range cell indices and matching samples, the actual recoverPolynomialcoeff function returns exactly the original coefficient array.',
+  codeLang: 'lean',
+  codeSnippet: `theorem recoverPolynomialcoeff_samples_correct
+    (p : PolynomialCoeff) (indices : Array CellIndex)
+    (hp : p.size = FIELD_ELEMENTS_PER_BLOB)
+    (hnd : indices.toList.Nodup)
+    (hbound : ∀ ci ∈ indices.toList, ci < CELLS_PER_EXT_BLOB)
+    (hhalf : CELLS_PER_EXT_BLOB / 2 ≤ indices.size) :
+    recoverPolynomialcoeff indices (polynomialRecoverySamples p indices) = .ok p`,
+  options: ['The proof follows the executable flattening, bit reversal, FFT, shifted quotient, inverse FFT, and truncation.', 'Product-degree, erased-root, and nonzero-denominator obligations are proved.', 'A second theorem accepts arbitrary cell arrays satisfying the explicit sample-matching relation.'],
+  recommendation: 'Integrated warnings-as-errors build passes. Endpoint axioms are standard only. This proves coefficient recovery; KZG proof generation/verification and fixed-setup consistency remain separate obligations.'
 })
 
 export const FINDINGS: Finding[] = [
