@@ -306,7 +306,7 @@ theorem vanishingPolynomialcoeff_eval_root {zs : Array Fr} {v : PolynomialCoeff}
     evalPolyAt v z = Fr.zero`,
     options: [
       'Evaluation homomorphisms: `evalPolyAt_addPoly` and `evalPolyAt_mulPoly`.',
-      'Division rejection and short-dividend lemmas match the implementation. The quotient/remainder evaluation identity and coefficient cutoff are proved in P16; coefficient interpolation remains open.',
+      'Division rejection and short-dividend lemmas match the implementation. The quotient/remainder evaluation identity and coefficient cutoff are proved in P16; successful coefficient interpolation at distinct nodes is proved in P19.',
       '`vanishingPolynomialcoeff_eval_root` and `vanishingPolynomialcoeff_size`: proves that the vanishing polynomial has degree `zs.size` and vanishes at every $z \\in \\text{zs}$.'
     ],
     recommendation:
@@ -557,7 +557,7 @@ KZG_XMSS_PROOFS.push(
       '`dividePolynomialcoeff_inner_eval` identifies one subtraction pass with `quot * X^shift * b(X)`.',
       '`dividePolynomialcoeff_inner_leading_zero` proves the selected top coefficient is cancelled when the divisor lead is nonzero.'
     ],
-    recommendation: '`dividePolynomialcoeff_quotient_remainder_spec` proves the evaluation identity for every field point and zero remainder coefficients at indices at least divisor size minus one. It requires a nonempty divisor with nonzero leading coefficient. Interpolation and end-to-end KZG correctness remain open.'
+    recommendation: '`dividePolynomialcoeff_quotient_remainder_spec` proves the evaluation identity for every field point and zero remainder coefficients at indices at least divisor size minus one. It requires a nonempty divisor with nonzero leading coefficient. Interpolation at distinct nodes on successful return is proved in P19. End-to-end KZG correctness remains open.'
   }
 
 )
@@ -581,7 +581,10 @@ BLS_PROOFS.push(
 
 BLS_PROOFS.push(
   { id: 'P18', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/FinalExponentiation.lean', title: 'Final exponentiation lands in the r-torsion target for nonzero Miller values', issue: 'The extension tower cardinalities and the exact final exponent are proved in the kernel.', codeLang: 'lean', codeSnippet: `theorem finalExponentiation_pow_modulus {f : Fp12} (hf : f ≠ 0) :
-  finalExponentiation f ^ Fr.modulus = 1`, options: ['Finite cardinalities of Fp2, Fp6, and Fp12 are derived from coordinate equivalences.', 'The divisibility of the scalar modulus is checked by kernel reduction.', 'The theorem requires a nonzero input and does not prove Miller non-vanishing or pairing bilinearity.'], recommendation: 'Checked with standard Lean axioms only. Full optimal-Ate bilinearity and non-degeneracy remain open.' },
+  finalExponentiation f ^ Fr.modulus = 1`, options: ['Finite cardinalities of Fp2, Fp6, and Fp12 are derived from coordinate equivalences.', 'The divisibility of the scalar modulus is checked by kernel reduction.', 'The theorem requires a nonzero input and does not prove Miller non-vanishing or pairing bilinearity.'], recommendation: 'Checked with standard Lean axioms only. Full optimal-Ate bilinearity and non-degeneracy remain open.' }
+)
+
+KZG_XMSS_PROOFS.push(
   { id: 'P19', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Kzg/Interpolation.lean', title: 'Successful coefficient interpolation reproduces samples at distinct nodes', issue: 'The executable interpolation loop is proved correct at every supplied node when inputs have equal length, nodes are pairwise distinct, and the function returns `.ok`.', codeLang: 'lean', codeSnippet: `theorem interpolatePolynomialcoeff_eval_at_of_distinct ...`, options: ['The proof follows the actual monadic multiplication and accumulation loops.', 'Distinctness is required because the implementation does not reject duplicate nodes.', 'The success hypothesis remains explicit because size-limit failures are part of the executable specification.'], recommendation: 'Checked with standard Lean axioms only. Unconditional KZG opening and recovery correctness remain open.' }
 )
 
