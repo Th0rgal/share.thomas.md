@@ -306,7 +306,7 @@ theorem vanishingPolynomialcoeff_eval_root {zs : Array Fr} {v : PolynomialCoeff}
     evalPolyAt v z = Fr.zero`,
     options: [
       'Evaluation homomorphisms: `evalPolyAt_addPoly` and `evalPolyAt_mulPoly`.',
-      'Division rejection and short-dividend lemmas match the implementation. The quotient/remainder identity and coefficient interpolation correctness remain unproved.',
+      'Division rejection and short-dividend lemmas match the implementation. The quotient/remainder evaluation identity and coefficient cutoff are proved in P16; coefficient interpolation remains open.',
       '`vanishingPolynomialcoeff_eval_root` and `vanishingPolynomialcoeff_size`: proves that the vanishing polynomial has degree `zs.size` and vanishes at every $z \\in \\text{zs}$.'
     ],
     recommendation:
@@ -546,8 +546,8 @@ subprocess.check_call(["lake", "build", "EthLib"], cwd=REPO_ROOT)`,
 KZG_XMSS_PROOFS.push(
   {
     id: 'P16', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Kzg/Division.lean',
-    title: 'Evaluation invariant for the actual polynomial-division subtraction loop',
-    issue: 'The coefficient-update loop used by `dividePolynomialcoeff` now has a direct evaluation invariant and a leading-coefficient cancellation lemma.',
+    title: 'Polynomial division quotient/remainder identity and degree cutoff',
+    issue: 'The actual division loop now has a quotient/remainder evaluation identity and a coefficient cutoff for the remainder, including the short-dividend case.',
     codeLang: 'lean',
     codeSnippet: `theorem dividePolynomialcoeff_inner_eval (a b : PolynomialCoeff) (x quot : Fr)
     (shift : Nat) (hfit : shift + b.size ≤ a.size) :
@@ -557,7 +557,7 @@ KZG_XMSS_PROOFS.push(
       '`dividePolynomialcoeff_inner_eval` identifies one subtraction pass with `quot * X^shift * b(X)`.',
       '`dividePolynomialcoeff_inner_leading_zero` proves the selected top coefficient is cancelled when the divisor lead is nonzero.'
     ],
-    recommendation: 'This is a checked inner-loop invariant. The outer quotient/remainder identity and interpolation correctness remain open.'
+    recommendation: '`dividePolynomialcoeff_quotient_remainder_spec` proves the evaluation identity for every field point and zero remainder coefficients at indices at least divisor size minus one. It requires a nonempty divisor with nonzero leading coefficient. Interpolation and end-to-end KZG correctness remain open.'
   }
 
 )
