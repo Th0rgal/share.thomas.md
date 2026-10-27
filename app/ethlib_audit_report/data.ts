@@ -333,7 +333,7 @@ theorem g1LincombPoints_size_mismatch (points : Array Bls.G1) (scalars : Array F
       '`Proofs/Kzg/CeremonyChecks.lean` (24/24) & `Proofs/Xmss/Blake2s.lean` (14/14): proves concrete `G1`/`G2` `CeremonyChecks` laws and kernel-checked (`decide +kernel`) `Blake2s` known-answer digests (`hash_empty`, `hash_abc`, `hash_one_full_block`, `hash_block_and_tail`).'
     ],
     recommendation:
-      'The integrated main PR now proves `ConcreteBlsLaws` and uses it internally. Ceremony consistency still requires `SubgroupExponents`; the standalone KZG PR retains the pairing-law parameter until the BLS dependency lands. P29 proves coefficient recovery. KZG/cell completeness and trusted-setup consistency remain open. The two Verify known-answer theorems are now kernel-checked (P23). KeyGen and Sign still retain native evaluation.'
+      'The integrated main PR now proves `ConcreteBlsLaws` and uses it internally. Ceremony consistency still requires `SubgroupExponents`; the standalone KZG PR retains the pairing-law parameter until the BLS dependency lands. P29 proves coefficient recovery. P30 proves monomial opening completeness from explicit finite setup checks, generator-span witnesses, and the setup read relation, but those checks are not yet discharged for the embedded setup and the cell verifier pipeline is not yet connected. The two Verify known-answer theorems are kernel-checked (P23); KeyGen and Sign still retain native evaluation.'
   }
 ]
 
@@ -721,6 +721,26 @@ KZG_XMSS_PROOFS.push({
     recoverPolynomialcoeff indices (polynomialRecoverySamples p indices) = .ok p`,
   options: ['The proof follows the executable flattening, bit reversal, FFT, shifted quotient, inverse FFT, and truncation.', 'Product-degree, erased-root, and nonzero-denominator obligations are proved.', 'A second theorem accepts arbitrary cell arrays satisfying the explicit sample-matching relation.'],
   recommendation: 'Integrated warnings-as-errors build passes. Endpoint axioms are standard only. This proves coefficient recovery; KZG proof generation/verification and fixed-setup consistency remain separate obligations.'
+})
+
+KZG_XMSS_PROOFS.push({
+  id: 'P30', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Kzg/OpeningFromChecks.lean, SetupRelations.lean, CellSetupPairing.lean',
+  title: 'KZG opening completeness from explicit setup certificates',
+  issue: 'The executable KZG opening verifier is proved complete for polynomial openings when finite monomial pairing checks, generator-span witnesses, setup dimensions, and the setup read relation are supplied.',
+  codeLang: 'lean',
+  codeSnippet: `theorem verifyKzgProofImpl_complete_of_monomialChecks
+    (setup : TrustedSetup) (a b : Nat → Fr) (z : Fr)
+    (hchecks : monomialChecks setup = true) (hspans : SetupSpans setup a b)
+    (hread : TrustedSetup.get! = pure setup)
+    (p : _root_.Polynomial Fr) (n m : Nat)
+    (hp : p.natDegree < n) (hq : (openingQuotient p z).natDegree < m)
+    (hn : n ≤ setup.g1Monomial.size) (hm : m ≤ setup.g1Monomial.size) :
+    verifyKzgProofImpl
+      (coefficientCommitment setup (polynomialCoefficients n p)) z (p.eval z)
+      (coefficientCommitment setup (polynomialCoefficients m (openingQuotient p z))) =
+      pure true`,
+  options: ['The checks are executable and independent of the polynomial opening target.', 'Astra review found no circularity or nonstandard axioms.', 'The embedded TrustedSetup data, IO read relation, and full cell-verifier pipeline still need concrete certificates.'],
+  recommendation: 'Verified in the 3,650-job build with only propext, Classical.choice, and Quot.sound. This is a conditional completeness theorem, not yet a proof that the bundled setup satisfies every certificate.'
 })
 
 export const FINDINGS: Finding[] = [
