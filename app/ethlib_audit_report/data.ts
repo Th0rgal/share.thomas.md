@@ -588,6 +588,10 @@ KZG_XMSS_PROOFS.push(
   { id: 'P19', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Kzg/Interpolation.lean', title: 'Successful coefficient interpolation reproduces samples at distinct nodes', issue: 'The executable interpolation loop is proved correct at every supplied node when inputs have equal length, nodes are pairwise distinct, and the function returns `.ok`.', codeLang: 'lean', codeSnippet: `theorem interpolatePolynomialcoeff_eval_at_of_distinct ...`, options: ['The proof follows the actual monadic multiplication and accumulation loops.', 'Distinctness is required because the implementation does not reject duplicate nodes.', 'The success hypothesis remains explicit because size-limit failures are part of the executable specification.'], recommendation: 'Checked with standard Lean axioms only. Unconditional KZG opening and recovery correctness remain open.' }
 )
 
+BLS_PROOFS.push(
+  { id: 'P20', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingTateBilinearity.lean', title: 'Prove scalar bilinearity of the concrete reduced Tate pairing', issue: 'The actual r-step Miller/Tate implementation is proved additive in both source arguments, including projective representatives, infinity cases, and subgroup validity.', codeLang: 'lean', codeSnippet: `theorem reducedTatePairing_mulNat_both ...`, options: ['The proof follows the actual Miller and chord/vertical recurrences.', 'All support and nonzero hypotheses are discharged from concrete curve facts.', 'The theorem is for reduced Tate pairing and does not identify it with the signed optimal-Ate executable pairing.'], recommendation: 'Checked in the kernel with standard axioms only. The signed Ate comparison, pairing non-degeneracy, and ConcreteBlsLaws pairing equivalence remain open.' }
+)
+
 export const FINDINGS: Finding[] = [
   ...AUDIT_FINDINGS,
   ...COMPRESS_PROOFS,
