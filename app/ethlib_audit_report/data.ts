@@ -181,7 +181,7 @@ theorem pairing_zero_left (q : G2) : pairing G1.zero q = Fp12.one`,
       '`millerLoop_inf_left`, `millerLoop_inf_right`, `finalExponentiation_one`, `pairing_zero_left`, `pairing_zero_right`, and `pairingCheck_empty`.'
     ],
     recommendation:
-      'Boundary and identity laws are proved. Full pairing bilinearity and non-degeneracy remain open; these lemmas do not establish them.'
+      'Boundary and identity laws are proved. P20 adds reduced Tate bilinearity; P21 proves executable Miller non-vanishing. Full signed-Ate bilinearity and non-degeneracy remain open.'
   },
   {
     id: 'P9',
@@ -333,7 +333,7 @@ theorem g1LincombPoints_size_mismatch (points : Array Bls.G1) (scalars : Array F
       '`Proofs/Kzg/CeremonyChecks.lean` (24/24) & `Proofs/Xmss/Blake2s.lean` (14/14): proves concrete `G1`/`G2` `CeremonyChecks` laws and kernel-checked (`decide +kernel`) `Blake2s` known-answer digests (`hash_empty`, `hash_abc`, `hash_one_full_block`, `hash_block_and_tail`).'
     ],
     recommendation:
-      'Validation lemmas compile, but ceremony consistency still assumes `ConcreteBlsLaws.pairingEq_mul_iff` and `SubgroupExponents`. KZG/cell completeness, trusted-setup consistency, and Reed-Solomon reconstruction remain open. Four XMSS known-answer theorems in KeyGen, Sign, and Verify still use `native_decide`.'
+      'Validation lemmas compile, but ceremony consistency still assumes `ConcreteBlsLaws.pairingEq_mul_iff` and `SubgroupExponents`. KZG/cell completeness, trusted-setup consistency, and Reed-Solomon reconstruction remain open. The two Verify known-answer theorems are now kernel-checked (P23). KeyGen and Sign still retain native evaluation.'
   }
 ]
 
@@ -575,7 +575,7 @@ BLS_PROOFS.push(
       '`clearCofactor_valid` proves the executable cofactor expression remains on the twist.',
       'The theorem deliberately does not assert r-torsion, RFC conformance, or subgroup security.'
     ],
-    recommendation: 'Checked with standard Lean axioms only. Prove the cofactor scalar identity and r-torsion next.'
+    recommendation: 'Checked with standard Lean axioms only. P22 adds the exact action on generator multiples and preservation of existing r-torsion; arbitrary-point subgroup correctness remains open.'
   }
 )
 
@@ -585,11 +585,60 @@ BLS_PROOFS.push(
 )
 
 KZG_XMSS_PROOFS.push(
-  { id: 'P19', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Kzg/Interpolation.lean', title: 'Successful coefficient interpolation reproduces samples at distinct nodes', issue: 'The executable interpolation loop is proved correct at every supplied node when inputs have equal length, nodes are pairwise distinct, and the function returns `.ok`.', codeLang: 'lean', codeSnippet: `theorem interpolatePolynomialcoeff_eval_at_of_distinct ...`, options: ['The proof follows the actual monadic multiplication and accumulation loops.', 'Distinctness is required because the implementation does not reject duplicate nodes.', 'The success hypothesis remains explicit because size-limit failures are part of the executable specification.'], recommendation: 'Checked with standard Lean axioms only. Unconditional KZG opening and recovery correctness remain open.' }
+  { id: 'P19', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Kzg/Interpolation.lean', title: 'Successful coefficient interpolation reproduces samples at distinct nodes', issue: 'The executable interpolation loop is proved correct at every supplied node when inputs have equal length, nodes are pairwise distinct, and the function returns `.ok`.', codeLang: 'lean', codeSnippet: `theorem interpolatePolynomialcoeff_eval_at_of_distinct
+    {xs ys out : Array Fr} (hsz : xs.size = ys.size)
+    (hdistinct : ∀ i j, i < xs.size → j < xs.size → i ≠ j → xs[i]! ≠ xs[j]!)
+    (h : interpolatePolynomialcoeff xs ys = .ok out)
+    {k : Nat} (hk : k < xs.size) :
+    evalPolyAt out xs[k]! = ys[k]!`, options: ['The proof follows the actual monadic multiplication and accumulation loops.', 'Distinctness is required because the implementation does not reject duplicate nodes.', 'The success hypothesis remains explicit because size-limit failures are part of the executable specification.'], recommendation: 'Checked with standard Lean axioms only. Unconditional KZG opening and recovery correctness remain open.' }
 )
 
 BLS_PROOFS.push(
-  { id: 'P20', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingTateBilinearity.lean', title: 'Prove scalar bilinearity of the concrete reduced Tate pairing', issue: 'The actual r-step Miller/Tate implementation is proved additive in both source arguments, including projective representatives, infinity cases, and subgroup validity.', codeLang: 'lean', codeSnippet: `theorem reducedTatePairing_mulNat_both ...`, options: ['The proof follows the actual Miller and chord/vertical recurrences.', 'All support and nonzero hypotheses are discharged from concrete curve facts.', 'The theorem is for reduced Tate pairing and does not identify it with the signed optimal-Ate executable pairing.'], recommendation: 'Checked in the kernel with standard axioms only. The signed Ate comparison, pairing non-degeneracy, and ConcreteBlsLaws pairing equivalence remain open.' }
+  { id: 'P20', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingTateBilinearity.lean', title: 'Prove scalar bilinearity of the concrete reduced Tate pairing', issue: 'The actual r-step Miller/Tate implementation is proved additive in both source arguments, including projective representatives, infinity cases, and subgroup validity.', codeLang: 'lean', codeSnippet: `theorem reducedTatePairing_mulNat_both {p : G1} {q : G2}
+    (hp : G1.Valid p) (hq : G2.Valid q) (hs : G2.inSubgroup q = true) (m n : Nat) :
+    reducedTatePairing (G1.mulNat p m) (G2.mulNat q n) = reducedTatePairing p q ^ (m * n)`, options: ['The proof follows the actual Miller and chord/vertical recurrences.', 'All support and nonzero hypotheses are discharged from concrete curve facts.', 'The theorem is for reduced Tate pairing and does not identify it with the signed optimal-Ate executable pairing.'], recommendation: 'Checked in the kernel with standard axioms only. The signed Ate comparison, pairing non-degeneracy, and ConcreteBlsLaws pairing equivalence remain open.' }
+)
+
+BLS_PROOFS.push(
+  {
+    id: 'P21', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingSupport.lean, PairingDenominator.lean',
+    title: 'The executable pairing is nonzero and lands in the target group',
+    issue: 'Curve validity now suffices to prove that every emitted Miller factor and the final pairing value are nonzero. The denominator omitted by the executable loop is killed by final exponentiation.',
+    codeLang: 'lean',
+    codeSnippet: `theorem pairing_ne_zero {p : G1} {q : G2}
+    (hp : G1.Valid p) (hq : G2.Valid q) : pairing p q ≠ 0
+
+theorem pairing_pow_modulus {p : G1} {q : G2}
+    (hp : G1.Valid p) (hq : G2.Valid q) : pairing p q ^ Fr.modulus = 1`,
+    options: ['The proof connects the actual bit recurrence to formal line functions and their numerator/denominator.', 'Concrete curve equations establish separation of evaluation points from all Miller factors.', 'Nonzero output does not establish pairing non-degeneracy: the constant-one map is also nonzero.'],
+    recommendation: 'Fresh build and transitive axiom checks passed. Non-degeneracy still requires a nontrivial pairing value and the relevant scalar laws.'
+  },
+  {
+    id: 'P22', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingPsi.lean, CofactorGenerator.lean',
+    title: 'Frobenius additivity and exact cofactor action on the generator subgroup',
+    issue: 'The concrete psi map is proved additive through the injective untwist. Cofactor clearing preserves existing r-torsion and acts by the derived scalar on generator multiples.',
+    options: ['The executable psi and scalar multiplication commute on valid points.', 'On generator multiples the cofactor scalar is 4*x*x + 2*x - 1, where x is the positive BLS parameter magnitude.', 'Cofactor clearing the generator is proved non-infinite.'],
+    recommendation: 'These results do not establish that every valid input lands in the subgroup. The general Frobenius annihilation argument remains open.'
+  }
+)
+
+KZG_XMSS_PROOFS.push(
+  {
+    id: 'P23', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Xmss/Verify.lean',
+    title: 'Kernel-check the unchanged XMSS acceptance and tamper tests',
+    issue: 'The two verification known-answer proofs now use smaller kernel certificates for encoding, 42 chain endpoints, the leaf hash, and 32 Merkle levels. Their statements and every fixture byte are unchanged.',
+    codeLang: 'lean',
+    codeSnippet: `theorem verify_known_answer :
+    verify examplePublicKey exampleMessage exampleSignature 7 = true
+
+theorem verify_tampered_path :
+    verify examplePublicKey exampleMessage
+      { exampleSignature with
+        merklePath := exampleSignature.merklePath.set 31 (Vector.replicate 16 0) }
+      7 = false`,
+    options: ['General helper lemmas connect list-backed hashing to the original ByteArray operations.', 'The tampered proof reuses the unchanged first 31 levels and checks the modified final step.', 'Gemini produced the certificates; Astra independently verified unchanged fixtures, theorem statements, and dependencies.'],
+    recommendation: 'The main warnings-as-errors build passed, and fresh transitive axiom checks use only standard Lean axioms. The KeyGen and Sign native-dependent known-answer proofs remain open.'
+  }
 )
 
 export const FINDINGS: Finding[] = [
