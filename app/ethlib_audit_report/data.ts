@@ -200,7 +200,7 @@ theorem simpleSwu_total (u : Fp2) :
       '`Proofs/Bls/HashToCurve.lean`: proves `expandMessageXmd` RFC 9380 guards, `isSquare_iff`, `isSquareFp2_iff`, `sq_or_neg_sq`, `sqrt_of_norm_sq`, `swuG_x2_eq`, `simpleSwu_curve_eq`, `simpleSwu_total`, and `psi`/`psi2`/`clearCofactor` identity laws.'
     ],
     recommendation:
-      'SHA-256 size/serialization lemmas and known-answer tests, plus SSWU totality and curve membership, are proved. Isogeny curve preservation is now proved below. General cofactor-clearing subgroup membership remains open. Known-answer tests are not a full SHA-256 specification-equivalence proof.'
+      'SHA-256 size/serialization lemmas and known-answer tests, plus SSWU totality and curve membership, are proved. Isogeny curve preservation is now proved below. P27 now proves general cofactor-clearing subgroup membership. Known-answer tests are not a full SHA-256 specification-equivalence proof.'
   },
   {
     id: 'P10',
@@ -266,7 +266,7 @@ theorem inSubgroup_iff_modulus_smul_eq_zero {p : G2} (hp : Valid p) :
       'The common pole would require a square root of 4 + 4i; its norm is 32, which is not a square in the base field.',
       'Successful SSWU followed by the isogeny yields a valid G2 representative.'
     ],
-    recommendation: 'Kernel-checked with only standard Lean axioms. General cofactor-clearing subgroup membership and end-to-end hash-to-G2 correctness remain open.'
+    recommendation: 'Kernel-checked with only standard Lean axioms. P27 proves general cofactor-clearing subgroup membership. Full hash specification equivalence remains a separate claim.'
   }
 )
 
@@ -575,7 +575,7 @@ BLS_PROOFS.push(
       '`clearCofactor_valid` proves the executable cofactor expression remains on the twist.',
       'The theorem deliberately does not assert r-torsion, RFC conformance, or subgroup security.'
     ],
-    recommendation: 'Checked with standard Lean axioms only. P22 adds the exact action on generator multiples and preservation of existing r-torsion; arbitrary-point subgroup correctness remains open.'
+    recommendation: 'Checked with standard Lean axioms only. P22 adds the exact action on generator multiples and preservation of existing r-torsion; P27 proves arbitrary-point subgroup landing.'
   }
 )
 
@@ -618,7 +618,7 @@ theorem pairing_pow_modulus {p : G1} {q : G2}
     title: 'Cofactor additivity on valid points and exact generator-subgroup action',
     issue: 'The executable cofactor map equals an additive endomorphism on every valid twist point, so it respects addition and natural scalar multiplication. It also preserves existing r-torsion and has a derived action on generator multiples.',
     options: ['The executable psi and scalar multiplication commute on valid points.', 'On generator multiples the cofactor scalar is 4*x*x + 2*x - 1, where x is the positive BLS parameter magnitude.', 'Cofactor clearing the generator is proved non-infinite.'],
-    recommendation: 'These results do not establish that every valid input lands in the subgroup. The general Frobenius annihilation argument remains open.'
+    recommendation: 'P27 now proves that every valid input lands in the subgroup, using certified torsion points and a finite-group cardinality argument.'
   }
 )
 
@@ -668,7 +668,7 @@ theorem pairing_mul_generators_eq_one_iff (a b : Fr) :
     pairing (G1.mul G1.generator a) (G2.mul G2.generator b) = 1 ↔
       a = 0 ∨ b = 0`,
   options: ['The certificate checks every Miller and final-exponent step in the Lean kernel; generated literals are not trusted.', 'The actual two-entry pairing checker is equivalent to equality of scalar products.', 'The integrated ceremony theorem now supplies its ConcreteBlsLaws witness internally.'],
-  recommendation: 'Full integrated build: 3,609 jobs. Fresh endpoint axiom checks use only standard Lean axioms. Arbitrary subgroup spanning and ceremony SubgroupExponents witnesses remain separate obligations.'
+  recommendation: 'Full integrated build: 3,609 jobs. Fresh endpoint axiom checks use only standard Lean axioms. P27 now proves G2 subgroup spanning. The pairing API extension and ceremony exponent-witness changes remain separate steps.'
 })
 
 KZG_XMSS_PROOFS.push({
@@ -677,6 +677,21 @@ KZG_XMSS_PROOFS.push({
   issue: 'Coset FFT round trips are proved for the actual 8192-point domain. FFT entries are connected to polynomial evaluations, and every denominator entry in the recovery shifted coset is proved nonzero.',
   options: ['Interpolation success and sample correctness hold under explicit capacity and distinct-node conditions.', 'The constructed vanishing polynomial has no roots on the shifted recovery domain.', 'The executable coefficient arrays are connected to mathematical polynomials and degree bounds.'],
   recommendation: 'These checked bridges support reconstruction. The complete valid-input numerator/product identity, final recovery correctness, KZG/cell completeness, and setup consistency are still being proved.'
+})
+
+BLS_PROOFS.push({
+  id: 'P27', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/CofactorSubgroupLanding.lean, G2SubgroupSpan.lean',
+  title: 'Cofactor clearing lands in the subgroup for every valid point',
+  issue: 'The exact executable cofactor function now has an unconditional subgroup-landing theorem on valid curve representatives. Every accepted G2 subgroup point is also proved equal in the curve group to a generator multiple.',
+  codeLang: 'lean',
+  codeSnippet: `theorem clearCofactor_inSubgroup {P : G2} (hP : G2.Valid P) :
+    G2.inSubgroup (clearCofactor P) = true
+
+theorem G2.exists_mul_generator_of_inSubgroup {P : G2}
+    (hP : G2.Valid P) (hsub : G2.inSubgroup P = true) :
+    ∃ a : Fr, G2.toPoint P = G2.toPoint (G2.mul G2.generator a)`,
+  options: ['Kernel certificates establish prime-order torsion points and independent 13- and 23-torsion components.', 'An elementary bound of two affine points per x-coordinate forces the cofactor-kernel subgroup to be the entire finite curve group.', 'No assumed curve order, subgroup premise on the cofactor input, or native evaluation is used.'],
+  recommendation: 'Independent integrated build and endpoint axiom checks pass with standard Lean axioms only. Equality for subgroup spanning is curve-group equality, not raw projective-coordinate equality.'
 })
 
 export const FINDINGS: Finding[] = [
