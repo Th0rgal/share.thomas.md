@@ -614,9 +614,9 @@ theorem pairing_pow_modulus {p : G1} {q : G2}
     recommendation: 'Fresh build and transitive axiom checks passed. Non-degeneracy still requires a nontrivial pairing value and the relevant scalar laws.'
   },
   {
-    id: 'P22', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingPsi.lean, CofactorGenerator.lean',
-    title: 'Frobenius additivity and exact cofactor action on the generator subgroup',
-    issue: 'The concrete psi map is proved additive through the injective untwist. Cofactor clearing preserves existing r-torsion and acts by the derived scalar on generator multiples.',
+    id: 'P22', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingPsi.lean, CofactorGenerator.lean, CofactorEndomorphism.lean',
+    title: 'Cofactor additivity on valid points and exact generator-subgroup action',
+    issue: 'The executable cofactor map equals an additive endomorphism on every valid twist point, so it respects addition and natural scalar multiplication. It also preserves existing r-torsion and has a derived action on generator multiples.',
     options: ['The executable psi and scalar multiplication commute on valid points.', 'On generator multiples the cofactor scalar is 4*x*x + 2*x - 1, where x is the positive BLS parameter magnitude.', 'Cofactor clearing the generator is proved non-infinite.'],
     recommendation: 'These results do not establish that every valid input lands in the subgroup. The general Frobenius annihilation argument remains open.'
   }
