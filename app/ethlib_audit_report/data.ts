@@ -159,7 +159,7 @@ theorem compress_uncompress {b : ByteArray} {q : G2}
       'Full 96-byte serialization round-trips: `fp2FromBytes_fp2ToBytes`, `fp2ToBytes_fp2FromBytes`, `uncompress_valid`, `uncompress_compress`, and `compress_uncompress`.'
     ],
     recommendation:
-      '96/96 tight specifications proved in `Proofs/Bls/G2.lean` with 0 `sorryAx`, 0 `bv_decide`, and 0 warnings.'
+      'Curve membership and encoding round-trips are proved. The full G2 group-law bridge, generator order, and MSM correctness still need proofs.'
   },
   {
     id: 'P8',
@@ -180,7 +180,7 @@ theorem pairing_zero_left (q : G2) : pairing G1.zero q = Fp12.one`,
       '`millerLoop_inf_left`, `millerLoop_inf_right`, `finalExponentiation_one`, `pairing_zero_left`, `pairing_zero_right`, and `pairingCheck_empty`.'
     ],
     recommendation:
-      '17/17 tight specifications proved in `Proofs/Bls/Pairing.lean`.'
+      'Boundary and identity laws are proved. Full pairing bilinearity and non-degeneracy remain open; these lemmas do not establish them.'
   },
   {
     id: 'P9',
@@ -201,7 +201,7 @@ theorem simpleSwu_total (u : Fp2) :
       '`Proofs/Bls/HashToCurve.lean`: proves `expandMessageXmd` RFC 9380 guards, `isSquare_iff`, `isSquareFp2_iff`, `sq_or_neg_sq`, `sqrt_of_norm_sq`, `swuG_x2_eq`, `simpleSwu_curve_eq`, `simpleSwu_total`, and `psi`/`psi2`/`clearCofactor` identity laws.'
     ],
     recommendation:
-      '57/57 tight specifications proved in `Proofs/Bls/Sha256.lean` (19/19) and `Proofs/Bls/HashToCurve.lean` (38/38) with 0 warnings.'
+      'SHA-256 size/serialization lemmas and known-answer tests, plus SSWU totality and curve membership, are proved. Isogeny curve preservation and general cofactor-clearing subgroup membership remain open. Known-answer tests are not a full SHA-256 specification-equivalence proof.'
   },
   {
     id: 'P10',
@@ -209,7 +209,7 @@ theorem simpleSwu_total (u : Fp2) :
     component: 'EthLib/Cryptography/Proofs/Bls/Signatures.lean',
     title: 'IRTF BLS signature verification and `coreVerify_sound` (`Proofs/Bls/Signatures.lean`)',
     issue:
-      'Proves protocol-level soundness and boundary specifications for IRTF `KeyValidate`, `SkToPk`, `Sign`, `Aggregate`, `CoreVerify`, `AggregateVerify`, `FastAggregateVerify`, and Ethereum consensus wrappers.',
+      'Proves validation implications and boundary specifications for IRTF `KeyValidate`, `SkToPk`, `Sign`, `Aggregate`, `CoreVerify`, `AggregateVerify`, `FastAggregateVerify`, and Ethereum consensus wrappers.',
     codeLang: 'lean',
     codeSnippet: `theorem coreVerifyPoint_sound {pk : G1} {msg sigBytes : ByteArray}
     (h : coreVerifyPoint pk msg sigBytes = true) :
@@ -225,7 +225,7 @@ theorem simpleSwu_total (u : Fp2) :
       '`coreVerifyPoint_sound` and `coreVerify_sound`: `coreVerify pkBytes msg sigBytes = true` implies valid 48-byte pubkey, 96-byte subgroup-checked signature, successful `hashToG2`, and `pairingCheck = true`.'
     ],
     recommendation:
-      '17/17 tight specifications proved in `Proofs/Bls/Signatures.lean`.'
+      'These theorems expose validation and the pairing equation checked by the implementation. End-to-end signature and aggregate completeness remain open and require the missing pairing and hash-to-subgroup proofs.'
   }
 ]
 
@@ -234,7 +234,7 @@ export const KZG_XMSS_PROOFS: Finding[] = [
     id: 'P11',
     severity: 'Proof',
     component: 'EthLib/Cryptography/Proofs/Kzg/Polynomials.lean',
-    title: 'Polynomial evaluation homomorphisms, long division specification, and vanishing polynomials',
+    title: 'Polynomial evaluation homomorphisms and vanishing polynomial roots',
     issue:
       '`Proofs/Kzg/Polynomials.lean` previously covered only `computeRootsOfUnity`. The polynomial ring operations used by EIP-4844 and EIP-7594 (`addPolynomialcoeff`, `subPolynomialcoeff`, `multiplyPolynomialcoeff`, `dividePolynomialcoeff`, `vanishingPolynomialcoeff`) had no algebraic proofs.',
     codeLang: 'lean',
@@ -248,7 +248,7 @@ theorem vanishingPolynomialcoeff_eval_root {zs : Array Fr} {v : PolynomialCoeff}
     evalPolyAt v z = Fr.zero`,
     options: [
       'Evaluation homomorphisms: `evalPolyAt_addPoly`, `evalPolyAt_subPoly`, `evalPolyAt_scalePoly`, `evalPolyAt_shiftPoly`, and `evalPolyAt_mulPoly`.',
-      'Euclidean division invariant `dividePolynomialcoeff_step` and degree/leading-coefficient specifications aligned with `consensus-specs` v1.6.0.',
+      'Division rejection and short-dividend lemmas match the implementation. The quotient/remainder identity and coefficient interpolation correctness remain unproved.',
       '`vanishingPolynomialcoeff_eval_root` and `vanishingPolynomialcoeff_size`: proves that the vanishing polynomial has degree `zs.size` and vanishes at every $z \\in \\text{zs}$.'
     ],
     recommendation:
@@ -267,15 +267,15 @@ theorem vanishingPolynomialcoeff_eval_root {zs : Array Fr} {v : PolynomialCoeff}
 theorem g1LincombPoints_size_mismatch (points : Array Bls.G1) (scalars : Array Fr)
     (h : points.size ≠ scalars.size) :
     g1LincombPoints points scalars = .error .sizeMismatch
-theorem ceremonyChecksConcreteG1_ok :
-    CeremonyChecks.ceremonyChecks G1.zero (fun _ => true) (fun p _ => p) #[G1.zero] #[0] = true`,
+-- Ceremony conclusions still require ConcreteBlsLaws
+-- and SubgroupExponents; no concrete instance is supplied.`,
     options: [
       '`Proofs/Kzg/Core.lean` (19/19 tight): proves `validateKzgG1_eq_validateKzgG1Point`, `validateKzgG1Point_ok_valid`, `g1LincombPoints` specifications, and size/format rejection lemmas.',
       '`Proofs/Kzg/Cells.lean` (24/24) & `Recovery.lean` (17/17): 41 theorems covering `cosetShiftForCell`, `cosetForCell`, `verifyCellKzgProofBatch`, and `recoverCellsAndKzgProofs` validation invariants.',
       '`Proofs/Kzg/CeremonyChecks.lean` (24/24) & `Proofs/Xmss/Blake2s.lean` (14/14): proves concrete `G1`/`G2` `CeremonyChecks` laws and kernel-checked (`decide +kernel`) `Blake2s` known-answer digests (`hash_empty`, `hash_abc`, `hash_one_full_block`, `hash_block_and_tail`).'
     ],
     recommendation:
-      'All 209 KZG and 117 XMSS specifications pass `lake build --wfail` and `turbo-lean audit-spec` with 0 vacuous or trivial specs and 0 warnings.'
+      'Validation lemmas compile, but ceremony consistency still assumes `ConcreteBlsLaws.pairingEq_mul_iff` and `SubgroupExponents`. KZG/cell completeness, trusted-setup consistency, and Reed-Solomon reconstruction remain open. Four XMSS known-answer theorems in KeyGen, Sign, and Verify still use `native_decide`.'
   }
 ]
 
