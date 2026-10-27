@@ -181,7 +181,7 @@ theorem pairing_zero_left (q : G2) : pairing G1.zero q = Fp12.one`,
       '`millerLoop_inf_left`, `millerLoop_inf_right`, `finalExponentiation_one`, `pairing_zero_left`, `pairing_zero_right`, and `pairingCheck_empty`.'
     ],
     recommendation:
-      'Boundary and identity laws are proved. P20 adds reduced Tate bilinearity; P21 proves executable Miller non-vanishing. Full signed-Ate bilinearity and non-degeneracy remain open.'
+      'Boundary and identity laws are proved. P20 adds reduced Tate bilinearity; P21 proves executable Miller non-vanishing. P25 adds signed-Ate bilinearity and nondegeneracy on generator spans; arbitrary-subgroup coverage remains open.'
   },
   {
     id: 'P9',
@@ -333,7 +333,7 @@ theorem g1LincombPoints_size_mismatch (points : Array Bls.G1) (scalars : Array F
       '`Proofs/Kzg/CeremonyChecks.lean` (24/24) & `Proofs/Xmss/Blake2s.lean` (14/14): proves concrete `G1`/`G2` `CeremonyChecks` laws and kernel-checked (`decide +kernel`) `Blake2s` known-answer digests (`hash_empty`, `hash_abc`, `hash_one_full_block`, `hash_block_and_tail`).'
     ],
     recommendation:
-      'Validation lemmas compile, but ceremony consistency still assumes `ConcreteBlsLaws.pairingEq_mul_iff` and `SubgroupExponents`. KZG/cell completeness, trusted-setup consistency, and Reed-Solomon reconstruction remain open. The two Verify known-answer theorems are now kernel-checked (P23). KeyGen and Sign still retain native evaluation.'
+      'The integrated main PR now proves `ConcreteBlsLaws` and uses it internally. Ceremony consistency still requires `SubgroupExponents`; the standalone KZG PR retains the pairing-law parameter until the BLS dependency lands. KZG/cell completeness, trusted-setup consistency, and Reed-Solomon reconstruction remain open. The two Verify known-answer theorems are now kernel-checked (P23). KeyGen and Sign still retain native evaluation.'
   }
 ]
 
@@ -581,7 +581,7 @@ BLS_PROOFS.push(
 
 BLS_PROOFS.push(
   { id: 'P18', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/FinalExponentiation.lean', title: 'Final exponentiation lands in the r-torsion target for nonzero Miller values', issue: 'The extension tower cardinalities and the exact final exponent are proved in the kernel.', codeLang: 'lean', codeSnippet: `theorem finalExponentiation_pow_modulus {f : Fp12} (hf : f ≠ 0) :
-  finalExponentiation f ^ Fr.modulus = 1`, options: ['Finite cardinalities of Fp2, Fp6, and Fp12 are derived from coordinate equivalences.', 'The divisibility of the scalar modulus is checked by kernel reduction.', 'The theorem requires a nonzero input and does not prove Miller non-vanishing or pairing bilinearity.'], recommendation: 'Checked with standard Lean axioms only. Full optimal-Ate bilinearity and non-degeneracy remain open.' }
+  finalExponentiation f ^ Fr.modulus = 1`, options: ['Finite cardinalities of Fp2, Fp6, and Fp12 are derived from coordinate equivalences.', 'The divisibility of the scalar modulus is checked by kernel reduction.', 'The theorem requires a nonzero input and does not prove Miller non-vanishing or pairing bilinearity.'], recommendation: 'Checked with standard Lean axioms only. P25 adds signed-Ate bilinearity and nondegeneracy on generator spans.' }
 )
 
 KZG_XMSS_PROOFS.push(
@@ -596,7 +596,7 @@ KZG_XMSS_PROOFS.push(
 BLS_PROOFS.push(
   { id: 'P20', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingTateBilinearity.lean', title: 'Prove scalar bilinearity of the concrete reduced Tate pairing', issue: 'The actual r-step Miller/Tate implementation is proved additive in both source arguments, including projective representatives, infinity cases, and subgroup validity.', codeLang: 'lean', codeSnippet: `theorem reducedTatePairing_mulNat_both {p : G1} {q : G2}
     (hp : G1.Valid p) (hq : G2.Valid q) (hs : G2.inSubgroup q = true) (m n : Nat) :
-    reducedTatePairing (G1.mulNat p m) (G2.mulNat q n) = reducedTatePairing p q ^ (m * n)`, options: ['The proof follows the actual Miller and chord/vertical recurrences.', 'All support and nonzero hypotheses are discharged from concrete curve facts.', 'The theorem is for reduced Tate pairing and does not identify it with the signed optimal-Ate executable pairing.'], recommendation: 'Checked in the kernel with standard axioms only. The signed Ate comparison, pairing non-degeneracy, and ConcreteBlsLaws pairing equivalence remain open.' }
+    reducedTatePairing (G1.mulNat p m) (G2.mulNat q n) = reducedTatePairing p q ^ (m * n)`, options: ['The proof follows the actual Miller and chord/vertical recurrences.', 'All support and nonzero hypotheses are discharged from concrete curve facts.', 'The theorem is for reduced Tate pairing and does not identify it with the signed optimal-Ate executable pairing.'], recommendation: 'Checked in the kernel with standard axioms only. P25 now proves the signed executable scalar laws and nondegeneracy on generator spans, and instantiates the concrete ceremony checker law.' }
 )
 
 BLS_PROOFS.push(
@@ -652,7 +652,31 @@ BLS_PROOFS.push({
       pairing p (G2.mulNat G2.generator k) *
       pairing t (G2.mulNat G2.generator k)`,
   options: ['The signed Miller evaluation is connected to the executable pairing, including its conjugation.', 'A second theorem derives the natural-scalar law in G1 and proves representation invariance.'],
-  recommendation: 'The full build and fresh transitive axiom checks passed. This establishes one argument on the stated domain. The G2 argument, general subgroup coverage, and nondegeneracy remain open.'
+  recommendation: 'The full build and fresh transitive axiom checks passed. This establishes one argument on the stated domain. P25 now adds the G2 scalar law and generator-span nondegeneracy. General subgroup coverage remains open.'
+})
+
+BLS_PROOFS.push({
+  id: 'P25', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingSignedG2.lean, PairingNondegenerate.lean',
+  title: 'Signed pairing bilinearity and nondegeneracy on generator spans',
+  issue: 'Both executable scalar laws now reduce the pairing of generator multiples to a power of the generator pairing. A concrete kernel certificate proves that value differs from one and has exact prime order.',
+  codeLang: 'lean',
+  codeSnippet: `theorem pairing_mulNat_generators (m n : Nat) :
+    pairing (G1.mulNat G1.generator m) (G2.mulNat G2.generator n) =
+      pairing G1.generator G2.generator ^ (m * n)
+
+theorem pairing_mul_generators_eq_one_iff (a b : Fr) :
+    pairing (G1.mul G1.generator a) (G2.mul G2.generator b) = 1 ↔
+      a = 0 ∨ b = 0`,
+  options: ['The certificate checks every Miller and final-exponent step in the Lean kernel; generated literals are not trusted.', 'The actual two-entry pairing checker is equivalent to equality of scalar products.', 'The integrated ceremony theorem now supplies its ConcreteBlsLaws witness internally.'],
+  recommendation: 'Full integrated build: 3,609 jobs. Fresh endpoint axiom checks use only standard Lean axioms. Arbitrary subgroup spanning and ceremony SubgroupExponents witnesses remain separate obligations.'
+})
+
+KZG_XMSS_PROOFS.push({
+  id: 'P26', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Kzg/CosetInverse.lean, RecoveryCoset.lean, FftEvaluation.lean',
+  title: 'Recovery: exact coset FFT inversion and nonzero denominators',
+  issue: 'Coset FFT round trips are proved for the actual 8192-point domain. FFT entries are connected to polynomial evaluations, and every denominator entry in the recovery shifted coset is proved nonzero.',
+  options: ['Interpolation success and sample correctness hold under explicit capacity and distinct-node conditions.', 'The constructed vanishing polynomial has no roots on the shifted recovery domain.', 'The executable coefficient arrays are connected to mathematical polynomials and degree bounds.'],
+  recommendation: 'These checked bridges support reconstruction. The complete valid-input numerator/product identity, final recovery correctness, KZG/cell completeness, and setup consistency are still being proved.'
 })
 
 export const FINDINGS: Finding[] = [
