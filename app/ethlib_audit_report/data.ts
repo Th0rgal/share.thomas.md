@@ -148,7 +148,8 @@ theorem Fp12.powNat_eq_pow (a : Fp12) (n : Nat) : Fp12.powNat a n = a ^ n`,
     codeLang: 'lean',
     codeSnippet: `theorem isOnTwist_generator : G2.isOnTwist G2.generator = true
 theorem uncompress_valid {b : ByteArray} {q : G2}
-    (h : G2.uncompress b = .ok q) : G2.isOnTwist q = true
+    (h : G2.uncompress b = .ok q) :
+    q = G2.zero ∨ (q.z = Fp2.one ∧ G2.isOnTwist q = true)
 theorem uncompress_compress {p : G2} (h : G2.isOnTwist p = true) :
     ∃ q, G2.uncompress (G2.compress p) = .ok q ∧ (q == p) = true
 theorem compress_uncompress {b : ByteArray} {q : G2}
@@ -159,7 +160,7 @@ theorem compress_uncompress {b : ByteArray} {q : G2}
       'Full 96-byte serialization round-trips: `fp2FromBytes_fp2ToBytes`, `fp2ToBytes_fp2FromBytes`, `uncompress_valid`, `uncompress_compress`, and `compress_uncompress`.'
     ],
     recommendation:
-      'Curve membership and encoding round-trips are proved. The full G2 group-law bridge, generator order, and MSM correctness still need proofs.'
+      'Curve membership and encoding round-trips are proved. The new group, exact-order, and subgroup-check proofs are described below. EthLib has no G2 MSM implementation.'
   },
   {
     id: 'P8',
@@ -192,8 +193,6 @@ theorem pairing_zero_left (q : G2) : pairing G1.zero q = Fp12.one`,
     codeLang: 'lean',
     codeSnippet: `theorem isSquareFp2_iff (a : Fp2) :
     isSquareFp2 a = true ↔ ∃ b : Fp2, b * b = a
-theorem swuG_x2_eq (u : Fp2) (h : (swuDenom u).isZero = false) :
-    swuG (swuX2 u) = (Z * (u * u)) ^ 3 * swuG (swuX1 u)
 theorem simpleSwu_total (u : Fp2) :
     ∃ p : Fp2 × Fp2, simpleSwu u = .ok p ∧ p.2 * p.2 = swuG p.1`,
     options: [
@@ -201,7 +200,7 @@ theorem simpleSwu_total (u : Fp2) :
       '`Proofs/Bls/HashToCurve.lean`: proves `expandMessageXmd` RFC 9380 guards, `isSquare_iff`, `isSquareFp2_iff`, `sq_or_neg_sq`, `sqrt_of_norm_sq`, `swuG_x2_eq`, `simpleSwu_curve_eq`, `simpleSwu_total`, and `psi`/`psi2`/`clearCofactor` identity laws.'
     ],
     recommendation:
-      'SHA-256 size/serialization lemmas and known-answer tests, plus SSWU totality and curve membership, are proved. Isogeny curve preservation and general cofactor-clearing subgroup membership remain open. Known-answer tests are not a full SHA-256 specification-equivalence proof.'
+      'SHA-256 size/serialization lemmas and known-answer tests, plus SSWU totality and curve membership, are proved. Isogeny curve preservation is now proved below. General cofactor-clearing subgroup membership remains open. Known-answer tests are not a full SHA-256 specification-equivalence proof.'
   },
   {
     id: 'P10',
@@ -228,6 +227,65 @@ theorem simpleSwu_total (u : Fp2) :
       'These theorems expose validation and the pairing equation checked by the implementation. End-to-end signature and aggregate completeness remain open and require the missing pairing and hash-to-subgroup proofs.'
   }
 ]
+
+BLS_PROOFS.push(
+  {
+    id: 'P13',
+    severity: 'Proof',
+    component: 'EthLib/Cryptography/Proofs/Bls/G2Group.lean, G2Validity.lean, G2Order.lean, G2Equiv.lean, G2Subgroup.lean',
+    title: 'G2 group arithmetic, exact generator order, and subgroup checking',
+    issue: 'The concrete Jacobian operations now connect to Mathlib’s curve group. Decoded points satisfy the validity hypotheses; equality means projective equivalence.',
+    codeLang: 'lean',
+    codeSnippet: `theorem toPoint_mulNat {P : G2} (h : Valid P) (k : Nat) :
+    toPoint (mulNat P k) = k • toPoint P
+
+theorem addOrderOf_toPoint_generator :
+    addOrderOf (toPoint generator) = Fr.modulus
+
+theorem inSubgroup_iff_modulus_smul_eq_zero {p : G2} (hp : Valid p) :
+    inSubgroup p = true ↔ Fr.modulus • toPoint p = 0`,
+    options: [
+      'Zero, negation, doubling, addition, and scalar multiplication preserve validity and agree with the mathematical group operations.',
+      'A kernel-checked ladder establishes the generator’s exact prime order. Boolean equality agrees with group equality on valid points.',
+      'The subgroup check is exactly an r-torsion test on valid points, including every successfully decoded point.'
+    ],
+    recommendation: 'Checked without native-evaluation axioms. This does not prove that every r-torsion point is a generator multiple, pairing correctness, or ceremony completeness.'
+  },
+  {
+    id: 'P14',
+    severity: 'Proof',
+    component: 'EthLib/Cryptography/Proofs/Bls/Isogeny.lean',
+    title: 'The RFC 9380 isogeny maps SSWU points onto the BLS twist',
+    issue: 'The rational map now has a curve-preservation proof tied to its executable coefficients. Its denominator pole cannot lie on the source curve.',
+    codeLang: 'lean',
+    codeSnippet: `theorem isoMapG2_curve_eq {x y : Fp2} (h : y*y = swuG x) :
+    let p := isoMapG2 x y
+    p.2*p.2 = p.1*p.1*p.1 + G2.bTwist`,
+    options: [
+      'A polynomial identity establishes preservation after clearing denominators.',
+      'The common pole would require a square root of 4 + 4i; its norm is 32, which is not a square in the base field.',
+      'Successful SSWU followed by the isogeny yields a valid G2 representative.'
+    ],
+    recommendation: 'Kernel-checked with only standard Lean axioms. General cofactor-clearing subgroup membership and end-to-end hash-to-G2 correctness remain open.'
+  }
+)
+
+BLS_PROOFS.push(
+  {
+    id: 'P15', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/PairingInvariant.lean',
+    title: 'Pairing input representation invariance for projectively equal G2 points',
+    issue: 'The raw pairing implementation now has a checked representation-invariance refinement for the G2 input. This is a prerequisite for quotient-level pairing semantics, not bilinearity.',
+    codeLang: 'lean',
+    codeSnippet: `theorem pairing_eq_of_g2_beq {p : G1} {q q' : G2}
+    (h : (q == q') = true) : pairing p q = pairing p q'`,
+    options: [
+      'Projective equality implies equal affine normalization for G2 points.',
+      'The executable `Embedded.ofG2` map is invariant under that equality.',
+      'The result does not prove the Miller recurrence, bilinearity, or non-degeneracy.'
+    ],
+    recommendation: 'Checked with standard Lean axioms only. Continue with ambient-curve embeddings and line-function invariants before attempting bilinearity.'
+  }
+)
 
 export const KZG_XMSS_PROOFS: Finding[] = [
   {
@@ -484,6 +542,42 @@ subprocess.check_call(["lake", "build", "EthLib"], cwd=REPO_ROOT)`,
       'Option A. It cuts $\\mathbb{G}_1$ decompressions in half while keeping `G1.keyValidate` compatible with existing proofs.'
   }
 ]
+
+KZG_XMSS_PROOFS.push(
+  {
+    id: 'P16', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Kzg/Division.lean',
+    title: 'Evaluation invariant for the actual polynomial-division subtraction loop',
+    issue: 'The coefficient-update loop used by `dividePolynomialcoeff` now has a direct evaluation invariant and a leading-coefficient cancellation lemma.',
+    codeLang: 'lean',
+    codeSnippet: `theorem dividePolynomialcoeff_inner_eval (a b : PolynomialCoeff) (x quot : Fr)
+    (shift : Nat) (hfit : shift + b.size ≤ a.size) :
+    evalPolyAt (...) x = evalPolyAt a x - evalPolyAt b x * quot * Fr.powNat x shift`,
+    options: [
+      '`evalPolyAt_set` characterizes one coefficient update exactly.',
+      '`dividePolynomialcoeff_inner_eval` identifies one subtraction pass with `quot * X^shift * b(X)`.',
+      '`dividePolynomialcoeff_inner_leading_zero` proves the selected top coefficient is cancelled when the divisor lead is nonzero.'
+    ],
+    recommendation: 'This is a checked inner-loop invariant. The outer quotient/remainder identity and interpolation correctness remain open.'
+  }
+
+)
+
+BLS_PROOFS.push(
+  {
+    id: 'P17', severity: 'Proof', component: 'EthLib/Cryptography/Proofs/Bls/HashToCurveValidity.lean',
+    title: 'Successful hash-to-G2 results are valid twist-curve points',
+    issue: 'The SSWU, isogeny, Frobenius maps, and cofactor expression now compose to curve validity for every successful `hashToG2` result.',
+    codeLang: 'lean',
+    codeSnippet: `theorem hashToG2_valid {msg dst : ByteArray} {P : G2}
+    (h : hashToG2 msg dst = .ok P) : G2.Valid P`,
+    options: [
+      '`psi_valid`, `psi2_valid`, and `mulNegX_valid` preserve nonsingular twist-curve membership.',
+      '`clearCofactor_valid` proves the executable cofactor expression remains on the twist.',
+      'The theorem deliberately does not assert r-torsion, RFC conformance, or subgroup security.'
+    ],
+    recommendation: 'Checked with standard Lean axioms only. Prove the cofactor scalar identity and r-torsion next.'
+  }
+)
 
 export const FINDINGS: Finding[] = [
   ...AUDIT_FINDINGS,
