@@ -197,7 +197,7 @@ theorem swuG_x2_eq (u : Fp2) (h : (swuDenom u).isZero = false) :
 theorem simpleSwu_total (u : Fp2) :
     ∃ p : Fp2 × Fp2, simpleSwu u = .ok p ∧ p.2 * p.2 = swuG p.1`,
     options: [
-      '`Proofs/Bls/Sha256.lean`: proves `bytesBEToU32_u32ToBytesBE`, `u32ToBytesBE_bytesBEToU32`, `padLength_mod_64`, `padLength_gt`, `hash_size`, bitwise `ch_self`/`maj_self`/`maj_comm` (no `bv_decide`), and kernel-checked (`decide +kernel`) FIPS 180-4 KATs.',
+      '`Proofs/Bls/Sha256.lean`: proves `bytesBEToU32_u32ToBytesBE`, `hash_size`, bitwise `ch_self`/`maj_self`/`maj_comm` (no `bv_decide`), and kernel-checked (`decide +kernel`) FIPS 180-4 KATs.',
       '`Proofs/Bls/HashToCurve.lean`: proves `expandMessageXmd` RFC 9380 guards, `isSquare_iff`, `isSquareFp2_iff`, `sq_or_neg_sq`, `sqrt_of_norm_sq`, `swuG_x2_eq`, `simpleSwu_curve_eq`, `simpleSwu_total`, and `psi`/`psi2`/`clearCofactor` identity laws.'
     ],
     recommendation:
@@ -247,7 +247,7 @@ theorem vanishingPolynomialcoeff_eval_root {zs : Array Fr} {v : PolynomialCoeff}
     (hv : vanishingPolynomialcoeff zs = .ok v) {z : Fr} (hz : z ∈ zs.toList) :
     evalPolyAt v z = Fr.zero`,
     options: [
-      'Evaluation homomorphisms: `evalPolyAt_addPoly`, `evalPolyAt_subPoly`, `evalPolyAt_scalePoly`, `evalPolyAt_shiftPoly`, and `evalPolyAt_mulPoly`.',
+      'Evaluation homomorphisms: `evalPolyAt_addPoly` and `evalPolyAt_mulPoly`.',
       'Division rejection and short-dividend lemmas match the implementation. The quotient/remainder identity and coefficient interpolation correctness remain unproved.',
       '`vanishingPolynomialcoeff_eval_root` and `vanishingPolynomialcoeff_size`: proves that the vanishing polynomial has degree `zs.size` and vanishes at every $z \\in \\text{zs}$.'
     ],
