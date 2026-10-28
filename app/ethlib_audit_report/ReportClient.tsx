@@ -243,7 +243,7 @@ export interface ReportClientProps {
   items?: Finding[];
   prNumber?: number;
   rawMdHref?: string;
-  activeTab?: "all" | "compress" | "bls" | "kzg";
+  activeTab?: "all" | "compress" | "bls" | "kzg" | "cells";
 }
 
 export default function ReportClient({
@@ -340,6 +340,10 @@ export default function ReportClient({
           className={`report-tab ${activeTab === "kzg" ? "is-active" : ""}`}
         >
           KZG &amp; PeerDAS Proofs (#101)
+        </a>
+        <a href="/ethlib_cell_roundtrip"
+          className={`report-tab ${activeTab === "cells" ? "is-active" : ""}`}>
+          Cell Round-Trip (#126)
         </a>
       </nav>
 

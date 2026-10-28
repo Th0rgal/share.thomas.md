@@ -26,6 +26,8 @@ export default function HomePage() {
           <a href="https://github.com/ethereum/EthLib">ethereum/EthLib</a>{' '}
           across Lean 4 specifications, formal proofs, and CPython bindings.
         </li>
+        <li><Link href="/ethlib_cell_roundtrip"><strong>KZG Cell Round-Trip</strong></Link>{' '}
+          · A kernel-checked serialization proof (PR #126).</li>
       </ul>
     </div>
   )
