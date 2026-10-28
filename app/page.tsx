@@ -30,6 +30,8 @@ export default function HomePage() {
           · A kernel-checked serialization proof (PR #126).</li>
         <li><Link href="/ethlib_keygen_proof"><strong>XMSS KeyGen Known Answer</strong></Link>{' '}
           · Kernel-checked with passing CI (PR #127).</li>
+        <li><Link href="/ethlib_field_proofs"><strong>BLS Tower Fields</strong></Link>{' '}
+          · Field laws and total exponentiation, extracted from #100 (PR #128).</li>
       </ul>
     </div>
   )

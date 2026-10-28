@@ -243,7 +243,7 @@ export interface ReportClientProps {
   items?: Finding[];
   prNumber?: number;
   rawMdHref?: string;
-  activeTab?: "all" | "compress" | "bls" | "kzg" | "cells" | "keygen";
+  activeTab?: "all" | "compress" | "bls" | "kzg" | "cells" | "keygen" | "fields";
 }
 
 export default function ReportClient({
@@ -348,6 +348,10 @@ export default function ReportClient({
         <a href="/ethlib_keygen_proof"
           className={`report-tab ${activeTab === "keygen" ? "is-active" : ""}`}>
           KeyGen (#127)
+        </a>
+        <a href="/ethlib_field_proofs"
+          className={`report-tab ${activeTab === "fields" ? "is-active" : ""}`}>
+          Tower Fields (#128)
         </a>
       </nav>
 
