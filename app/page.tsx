@@ -29,7 +29,7 @@ export default function HomePage() {
         <li><Link href="/ethlib_cell_roundtrip"><strong>KZG Cell Round-Trip</strong></Link>{' '}
           · A kernel-checked serialization proof (PR #126).</li>
         <li><Link href="/ethlib_keygen_proof"><strong>XMSS KeyGen Known Answer</strong></Link>{' '}
-          · Kernel-checked; CI cost under review (draft PR #127).</li>
+          · Kernel-checked with passing CI (PR #127).</li>
       </ul>
     </div>
   )

@@ -347,7 +347,7 @@ export default function ReportClient({
         </a>
         <a href="/ethlib_keygen_proof"
           className={`report-tab ${activeTab === "keygen" ? "is-active" : ""}`}>
-          KeyGen (#127, draft)
+          KeyGen (#127)
         </a>
       </nav>
 

@@ -4,7 +4,7 @@ import { KEYGEN_PROOF } from "./data";
 
 export const metadata: Metadata = {
   title: "EthLib XMSS KeyGen Proof · Thomas Marchand",
-  description: "A kernel-checked XMSS KeyGen known answer, with CI cost still under review.",
+  description: "A kernel-checked XMSS KeyGen known answer with passing build and declaration checks in CI.",
   alternates: { canonical: "https://share.thomas.md/ethlib_keygen_proof" },
 };
 
