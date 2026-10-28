@@ -243,7 +243,7 @@ export interface ReportClientProps {
   items?: Finding[];
   prNumber?: number;
   rawMdHref?: string;
-  activeTab?: "all" | "compress" | "bls" | "kzg" | "cells";
+  activeTab?: "all" | "compress" | "bls" | "kzg" | "cells" | "keygen";
 }
 
 export default function ReportClient({
@@ -344,6 +344,10 @@ export default function ReportClient({
         <a href="/ethlib_cell_roundtrip"
           className={`report-tab ${activeTab === "cells" ? "is-active" : ""}`}>
           Cell Round-Trip (#126)
+        </a>
+        <a href="/ethlib_keygen_proof"
+          className={`report-tab ${activeTab === "keygen" ? "is-active" : ""}`}>
+          KeyGen (#127, draft)
         </a>
       </nav>
 
