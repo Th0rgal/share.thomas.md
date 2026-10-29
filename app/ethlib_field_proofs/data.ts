@@ -13,7 +13,7 @@ export const FIELD_PROOFS: Finding[] = [
       "Addition and multiplication satisfy the commutative ring laws at each tower level.",
       "Norm non-vanishing proves inverse cancellation and supports the three Field instances."
     ],
-    recommendation: "Commit 43805a1: full local build passed (3,560 jobs). The repository checker examined 3,834 declarations with eight existing exceptions, zero new and zero stale. An exhaustive transitive audit of 371 declarations in the field proof modules found only propext, Classical.choice and Quot.sound. Astra and Gemini reviewed the extraction. PR #128 is open; remote CI is not yet verified. This is the field foundation extracted from #100; it does not certify pairing or KZG."
+    recommendation: "Merged in PR #128 (commit 43805a1): full CI build and declaration checker passed, and an exhaustive transitive audit of 371 declarations in the field proof modules found only propext, Classical.choice and Quot.sound. This is the field foundation extracted from #100; it does not certify pairing or KZG."
   },
   {
     id: "T2",

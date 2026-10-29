@@ -13,6 +13,6 @@ export const KEYGEN_PROOF: Finding[] = [
       "The seed-derived chains, leaf hashes and Merkle authentication path reconstruct the reference root. Intermediate hash states are checked by the kernel.",
       "The actual keyGen wrapper returns the reference public key, without assuming the Sign known answer."
     ],
-    recommendation: "Commit c248b8a: local full build passed (3,591 jobs). The declaration checker found nine existing exceptions, zero new and zero stale. A transitive audit of 2,067 KeyGen declarations found only propext, Classical.choice and Quot.sound. Astra and Gemini gave scoped approval. GitHub CI passed the full 3,591-job build and the 5,505-declaration check at the same commit; #127 is ready for review. The CI job took 28m46s. One local seven-chain module still peaks at 7.04 GiB RSS, so proof cost remains substantial. Sign and general XMSS correctness are not covered."
+    recommendation: "Merged in PR #127 (commit c248b8a): GitHub CI passed the full build and declaration check, and a transitive audit of 2,067 KeyGen declarations found only propext, Classical.choice and Quot.sound. Sign and general XMSS correctness are covered separately."
   }
 ];

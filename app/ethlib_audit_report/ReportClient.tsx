@@ -243,7 +243,7 @@ export interface ReportClientProps {
   items?: Finding[];
   prNumber?: number;
   rawMdHref?: string;
-  activeTab?: "all" | "compress" | "bls" | "kzg" | "cells" | "keygen" | "fields";
+  activeTab?: "all" | "compress" | "bls" | "kzg" | "cells" | "keygen" | "fields" | "g2subgroup";
 }
 
 export default function ReportClient({
@@ -352,6 +352,10 @@ export default function ReportClient({
         <a href="/ethlib_field_proofs"
           className={`report-tab ${activeTab === "fields" ? "is-active" : ""}`}>
           Tower Fields (#128)
+        </a>
+        <a href="/ethlib_g2_subgroup"
+          className={`report-tab ${activeTab === "g2subgroup" ? "is-active" : ""}`}>
+          G2, HashToCurve &amp; FK20 (#142–#148)
         </a>
       </nav>
 

@@ -13,6 +13,6 @@ export const CELL_ROUNDTRIP: Finding[] = [
       "Each 32-byte chunk decodes successfully using the existing field round-trip proof.",
       "The decoder preserves all 64 values in order; its size and field-error checks succeed."
     ],
-    "recommendation": "Commit 58c062d: full build passed (3,557 jobs), declaration checker passed (10 existing exceptions; zero new or stale), and the theorem uses only propext, Classical.choice and Quot.sound. Astra and Gemini reviewed this proof. PR #126 is open. This does not certify the trusted setup or complete KZG verification."
+    "recommendation": "Merged in PR #126 (commit 58c062d): full CI build, vector checks, and declaration checker passed, and the theorem uses only propext, Classical.choice and Quot.sound. This does not certify the trusted setup or complete KZG verification."
   }
 ];

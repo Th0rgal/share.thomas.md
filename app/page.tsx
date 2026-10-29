@@ -32,6 +32,8 @@ export default function HomePage() {
           · Kernel-checked with passing CI (PR #127).</li>
         <li><Link href="/ethlib_field_proofs"><strong>BLS Tower Fields</strong></Link>{' '}
           · Field laws and total exponentiation, extracted from #100 (PR #128).</li>
+        <li><Link href="/ethlib_g2_subgroup"><strong>G2, HashToCurve &amp; FK20 Series</strong></Link>{' '}
+          · Focused Lean v4.35.0 proofs for G2 group/serialization, PeerDAS FK20, SSWU 3-isogeny, and cofactor clearing (PRs #142, #143, #144, #145, #148).</li>
       </ul>
     </div>
   )
