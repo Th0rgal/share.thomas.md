@@ -760,3 +760,15 @@ pre code {
   text-decoration: underline;
   text-decoration-color: var(--ink-underline);
 }
+
+.mermaid-diagram {
+  margin: 2rem 0;
+  overflow-x: auto;
+}
+
+.mermaid-diagram svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
