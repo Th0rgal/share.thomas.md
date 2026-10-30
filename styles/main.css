@@ -772,3 +772,10 @@ pre code {
   height: auto;
   margin: 0 auto;
 }
+
+/* Diagram-only pages: let the diagram use the full viewport width. */
+.diagram-page {
+  width: min(1200px, 96vw);
+  margin-left: 50%;
+  transform: translateX(-50%);
+}

@@ -12,7 +12,13 @@ export default function Mermaid({ chart }: { chart: string }) {
     async function render() {
       const mermaid = (await import('mermaid')).default
       const dark = document.documentElement.classList.contains('dark')
-      mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'neutral', securityLevel: 'strict' })
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: dark ? 'dark' : 'neutral',
+        securityLevel: 'strict',
+        themeVariables: { fontSize: '18px' },
+        flowchart: { nodeSpacing: 50, rankSpacing: 60, padding: 16 }
+      })
       const { svg } = await mermaid.render(`mermaid-${id}-${dark ? 'd' : 'l'}`, chart)
       if (!cancelled && ref.current) ref.current.innerHTML = svg
     }

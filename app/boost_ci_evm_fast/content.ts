@@ -34,15 +34,3 @@ export const DIAGRAM = `flowchart TD
     Refute -->|"F fails locally"| Verdict
     Refute -.->|"F builds locally"| Stock
     Stock --> Verdict`
-
-export const PATHS: [string, string][] = [
-  ['ready', 'The verifier skips the candidate build and replays boost.ci’s plain-text proof export in the stock Lean kernel (comparator), against a challenge it builds itself.'],
-  ['compile_failed', 'boost.ci names the failing file. The verifier builds only that file and its imports. If it really fails, the rejection is confirmed; if it builds, the claim is ignored.'],
-  ['timeout / error', 'Anything else runs the stock verify.py, exactly as benchmark.yml does today.'],
-]
-
-export const TRUST =
-  'boost.ci can only save time. A wrong export is rejected by the kernel, a false failure is ignored, and any problem falls back to the stock pipeline. It cannot accept an invalid proof or reject a valid one.'
-
-export const STATUS =
-  'Smoke-tested on Layr-Labs/evm.fast-dev (branch ci/boost-benchmark, 30 Oct 2026): the trigger, GitHub OIDC auth and submission upload work. The verifier paths above are not wired in yet; today the preview is display-only.'
