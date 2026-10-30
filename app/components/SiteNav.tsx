@@ -1,11 +1,8 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export default function SiteNav() {
-  const pathname = usePathname() ?? '/'
   const [dark, setDark] = useState(false)
 
   useEffect(() => {
@@ -29,21 +26,6 @@ export default function SiteNav() {
 
   return (
     <header className="site-nav not-prose">
-      <div className="site-nav-links">
-        <a href="https://thomas.md">thomas.md</a>
-        <span style={{ opacity: 0.35 }}>/</span>
-        <Link href="/" className={pathname === '/' ? 'is-current' : undefined}>
-          share
-        </Link>
-        {pathname !== '/' && (
-          <>
-            <span style={{ opacity: 0.35 }}>/</span>
-            <span style={{ opacity: 0.65 }}>
-              {pathname.replace(/^\//, '')}
-            </span>
-          </>
-        )}
-      </div>
       <button
         type="button"
         onClick={toggleTheme}

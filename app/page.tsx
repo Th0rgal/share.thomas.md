@@ -1,40 +1,16 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Shared Notes & Audits'
+  title: 'share.thomas.md',
+  robots: { index: false }
 }
 
 export default function HomePage() {
   return (
     <div className="is-posts">
-      <h1 className="title-display">Shared Notes</h1>
-      <p>Hey,</p>
       <p>
-        This is where I share standalone technical reports, formal verification
-        reviews, and research notes outside my main blog at{' '}
-        <a href="https://thomas.md">thomas.md</a>.
+        Pages here are shared by direct link. See <a href="https://thomas.md">thomas.md</a>.
       </p>
-      <hr className="qr-divider" />
-      <h2 className="section-heading">Reports</h2>
-      <ul>
-        <li>
-          <Link href="/ethlib_audit_report">
-            <strong>EthLib Audit Report</strong>
-          </Link>{' '}
-          (October 2026) · Quorum review of{' '}
-          <a href="https://github.com/ethereum/EthLib">ethereum/EthLib</a>{' '}
-          across Lean 4 specifications, formal proofs, and CPython bindings.
-        </li>
-        <li><Link href="/ethlib_cell_roundtrip"><strong>KZG Cell Round-Trip</strong></Link>{' '}
-          · A kernel-checked serialization proof (PR #126).</li>
-        <li><Link href="/ethlib_keygen_proof"><strong>XMSS KeyGen Known Answer</strong></Link>{' '}
-          · Kernel-checked with passing CI (PR #127).</li>
-        <li><Link href="/ethlib_field_proofs"><strong>BLS Tower Fields</strong></Link>{' '}
-          · Field laws and total exponentiation, extracted from #100 (PR #128).</li>
-        <li><Link href="/ethlib_g2_subgroup"><strong>G2, HashToCurve &amp; FK20 Series</strong></Link>{' '}
-          · Focused Lean v4.35.0 proofs for G2 group/serialization, PeerDAS FK20, SSWU 3-isogeny, and cofactor clearing (PRs #142, #143, #144, #145, #148).</li>
-      </ul>
     </div>
   )
 }

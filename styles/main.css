@@ -188,33 +188,9 @@ body {
 .site-nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-bottom: 3rem;
   font-size: 0.92rem;
-}
-
-.site-nav-links {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-}
-
-.site-nav a {
-  color: var(--ink-link);
-  text-decoration: underline;
-  text-decoration-color: var(--ink-underline);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
-  transition: text-decoration-color 0.15s ease, opacity 0.15s ease;
-}
-
-.site-nav a:hover {
-  text-decoration-color: currentColor;
-}
-
-.site-nav a.is-current {
-  text-decoration: none;
-  opacity: 0.6;
 }
 
 .theme-btn {
