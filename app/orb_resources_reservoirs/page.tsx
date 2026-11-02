@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
-import { ReservoirsView } from "./ReservoirsView";
-
-export const metadata: Metadata = {
-  title: "Orb · Resources — rate over time",
-  robots: { index: false },
-};
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <ReservoirsView />;
+  redirect("/orb_resources_flow");
 }

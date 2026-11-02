@@ -4,21 +4,13 @@ import { useState, type ReactNode } from "react";
 import "./orb.css";
 import { SNAPSHOT } from "./data";
 
-export type TemplateId = "flow" | "reservoirs" | "ledger";
-
-const TEMPLATES: { id: TemplateId; label: string; href: string }[] = [
-  { id: "flow", label: "1 · Unified Switcher", href: "/orb_resources_flow" },
-  { id: "reservoirs", label: "2 · Stacked Flows", href: "/orb_resources_reservoirs" },
-  { id: "ledger", label: "3 · Split + Stock Curve", href: "/orb_resources_ledger" },
-];
-
 const Icon = ({ d }: { d: string }) => (
   <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
     <path d={d} />
   </svg>
 );
 
-export function OrbShell({ active, title, children }: { active: TemplateId; title: string; children: ReactNode }) {
+export function OrbShell({ title, children }: { title: string; children: ReactNode }) {
   const [light, setLight] = useState(false);
 
   return (
@@ -38,25 +30,11 @@ export function OrbShell({ active, title, children }: { active: TemplateId; titl
         <span className="orb-row">boost.ci</span>
         <span className="orb-row">maxwell</span>
 
-        <div className="orb-sb-foot">
-          <div className="orb-sec" style={{ paddingTop: 4 }}>Compare templates</div>
-          {TEMPLATES.map(t => (
-            <a key={t.id} href={t.href} className={`orb-switch-link ${t.id === active ? "here" : ""}`}>
-              <span>{t.label}</span>
-              {t.id === active && <span>●</span>}
-            </a>
-          ))}
-        </div>
       </aside>
 
       <header className="orb-tb">
         <span>Resources · <span style={{ color: "var(--fg-3)" }}>{title}</span></span>
         <div className="orb-tb-right">
-          <div className="orb-seg">
-            {TEMPLATES.map(t => (
-              <a key={t.id} href={t.href} className={t.id === active ? "on" : ""}>{t.label}</a>
-            ))}
-          </div>
           <button
             type="button"
             className="orb-seg"
