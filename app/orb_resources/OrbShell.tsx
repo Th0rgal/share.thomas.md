@@ -7,9 +7,9 @@ import { SNAPSHOT } from "./data";
 export type TemplateId = "flow" | "reservoirs" | "ledger";
 
 const TEMPLATES: { id: TemplateId; label: string; href: string }[] = [
-  { id: "flow", label: "1 · Flow", href: "/orb_resources_flow" },
-  { id: "reservoirs", label: "2 · Reservoirs", href: "/orb_resources_reservoirs" },
-  { id: "ledger", label: "3 · Ledger", href: "/orb_resources_ledger" },
+  { id: "flow", label: "1 · Refinery", href: "/orb_resources_flow" },
+  { id: "reservoirs", label: "2 · Watershed", href: "/orb_resources_reservoirs" },
+  { id: "ledger", label: "3 · Constellation", href: "/orb_resources_ledger" },
 ];
 
 const Icon = ({ d }: { d: string }) => (

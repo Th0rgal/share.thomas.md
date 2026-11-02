@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LedgerView } from "./LedgerView";
 
 export const metadata: Metadata = {
-  title: "Orb · Resources — Ledger",
+  title: "Orb · Resources — Constellation",
   robots: { index: false },
 };
 

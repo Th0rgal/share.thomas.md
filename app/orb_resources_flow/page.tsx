@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FlowView } from "./FlowView";
 
 export const metadata: Metadata = {
-  title: "Orb · Resources — Flow",
+  title: "Orb · Resources — Refinery Flow",
   robots: { index: false },
 };
 

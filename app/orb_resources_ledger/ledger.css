@@ -1,16 +1,49 @@
-.flame { display: flex; flex-direction: column; gap: 4px; }
-.flame-row { display: flex; gap: 3px; height: 34px; }
-.flame-cell {
-  border-radius: 6px; padding: 0 9px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  background: var(--bg-active); border: 1px solid var(--stroke); color: var(--fg);
-  font-size: 12px; cursor: pointer;
+.con-wrap {
+  background: var(--bg-elev);
+  border-radius: 14px;
+  padding: 18px 20px 14px;
+  position: relative;
+  overflow: hidden;
 }
-.flame-cell:hover { border-color: var(--fg-3); }
-.flame-cell span:last-child { font-family: var(--mono); font-size: 11.5px; color: var(--fg-2); }
 
-.waste-bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px; background: var(--bg-active); }
-.waste-bar i { display: block; height: 100%; }
-.waste-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 10px; font-size: 12px; color: var(--fg-2); }
-.waste-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.waste-legend b { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.con-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 18px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--stroke-soft);
+  font-size: 12px;
+  color: var(--fg-3);
+}
+
+.con-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.con-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.con-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+@keyframes orbit-flow {
+  to { stroke-dashoffset: -42; }
+}
+
+.orbit-stream {
+  stroke-dasharray: 5 16;
+  animation: orbit-flow 2.2s linear infinite;
+  pointer-events: none;
+}
