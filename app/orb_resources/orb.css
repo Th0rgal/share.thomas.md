@@ -1,0 +1,151 @@
+/* Scoped Orb desktop shell inside share.thomas.md. Breaks out of the 47rem
+   article column and hides the blog chrome so the mockup reads as the app. */
+
+body:has(.orb-mock) .page-shell {
+  max-width: none;
+  padding: 0;
+}
+body:has(.orb-mock) .site-nav,
+body:has(.orb-mock) .site-footer {
+  display: none;
+}
+
+.orb-mock {
+  --bg: #141414;
+  --bg-sb: #121313;
+  --bg-elev: #212121;
+  --bg-hover: #1e1e1e;
+  --bg-active: #2a2a2a;
+  --bg-btn: #262626;
+  --fg: #d8d8d7;
+  --fg-2: #b1b1b1;
+  --fg-3: #8a8a8a;
+  --fg-4: #5c5c5c;
+  --fg-strong: #e6e6e5;
+  --stroke: #2f2f2f;
+  --stroke-soft: #262626;
+  --ok: #199e70;
+  --info: #3987e5;
+  --warning: #d9b23a;
+  --danger: #ef7f8b;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Inter var", "SF Pro Text", sans-serif;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  display: grid;
+  grid-template-columns: 224px minmax(0, 1fr);
+  grid-template-rows: 38px 1fr;
+}
+
+.orb-mock[data-orb-theme="light"] {
+  --bg: #ffffff;
+  --bg-sb: #f6f6f4;
+  --bg-elev: #f1f0ed;
+  --bg-hover: #efeee9;
+  --bg-active: #e4e3de;
+  --bg-btn: #eae9e4;
+  --fg: #242423;
+  --fg-2: #535250;
+  --fg-3: #7b7a76;
+  --fg-4: #a9a8a2;
+  --fg-strong: #101010;
+  --stroke: #e0dfd9;
+  --stroke-soft: #e8e7e2;
+  --ok: #16996a;
+  --info: #2a78d6;
+  --warning: #876a0a;
+  --danger: #c0283a;
+}
+
+.orb-sb {
+  grid-row: 1 / 3;
+  background: var(--bg-sb);
+  border-right: 1px solid var(--stroke-soft);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  user-select: none;
+}
+.orb-traffic { display: flex; gap: 7px; padding: 4px 8px 12px; }
+.orb-traffic i { width: 11px; height: 11px; border-radius: 50%; background: var(--stroke); }
+.orb-row {
+  display: flex; align-items: center; gap: 8px;
+  height: 30px; padding: 0 8px; border-radius: 6px;
+  color: var(--fg-2); text-decoration: none;
+}
+.orb-row.on { background: var(--bg-active); color: var(--fg-strong); }
+.orb-row kbd { margin-left: auto; font: 11px var(--mono); color: var(--fg-4); }
+.orb-sec { color: var(--fg-3); font-size: 11px; padding: 14px 8px 4px; }
+.orb-sb-foot { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--stroke-soft); display: flex; flex-direction: column; gap: 2px; }
+.orb-switch-link {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 28px; padding: 0 8px; border-radius: 6px;
+  font-size: 12px; color: var(--fg-3); text-decoration: none;
+}
+.orb-switch-link:hover { background: var(--bg-hover); color: var(--fg); }
+.orb-switch-link.here { background: var(--bg-active); color: var(--fg-strong); }
+
+.orb-tb {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 18px; border-bottom: 1px solid var(--stroke-soft);
+  font-size: 12.5px; color: var(--fg-2);
+}
+.orb-tb-right { display: flex; align-items: center; gap: 8px; }
+
+.orb-main { padding: 22px 28px 64px; max-width: 1180px; width: 100%; margin: 0 auto; }
+
+.orb-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 16px; }
+.orb-seg { display: inline-flex; gap: 2px; padding: 2px; border-radius: 6px; background: var(--bg-btn); }
+.orb-seg button, .orb-seg a {
+  height: 24px; padding: 0 9px; border: 0; border-radius: 4px;
+  background: transparent; color: var(--fg-3); font: inherit; font-size: 12px;
+  cursor: pointer; display: inline-flex; align-items: center; text-decoration: none;
+}
+.orb-seg button.on, .orb-seg a.on { background: var(--bg-active); color: var(--fg-strong); }
+.orb-seg button:hover { color: var(--fg); }
+.orb-spacer { flex: 1; }
+.orb-stamp { font: 11.5px var(--mono); color: var(--fg-3); }
+
+.orb-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+.orb-tile { padding: 11px 13px; border-radius: 10px; background: var(--bg-elev); }
+.orb-tile-k { color: var(--fg-3); font-size: 11.5px; }
+.orb-tile-v { font-size: 18px; font-weight: 500; color: var(--fg-strong); margin-top: 2px; }
+.orb-tile-v small { font-size: 12px; font-weight: 400; color: var(--fg-3); margin-left: 6px; }
+.orb-tile-s { color: var(--fg-3); font-size: 11.5px; margin-top: 3px; }
+.orb-tile[data-tone="warn"] .orb-tile-v { color: var(--warning); }
+.orb-tile[data-tone="bad"] .orb-tile-v { color: var(--danger); }
+
+.orb-card { background: var(--bg-elev); border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+.orb-card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.orb-card-h h3 { margin: 0; font-size: 13px; font-weight: 500; color: var(--fg-strong); }
+.orb-card-h span { font-size: 12px; color: var(--fg-3); }
+
+.orb-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 20px; padding: 0 8px; border-radius: 10px;
+  font-size: 11.5px; background: var(--bg-active); color: var(--fg-2);
+}
+.orb-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+.orb-pill[data-tone="warn"] { color: var(--warning); background: color-mix(in srgb, var(--warning) 13%, transparent); }
+.orb-pill[data-tone="warn"]::before { background: var(--warning); }
+.orb-pill[data-tone="bad"] { color: var(--danger); background: color-mix(in srgb, var(--danger) 13%, transparent); }
+.orb-pill[data-tone="bad"]::before { background: var(--danger); }
+
+.orb-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.orb-table th { text-align: left; font-weight: 400; color: var(--fg-3); font-size: 11.5px; padding: 6px 10px; border-bottom: 1px solid var(--stroke); }
+.orb-table td { padding: 8px 10px; border-bottom: 1px solid var(--stroke-soft); color: var(--fg-2); }
+.orb-table tr:last-child td { border-bottom: 0; }
+.orb-table .num { text-align: right; font-family: var(--mono); font-size: 12px; }
+.orb-table tr.sel td, .orb-table tbody tr:hover td { background: var(--bg-hover); cursor: pointer; }
+
+@media (max-width: 820px) {
+  .orb-mock { grid-template-columns: 1fr; }
+  .orb-sb { display: none; }
+  .orb-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .orb-main { padding: 16px; }
+}
