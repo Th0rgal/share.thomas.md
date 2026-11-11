@@ -106,14 +106,13 @@ export default function LeanLedgerReportPage() {
       <h2 className="section-heading">1. Méthodologie et architecture</h2>
       <p>
         Côté temps humain, j&apos;ai passé environ <strong>1 h</strong> au départ pour cadrer le
-        problème, poser les specs haut niveau et designer le pipeline (aidé par une connaissance de
-        base de la stack Ledger), <strong>10 min</strong> hier soir pour débloquer un souci de
-        routing d&apos;inférence, et <strong>1 h</strong> à la fin pour review et polir
-        l&apos;ensemble. Tout le reste a tourné en autonomie.
+        problème, poser les specs haut niveau et designer le pipeline (j&apos;avais déjà une idée de
+        la stack Ledger donc j&apos;ai gagné un peu de temps), <strong>15 min</strong> ce matin pour
+        débloquer un souci de routing d&apos;inférence, et <strong>1 h</strong> à la fin pour review
+        et polir l&apos;ensemble. Tout le reste a tourné en autonomie.
       </p>
       <p>
-        Ledger maintient deux apps Bitcoin aux toolchains très différentes : l&apos;app historique
-        en C (
+        Ledger maintient deux apps Bitcoin : l&apos;app historique en C (
         <a
           href="https://github.com/LedgerHQ/app-bitcoin/tree/f010982d3050e02813cd7129bebd68cf2d1f2099"
           target="_blank"
@@ -130,8 +129,8 @@ export default function LeanLedgerReportPage() {
         >
           <code>vanadium@ace8e969</code>
         </a>
-        ), compilée en RISC-V 32-bit (<code>RV32IMAC</code>) puis exécutée par pages de 256 octets
-        authentifiées par Merkle tree dans une VM tournant sur BOLOS.
+        ), compilée en RISC-V 32-bit (<code>RV32IMAC</code>) et exécutée dans une VM tournant sur
+        BOLOS (pour déléguer une partie de l&apos;exécution au PC host si je comprends bien).
       </p>
       <p>
         Plutôt que de toucher à l&apos;UI ou au transport APDU/ECALL (réécrire l&apos;UI en Lean 4
@@ -155,9 +154,9 @@ export default function LeanLedgerReportPage() {
           <strong>Backend LLVM 32-bit dans <code>turbo-lean</code></strong> : ajout du support
           freestanding 32-bit zero-alloc (<code>thumbv6m</code>, <code>thumbv8m.main</code>,{' '}
           <code>riscv32imac</code>) dans notre compilateur <code>turbo-lean</code>. Passer par LLVM
-          IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct est plus safe (la
-          sémantique LLVM est déjà largement formalisée) et ne demandait qu&apos;un patch ciblé ;
-          il reste encore de la marge d&apos;optimisation avec plus de compute.
+          IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct m&apos;a semblé
+          plus sûr (la sémantique LLVM est déjà largement formalisée) et ne demandait qu&apos;un
+          patch ciblé ; il reste encore de la marge d&apos;optimisation avec plus de compute.
         </li>
         <li>
           <strong>Intégration dans les deux apps</strong> : shim FFI minimal dans{' '}
