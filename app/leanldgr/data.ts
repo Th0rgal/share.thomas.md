@@ -1,4 +1,4 @@
-export const PAGE_TITLE = 'Lean 4 pour Ledger Bitcoin'
+export const PAGE_TITLE = 'Lean 4 Ledger'
 
 export const MERMAID_ARCHITECTURE = `flowchart TB
     subgraph Lean["Kernel commun en Lean 4 (0 sorryAx)"]
@@ -195,101 +195,97 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
   {
     id: 'VND-01',
     severity: 'High',
-    severityLabel: 'Critique',
+    severityLabel: 'Critical',
     location: 'common/src/script.rs:367',
-    reportedStatus: 'Non signalé',
+    reportedStatus: 'Unreported',
     description:
-      'andor(X, Y, Z) compile OP_NOTIF [Y] OP_ELSE [Z] au lieu de [Z] puis [Y] (BIP-379), inversant les spending branches par rapport à Bitcoin Core et app-bitcoin.'
+      'andor(X, Y, Z) compiles to OP_NOTIF [Y] OP_ELSE [Z] OP_ENDIF instead of [Z] then [Y] (BIP-379), inverting the true/false spending branches relative to Bitcoin Core and app-bitcoin.'
   },
   {
     id: 'VND-02',
     severity: 'High',
-    severityLabel: 'Critique',
+    severityLabel: 'Critical',
     location: 'fastpsbt.rs:1052 · analyze.rs:434',
-    reportedStatus: 'Non signalé',
+    reportedStatus: 'Unreported',
     description:
-      'Sommes de satoshis u64 sans borne MAX_MONEY et cast u64 as i64 sur les balances par compte, permettant un overflow ou un flip de signe.'
+      'Unbounded u64 satoshi sums (missing MAX_MONEY bounds) and unchecked u64 as i64 casts on per-account balances allow integer overflow and sign flips.'
   },
   {
     id: 'VND-03',
     severity: 'High',
-    severityLabel: 'Élevé',
+    severityLabel: 'High',
     location: 'sign_psbt/analyze.rs:223, 305',
-    reportedStatus: 'Non signalé',
+    reportedStatus: 'Unreported',
     description:
-      'Quand non_witness_utxo et witness_utxo sont fournis ensemble, leur égalité n\'est pas vérifiée (classe CVE-2020-14199), contrairement à app-bitcoin.'
+      'When both non_witness_utxo and witness_utxo are supplied on an input, their prevout equality is never checked (CVE-2020-14199 class), unlike app-bitcoin.'
   },
   {
     id: 'VND-04',
     severity: 'High',
-    severityLabel: 'Élevé',
+    severityLabel: 'High',
     location: 'common/src/fastpsbt.rs:602',
-    reportedStatus: 'Non signalé',
+    reportedStatus: 'Unreported',
     description:
-      'Calcul du nLockTime non conforme à BIP-370 : accepte une block height nulle, rejette un input ayant les deux timelocks, et laisse fallback_locktime écraser un block lock en timestamp.'
+      'Non-compliant BIP-370 nLockTime computation: accepts zero height locks, rejects dual-locked inputs, and lets fallback_locktime overwrite a block-height lock into a timestamp.'
   },
   {
     id: 'VND-05',
     severity: 'Medium',
-    severityLabel: 'Moyen',
+    severityLabel: 'Medium',
     location: 'common/src/script.rs:145',
-    reportedStatus: 'Non signalé',
+    reportedStatus: 'Unreported',
     description:
-      'Une policy sh(wsh(...)) est acceptée lors de register_account, mais échoue ensuite systématiquement à la dérivation d\'adresse et au signing.'
+      'sh(wsh(...)) policies succeed during register_account, then unconditionally fail during address derivation and PSBT signing.'
   },
   {
     id: 'VND-06',
     severity: 'Medium',
-    severityLabel: 'Moyen',
+    severityLabel: 'Medium',
     location: 'bip388/lib.rs:5 · register_account.rs',
-    reportedStatus: 'TODO partiel (0 issue)',
+    reportedStatus: 'Partial TODO (0 issues)',
     description:
-      'Absence de typechecking Miniscript B/V/K/W, de check de non-malléabilité, du mix height/time des timelocks et du masquage BIP-68 older(n).'
+      'Missing Miniscript B/V/K/W typechecking, non-malleability enforcement, height/time timelock mixing checks, and BIP-68 older(n) flag masking.'
   },
   {
     id: 'VND-07',
     severity: 'Medium',
-    severityLabel: 'Moyen',
+    severityLabel: 'Medium',
     location: 'get_extended_pubkey.rs:138, 161',
-    reportedStatus: 'Non signalé',
+    reportedStatus: 'Unreported',
     description:
-      'Check off-by-one len() > 256 suivi d\'un cast en u8 : un path BIP-32 de longueur 256 est tronqué à depth = 0 dans l\'xpub sérialisé.'
+      'Off-by-one len() > 256 guard followed by u8 cast: a 256-step BIP-32 path wraps to depth = 0 in the serialized xpub.'
   },
   {
     id: 'VND-08',
     severity: 'Low',
-    severityLabel: 'Faible',
+    severityLabel: 'Low',
     location: 'musig_signing.rs:463',
-    reportedStatus: 'Non signalé',
+    reportedStatus: 'Unreported',
     description:
-      'Au Round 2 de MuSig2, le pubnonce local recalculé n\'est pas comparé à celui présent dans PSBT_IN_MUSIG2_PUB_NONCE avant d\'émettre la partial signature.'
+      'In MuSig2 Round 2, the recomputed local pubnonce is not verified against PSBT_IN_MUSIG2_PUB_NONCE before emitting a partial signature.'
   },
   {
     id: 'VND-09',
     severity: 'Low',
-    severityLabel: 'Faible',
+    severityLabel: 'Low',
     location: 'main.rs:26 · display.rs:167 · fastpsbt.rs:231',
-    reportedStatus: 'todo!() sur GetVersion (0 issue)',
+    reportedStatus: 'todo!() on GetVersion (0 issues)',
     description:
-      'Panic sur Request::GetVersion, rejet des outputs OP_RETURN au display, CompactSize non canoniques acceptés et scripts witness_utxo bloqués au-delà de 252 octets.'
+      'Request::GetVersion panics via todo!(), OP_RETURN outputs are rejected during display, non-canonical CompactSize encodings are accepted, and witness_utxo scripts > 252 B fail.'
   }
 ]
 
 export function renderMarkdown(): string {
   const lines: string[] = [
-    '# Lean 4 pour Ledger Bitcoin',
+    '# Lean 4 Ledger',
     '',
-    '- Targets : `LedgerHQ/app-bitcoin@f010982d` · `LedgerHQ/vanadium@ace8e969`',
+    'Montrer qu\'il est viable de réécrire un logiciel existant en Lean4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide.',
     '',
-    '## 1. Résumé du Challenge de Charles',
-    '',
-    'Montrer qu\'il est viable de réécrire un logiciel existant en Lean 4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide.',
-    '',
-    '## 2. Méthodologie et architecture',
+    '## 1. Méthodologie et architecture',
     '',
     'Côté temps humain, j\'ai passé environ **1 h** au départ pour cadrer le problème, poser les specs haut niveau et designer le pipeline (aidé par une connaissance de base de la stack Ledger), **10 min** hier soir pour débloquer un souci de routing d\'inférence, et **1 h** à la fin pour review et polir l\'ensemble. Tout le reste a tourné en autonomie.',
     '',
-    'Ledger maintient deux apps Bitcoin aux toolchains très différentes : l\'app historique en C (`app-bitcoin`), compilée nativement en ARM Thumb directement au-dessus de BOLOS, et la nouvelle V-App en Rust (`vanadium`), compilée en RISC-V 32-bit (`RV32IMAC`) puis exécutée par pages de 256 octets authentifiées par Merkle tree dans une VM tournant sur BOLOS.',
+    'Ledger maintient deux apps Bitcoin aux toolchains très différentes : l\'app historique en C (`LedgerHQ/app-bitcoin@f010982d`), compilée nativement en ARM Thumb directement au-dessus de BOLOS, et la nouvelle V-App en Rust (`LedgerHQ/vanadium@ace8e969`), compilée en RISC-V 32-bit (`RV32IMAC`) puis exécutée par pages de 256 octets authentifiées par Merkle tree dans une VM tournant sur BOLOS.',
     '',
     'Plutôt que de toucher à l\'UI ou au transport APDU/ECALL (réécrire l\'UI en Lean 4 aurait peu d\'intérêt), on a isolé un kernel commun zero-alloc pour la logique partagée (validation PSBT, accounting des montants, BIP-32, SegWit/Taproot, policies BIP-388/Miniscript, formatage division-free), qui concentre l\'essentiel de la surface d\'attaque, en gardant l\'UI et l\'IO d\'origine dans chaque app :',
     '',
@@ -297,14 +293,14 @@ export function renderMarkdown(): string {
     MERMAID_ARCHITECTURE,
     '```',
     '',
-    '## 3. Plan d\'exécution',
+    '## 2. Plan d\'exécution',
     '',
     '1) **Specs formelles et cross-backtesting** : formalisation des BIPs en Lean 4 à partir du cadrage haut niveau, puis implémentation du kernel exécutable en bouclant sur les test suites des deux repos (`ctest`/Ragger côté C, `cargo test`/Speculos côté Rust) pour affiner la spec jusqu\'à convergence.',
-    '2) **Backend LLVM 32-bit dans `turbo-lean`** : ajout du support freestanding 32-bit zero-alloc (`thumbv6m`, `thumbv8m.main`, `riscv32imac`) dans notre compilateur `turbo-lean`. Passer par LLVM IR plutôt que d\'émettre du bytecode ou de l\'assembleur direct est plus safe (la sémantique LLVM est déjà largement formalisée) et ne demandait qu\'un patch ciblé ; il reste encore de la marge d\'optimisation avec plus de compute.',
+    '2) **Backend LLVM 32-bit dans `turbo-lean`** : ajout du support freestanding 32-bit zero-alloc (`thumbv6m`, `thumbv8m.main`, `riscv32imac`) dans notre compilateur `turbo-lean`. Passer par LLVM IR plutôt que d\'émettre du bytecode ou de l\'assembleur direct m\'a semblé plus sûr (la sémantique LLVM est déjà largement formalisée) et ne demandait qu\'un patch ciblé ; il reste encore de la marge d\'optimisation avec plus de compute.',
     '3) **Intégration dans les deux apps** : shim FFI minimal dans `app-bitcoin` et `vnd-bitcoin` conservant l\'UI/IO d\'origine et linkant les kernels Lean en LTO.',
     '4) **Boucle d\'optimisation `maxwell`** : benchmarks reproductibles dans notre harness propriétaire `maxwell` sous contrainte de preuve (`0 sorryAx`, 2 405 théorèmes) et de 100 % des tests au vert, jusqu\'à passer sous les baselines Flash, RAM et latence sur les deux targets.',
     '',
-    '## 4. Résultats et simulation',
+    '## 3. Résultats et simulation',
     '',
     '| Métrique | Baseline C (`app-bitcoin`) | Lean 4 + C | Baseline Rust (`vanadium`) | Lean 4 + Rust |',
     '|---|---|---|---|---|',
@@ -314,21 +310,21 @@ export function renderMarkdown(): string {
     '',
     'Vidéo de simulation side-by-side (Speculos Ledger Flex) : https://share.thomas.md/leanldgr/vanadium-side-by-side.mp4',
     '',
-    '## 5. Bugs et anomalies trouvés dans Vanadium',
+    '## 4. Bugs et anomalies trouvés dans Vanadium',
     '',
     'La formalisation croisée entre `app-bitcoin` et `vanadium` a fait ressortir **9 bugs et écarts de spec** dans `LedgerHQ/vanadium` (`ace8e969`). **7 sur 9 n\'étaient documentés nulle part** (les 2 autres n\'avaient qu\'un `TODO` ou `todo!()` partiel dans le code, et `0` issue GitHub ouverte). Nous n\'avons ouvert aucune issue publique ; tout est fixé dans le patch.',
     '',
-    '| ID | Sévérité | Emplacement | Statut upstream | Description |',
+    '| ID | Severity | Location | Upstream status | Description |',
     '|---|---|---|---|---|',
     ...VANADIUM_ISSUES.map(
       (i) => `| \`${i.id}\` | ${i.severityLabel} | \`${i.location}\` | ${i.reportedStatus} | ${i.description} |`
     ),
     '',
-    '## 6. Résumé des ressources investies',
+    '## 5. Résumé des ressources investies',
     '',
     '- **Compute** : **379,0 CPU hours** (`327,4 CPU-h` sur 25 microVMs cloud Boat AMD Zen 5 + `51,6 CPU-h` sur l\'hôte `ashur` pendant les tours actifs)',
     '- **Mémoire** : **654,9 GB RAM hours** sur les VMs cloud dédiées (`1 049,6 GB RAM-h` en incluant la RAM réservée sur `ashur` durant les tours actifs)',
-    '- **Inférence** : **23,2 M tokens / agent actif** (`696,6 M` tokens cumulés sur `30` agents actifs — `1` coordinateur + `29` subagents — soit `21,8 M` sur les `32` missions lancées)',
+    '- **Inférence** : **23,2 M tokens / agent actif** (`696,6 M` tokens cumulés sur `30` agents actifs — `1` coordinateur + `29` subagents)',
     '- **Durée wall-clock** : `19,9 h` (`17,9 h` hors pause nocturne de 2 h), `$3,42` de compute cloud Boat.',
     ''
   ]

@@ -96,36 +96,14 @@ function BenchmarkColumn({
 export default function LeanLedgerReportPage() {
   return (
     <article className="is-posts">
-      <h1 className="title-display">Lean 4 pour Ledger Bitcoin</h1>
+      <h1 className="title-display">Lean 4 Ledger</h1>
 
-      <div className="report-subtitle not-prose">
-        <span>
-          Targets :{' '}
-          <a
-            href="https://github.com/LedgerHQ/app-bitcoin/tree/f010982d3050e02813cd7129bebd68cf2d1f2099"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            LedgerHQ/app-bitcoin@f010982d
-          </a>
-          {' · '}
-          <a
-            href="https://github.com/LedgerHQ/vanadium/tree/ace8e96982408959dea9e7fbc59ee36e8c54e645"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            LedgerHQ/vanadium@ace8e969
-          </a>
-        </span>
-      </div>
-
-      <h2 className="section-heading">1. Résumé du Challenge de Charles</h2>
       <p>
-        Montrer qu&apos;il est viable de réécrire un logiciel existant en Lean 4 pour obtenir un
+        Montrer qu&apos;il est viable de réécrire un logiciel existant en Lean4 pour obtenir un
         binaire prouvé formellement, plus compact et plus rapide.
       </p>
 
-      <h2 className="section-heading">2. Méthodologie et architecture</h2>
+      <h2 className="section-heading">1. Méthodologie et architecture</h2>
       <p>
         Côté temps humain, j&apos;ai passé environ <strong>1 h</strong> au départ pour cadrer le
         problème, poser les specs haut niveau et designer le pipeline (aidé par une connaissance de
@@ -135,10 +113,25 @@ export default function LeanLedgerReportPage() {
       </p>
       <p>
         Ledger maintient deux apps Bitcoin aux toolchains très différentes : l&apos;app historique
-        en C (<code>app-bitcoin</code>), compilée nativement en ARM Thumb directement au-dessus de
-        BOLOS, et la nouvelle V-App en Rust (<code>vanadium</code>), compilée en RISC-V 32-bit (
-        <code>RV32IMAC</code>) puis exécutée par pages de 256 octets authentifiées par Merkle tree
-        dans une VM tournant sur BOLOS.
+        en C (
+        <a
+          href="https://github.com/LedgerHQ/app-bitcoin/tree/f010982d3050e02813cd7129bebd68cf2d1f2099"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <code>app-bitcoin@f010982d</code>
+        </a>
+        ), compilée nativement en ARM Thumb directement au-dessus de BOLOS, et la nouvelle V-App en
+        Rust (
+        <a
+          href="https://github.com/LedgerHQ/vanadium/tree/ace8e96982408959dea9e7fbc59ee36e8c54e645"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <code>vanadium@ace8e969</code>
+        </a>
+        ), compilée en RISC-V 32-bit (<code>RV32IMAC</code>) puis exécutée par pages de 256 octets
+        authentifiées par Merkle tree dans une VM tournant sur BOLOS.
       </p>
       <p>
         Plutôt que de toucher à l&apos;UI ou au transport APDU/ECALL (réécrire l&apos;UI en Lean 4
@@ -150,7 +143,7 @@ export default function LeanLedgerReportPage() {
 
       <Mermaid chart={MERMAID_ARCHITECTURE} />
 
-      <h2 className="section-heading">3. Plan d&apos;exécution</h2>
+      <h2 className="section-heading">2. Plan d&apos;exécution</h2>
       <ol>
         <li>
           <strong>Specs formelles et cross-backtesting</strong> : formalisation des BIPs en Lean 4
@@ -179,7 +172,7 @@ export default function LeanLedgerReportPage() {
         </li>
       </ol>
 
-      <h2 className="section-heading">4. Résultats et simulation</h2>
+      <h2 className="section-heading">3. Résultats et simulation</h2>
       <p>
         Sur les deux targets, le binaire patché avec Lean 4 est simultanément plus léger et plus
         rapide que la baseline non modifiée (chaque barre compare l&apos;original à{' '}
@@ -244,7 +237,7 @@ export default function LeanLedgerReportPage() {
         </figcaption>
       </figure>
 
-      <h2 className="section-heading">5. Bugs et anomalies trouvés dans Vanadium</h2>
+      <h2 className="section-heading">4. Bugs et anomalies trouvés dans Vanadium</h2>
       <p>
         La formalisation croisée entre <code>app-bitcoin</code> et <code>vanadium</code> a fait
         ressortir <strong>9 bugs et écarts de spec</strong> dans <code>LedgerHQ/vanadium</code> (
@@ -254,40 +247,42 @@ export default function LeanLedgerReportPage() {
         publique ; tout est fixé dans le patch.
       </p>
 
-      <div className="coverage-table-wrap not-prose">
-        <table className="coverage-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Sévérité</th>
-              <th>Emplacement</th>
-              <th>Statut upstream</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {VANADIUM_ISSUES.map((issue) => (
-              <tr key={issue.id}>
-                <td style={{ whiteSpace: 'nowrap' }}>
-                  <code>{issue.id}</code>
-                </td>
-                <td>
-                  <span className={sevClass(issue.severity)}>{issue.severityLabel}</span>
-                </td>
-                <td>
-                  <code>{issue.location}</code>
-                </td>
-                <td style={{ whiteSpace: 'nowrap', fontSize: '0.8rem', color: 'var(--ink-muted)' }}>
-                  {issue.reportedStatus}
-                </td>
-                <td>{issue.description}</td>
+      <div className="ldgr-issues-breakout not-prose">
+        <div className="ldgr-issues-wrap">
+          <table className="ldgr-issues-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Severity</th>
+                <th>Location</th>
+                <th>Upstream status</th>
+                <th>Description</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {VANADIUM_ISSUES.map((issue) => (
+                <tr key={issue.id}>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <code>{issue.id}</code>
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <span className={sevClass(issue.severity)}>{issue.severityLabel}</span>
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <code>{issue.location}</code>
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap', fontSize: '0.8rem', color: 'var(--ink-muted)' }}>
+                    {issue.reportedStatus}
+                  </td>
+                  <td>{issue.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <h2 className="section-heading">6. Résumé des ressources investies</h2>
+      <h2 className="section-heading">5. Résumé des ressources investies</h2>
       <p>
         L&apos;ensemble du run autonome (formalisation, patch compilateur <code>turbo-lean</code>,
         preuves des <code>2 405</code> théorèmes, intégration C/Rust et boucles{' '}
