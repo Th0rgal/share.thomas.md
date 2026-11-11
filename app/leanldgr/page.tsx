@@ -104,9 +104,9 @@ export default function LeanLedgerReportPage() {
       </p>
 
       <p>
-        <strong>Important :</strong> il s&apos;agit d&apos;une POC d&apos;une journée, pas d&apos;un
-        livrable prêt pour la production — un déploiement réel demanderait davantage de review
-        interne et la validation des choix de modélisation avec un expert du domaine.
+        <strong>Important :</strong> il s&apos;agit d&apos;une POC d&apos;une journée, un
+        déploiement demanderait davantage de review de notre côté et la validation des choix de
+        modélisation du vôtre.
       </p>
 
       <h2 className="section-heading">1. Méthodologie et architecture</h2>
