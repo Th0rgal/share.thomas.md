@@ -202,7 +202,7 @@ export default function OrbResourcesEmbed() {
                   <strong>{fmtFr(totalVal, 1)} CPU-h</strong>
                   <span>·</span>
                   <strong>~$17 AWS</strong>
-                  <span>(hors ashur)</span>
+                  <span>(hors serveur dédié)</span>
                   <span>·</span>
                   <span>pic {fmtFr(curve.peak, 0)} vCPU</span>
                 </>
@@ -410,7 +410,7 @@ export default function OrbResourcesEmbed() {
                     ? isolated.costLabel
                     : lens === 'inference'
                       ? '~$520 eq. API Google + OrcaRouter'
-                      : '~$17 eq. AWS (hors ashur)'}
+                      : '~$17 eq. AWS (hors serveur dédié)'}
                 </>
               )}
             </span>
@@ -531,7 +531,7 @@ export default function OrbResourcesEmbed() {
               : "Fenêtre complète : 10 nov. 15:15 UTC → 11 nov. 11:15 UTC (19,9 h wall-clock dont 2 heures de pause à cause d'un problème d'approvisionnement d'inférence réglé à la main)"}
           </span>
           <span className="ldgr-orb-foot-mono">
-            Inférence : ~$520 (API Google + OrcaRouter) · Compute : ~$17 AWS (hors ashur)
+            Inférence : ~$520 (API Google + OrcaRouter) · Compute : ~$17 AWS (hors serveur dédié)
           </span>
         </div>
       </div>
@@ -577,7 +577,7 @@ function DagTimeline({
         startMin: 0,
         durMin: 1195,
         color: '#cf6a2d',
-        detail: 'Coordinateur racine sur ashur · 141,0M tok · ~$163,36 eq. API Google (201 tours)',
+        detail: 'Coordinateur racine (serveur dédié) · 141,0M tok · ~$163,36 eq. API Google (201 tours)',
         y: (y += 16)
       })
       y += 22

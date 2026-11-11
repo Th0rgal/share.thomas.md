@@ -53,7 +53,7 @@ export const INFERENCE_NODES: OrbNodeDatum[] = [
   { id: 'smart', label: 'Core · builtin/smart', sub: '1 coord · ~$163 API', costLabel: '~$163,36 eq. API Google', color: '#cf6a2d', note: '141,0M tokens sur 201 tours d\'orchestration : ~$163,36 en équivalent API Google.' },
   { id: 'glm-5.3', label: 'GLM-5.3 uncensored', sub: '7 agents · ~$36,2 API', costLabel: '~$36,23 eq. OrcaRouter', color: '#627eea', note: '74,6M tokens (7 subagents) : ~$36,23 en équivalent OrcaRouter (GLM 5.3 uncensored).' },
   { id: 'qwen-3.8', label: 'Qwen3.8-27B', sub: '2 agents · ~$3,8 API', costLabel: '~$3,84 eq. OrcaRouter', color: '#129690', note: '9,0M tokens (2 subagents) : ~$3,84 en équivalent OrcaRouter.' },
-  { id: 'coord', label: 'Orchestration & steering', sub: '201 tours · ~$163,4 API', costLabel: '~$163,36 eq. API Google', color: '#cf6a2d', note: 'Pilotage du DAG, triage des quorums et assemblage final sur ashur (~$163,36 eq. API Google).' },
+  { id: 'coord', label: 'Orchestration & steering', sub: '201 tours · ~$163,4 API', costLabel: '~$163,36 eq. API Google', color: '#cf6a2d', note: 'Pilotage du DAG, triage des quorums et assemblage final sur notre serveur dédié (~$163,36 eq. API Google).' },
   { id: 'w1', label: 'Wave 1 · Specs & turbo-lean', sub: '8 agents · ~$85,2 API', costLabel: '~$85,15 eq. API', color: '#2f83bf', note: 'Formalisation BIP-32/143/341/370/379/388 + backend LLVM 32-bit ILP32 dans turbo-lean (~$85,15 eq. API).' },
   { id: 'w15', label: 'Wave 1.5 · Audit & remédiation', sub: '6 agents · ~$78,8 API', costLabel: '~$78,81 eq. API', color: '#7c65d6', note: 'Double audit adversarial des specs, tests de mutation et remédiation complète (~$78,81 eq. API).' },
   { id: 'w2', label: 'Wave 2 · Noyaux Lean & preuves', sub: '7 agents · ~$94,4 API', costLabel: '~$94,41 eq. API', color: '#1d9a78', note: 'Implémentation freestanding sans allocation et clôture des 2 494 théorèmes (~$94,41 eq. API).' },
@@ -62,7 +62,7 @@ export const INFERENCE_NODES: OrbNodeDatum[] = [
 ];
 
 export const INFERENCE_LINKS: OrbLinkDatum[] = [
-  { id: 'smart->coord', source: 'smart', target: 'coord', value: 141.02, costLabel: '~$163,36 eq. API Google', note: 'Coordinateur racine sur ashur (1 292 messages assistant · ~$163,36 eq. API Google).' },
+  { id: 'smart->coord', source: 'smart', target: 'coord', value: 141.02, costLabel: '~$163,36 eq. API Google', note: 'Coordinateur racine sur notre serveur dédié (1 292 messages assistant · ~$163,36 eq. API Google).' },
   { id: 'carbon-4->w1', source: 'carbon-4', target: 'w1', value: 120.57, costLabel: '~$80,75 eq. API Google', note: 'Shards W1-S1..S4 (specs Bitcoin) + W1-C1 (backend LLVM 32 bits turbo-lean) · ~$80,75 eq. API Google.' },
   { id: 'carbon-4->w15', source: 'carbon-4', target: 'w15', value: 81.73, costLabel: '~$54,74 eq. API Google', note: 'Audit Spec A + shards de remédiation R1, R2a et R2b · ~$54,74 eq. API Google.' },
   { id: 'carbon-4->w2', source: 'carbon-4', target: 'w2', value: 130.03, costLabel: '~$87,08 eq. API Google', note: 'Shards I1..I4 : noyaux freestanding et preuves formelles Lean 4 · ~$87,08 eq. API Google.' },
@@ -79,20 +79,20 @@ export const INFERENCE_LINKS: OrbLinkDatum[] = [
 export const COMPUTE_NODES: OrbNodeDatum[] = [
   { id: 'vm-large', label: 'Cloud · large (8 vCPU)', sub: '20 VMs · ~$9,72 AWS', costLabel: '~$9,72 eq. AWS c7a.2xlarge ($0,411/h)', color: '#2f83bf', note: '189,4 CPU-h et 378,9 GB RAM-h sur 20 microVMs (8 vCPU / 16 GiB) : ~$9,72 en équivalent AWS On-Demand c7a.2xlarge ($0,411/h).' },
   { id: 'vm-xlarge', label: 'Cloud · xlarge (16 vCPU)', sub: '4 VMs · ~$7,06 AWS', costLabel: '~$7,06 eq. AWS c7a.4xlarge ($0,821/h)', color: '#1d9a78', note: '137,5 CPU-h et 275,0 GB RAM-h sur 4 microVMs (16 vCPU / 32 GiB) : ~$7,06 en équivalent AWS On-Demand c7a.4xlarge ($0,821/h).' },
-  { id: 'ashur', label: 'Serveur dédié · ashur', sub: '8 vCPU · infra perso (exclue)', costLabel: 'Infra perso dédiée (hors chiffrage AWS)', color: '#cf6a2d', note: '51,6 CPU-h actifs sur notre serveur dédié ashur (infra perso exclue du chiffrage AWS, part amortie négligeable).' },
+  { id: 'ashur', label: 'Serveur dédié', sub: '8 vCPU · infra perso (exclue)', costLabel: 'Infra perso dédiée (hors chiffrage AWS)', color: '#cf6a2d', note: '51,6 CPU-h actifs sur notre serveur dédié (infra perso exclue du chiffrage AWS, part amortie négligeable).' },
   { id: 'vm-default', label: 'Cloud · default (4 vCPU)', sub: '1 VM · ~$0,02 AWS', costLabel: '~$0,02 eq. AWS c7a.xlarge ($0,205/h)', color: '#627eea', note: '0,48 CPU-h et 0,96 GB RAM-h pour la revue d\'acceptation isolée : ~$0,02 en équivalent AWS On-Demand c7a.xlarge.' },
-  { id: 'coord', label: 'Orchestration & steering', sub: 'ashur (exclu)', costLabel: 'Infra perso dédiée (hors chiffrage AWS)', color: '#cf6a2d', note: 'Tours actifs sur notre serveur dédié ashur (hors chiffrage AWS).' },
+  { id: 'coord', label: 'Orchestration & steering', sub: 'serveur dédié (exclu)', costLabel: 'Infra perso dédiée (hors chiffrage AWS)', color: '#cf6a2d', note: 'Tours actifs sur notre serveur dédié (hors chiffrage AWS).' },
   { id: 'w1', label: 'Wave 1 · Specs & turbo-lean', sub: '~$4,78 AWS', costLabel: '~$4,78 eq. AWS c7a', color: '#2f83bf', note: 'Build LLVM/Lean 32 bits sur 2 xlarge (~$2,53) + specs parallèles sur 5 large (~$2,25) = ~$4,78 eq. AWS c7a.' },
   { id: 'w15', label: 'Wave 1.5 · Audit & remédiation', sub: '~$2,78 AWS', costLabel: '~$2,78 eq. AWS c7a', color: '#7c65d6', note: 'Vérification croisée des specs et tests de mutation sur 6 VMs large = ~$2,78 eq. AWS c7a.' },
   { id: 'w2', label: 'Wave 2 · Noyaux Lean & preuves', sub: '~$3,68 AWS', costLabel: '~$3,68 eq. AWS c7a', color: '#1d9a78', note: 'Compilation parallèle turbo-lean et preuves sans sorryAx sur 7 VMs large = ~$3,68 eq. AWS c7a.' },
   { id: 'w3', label: 'Wave 3 · Link C/Rust & tests', sub: '~$1,04 AWS', costLabel: '~$1,04 eq. AWS c7a', color: '#0e9aa7', note: 'Suites ctest, Ragger et Speculos BOLOS/Vanadium sur 2 large + 1 default = ~$1,04 eq. AWS c7a.' },
-  { id: 'w4', label: 'Wave 4 · Boucle maxwell', sub: '~$4,53 AWS', costLabel: '~$4,53 eq. AWS c7a', color: '#d9822b', note: 'Benchmarks itératifs Speculos Nano S+/Nano X/Flex sur 2 VMs xlarge = ~$4,53 eq. AWS c7a (+ audit sur ashur).' },
+  { id: 'w4', label: 'Wave 4 · Boucle maxwell', sub: '~$4,53 AWS', costLabel: '~$4,53 eq. AWS c7a', color: '#d9822b', note: 'Benchmarks itératifs Speculos Nano S+/Nano X/Flex sur 2 VMs xlarge = ~$4,53 eq. AWS c7a (+ audit sur serveur dédié).' },
 ];
 
 export const COMPUTE_LINKS: OrbLinkDatum[] = [
-  { id: 'ashur->coord', source: 'ashur', target: 'coord', value: 47.58, costLabel: 'Infra perso (hors AWS)', note: 'Coordinateur actif sur ashur (5,92 h de tours cumulés × 8 vCPU · infra perso exclue).' },
-  { id: 'ashur->w3', source: 'ashur', target: 'w3', value: 0.22, costLabel: 'Infra perso (hors AWS)', note: 'Revue locale sur ashur (infra perso exclue).' },
-  { id: 'ashur->w4', source: 'ashur', target: 'w4', value: 3.77, costLabel: 'Infra perso (hors AWS)', note: 'Audit final indépendant sur ashur (infra perso exclue).' },
+  { id: 'ashur->coord', source: 'ashur', target: 'coord', value: 47.58, costLabel: 'Infra perso (hors AWS)', note: 'Coordinateur actif sur notre serveur dédié (5,92 h de tours cumulés × 8 vCPU · infra perso exclue).' },
+  { id: 'ashur->w3', source: 'ashur', target: 'w3', value: 0.22, costLabel: 'Infra perso (hors AWS)', note: 'Revue locale sur notre serveur dédié (infra perso exclue).' },
+  { id: 'ashur->w4', source: 'ashur', target: 'w4', value: 3.77, costLabel: 'Infra perso (hors AWS)', note: 'Audit final indépendant sur notre serveur dédié (infra perso exclue).' },
   { id: 'vm-xlarge->w1', source: 'vm-xlarge', target: 'w1', value: 49.31, costLabel: '~$2,53 eq. AWS c7a', note: '2 VMs xlarge (16 vCPU) pour compiler turbo-lean 32-bit et le harnais doré (~$2,53 eq. AWS c7a.4xlarge).' },
   { id: 'vm-large->w1', source: 'vm-large', target: 'w1', value: 43.79, costLabel: '~$2,25 eq. AWS c7a', note: '5 VMs large (8 vCPU) pour formaliser les specs Bitcoin (~$2,25 eq. AWS c7a.2xlarge).' },
   { id: 'vm-large->w15', source: 'vm-large', target: 'w15', value: 54.20, costLabel: '~$2,78 eq. AWS c7a', note: '6 VMs large pour les audits de spec et la remédiation (~$2,78 eq. AWS c7a.2xlarge).' },

@@ -206,9 +206,9 @@ export default function LeanLedgerReportPage() {
       </div>
 
       <p>
-        La simulation side-by-side ci-dessous compare notre V-App Rust patchée avec Lean 4 (à
-        gauche) et la V-App de référence (à droite) sur Speculos Ledger Flex lors d&apos;un
-        enregistrement de compte Taproot suivi d&apos;un signing PSBT, avec le profil RAM en bas :
+        La simulation ci-dessous compare notre V-App Rust patchée avec Lean 4 (à gauche) et la
+        V-App de référence (à droite) sur Speculos Ledger Flex lors d&apos;un enregistrement de
+        compte Taproot suivi d&apos;un signing PSBT, avec le profil RAM en bas :
       </p>
 
       <figure className="ldgr-video-figure not-prose">
@@ -294,19 +294,18 @@ export default function LeanLedgerReportPage() {
         <code>maxwell</code>) a tourné en <strong>19,9 h</strong> wall-clock sur la fenêtre capturée
         ci-dessous jusqu&apos;au merge du repo principal (dont 2 heures de pause à cause d&apos;un
         problème d&apos;approvisionnement d&apos;inférence que j&apos;ai réglé à la main) à travers{' '}
-        <strong>30 agents actifs</strong> et <strong>25 microVMs cloud</strong> orchestrés dans{' '}
-        <a href="https://github.com/th0rgal/orb">Orb</a> :
+        <strong>30 agents actifs</strong> et <strong>25 microVMs</strong> :
       </p>
 
       <ul>
         <li>
           <strong>379,0 CPU hours</strong> de compute cumulé (<code>327,4 CPU-h</code> sur 25
-          microVMs cloud éphémères AMD Zen + <code>51,6 CPU-h</code> sur notre serveur dédié{' '}
-          <code>ashur</code> pendant les tours actifs).
+          microVMs cloud éphémères AMD Zen + <code>51,6 CPU-h</code> sur notre serveur dédié pendant
+          les tours actifs).
         </li>
         <li>
           <strong>654,9 GB RAM hours</strong> sur les VMs cloud éphémères (
-          <code>1 049,6 GB RAM-h</code> en comptant la RAM réservée sur <code>ashur</code> durant
+          <code>1 049,6 GB RAM-h</code> en comptant la RAM réservée sur notre serveur dédié durant
           les tours actifs).
         </li>
         <li>
@@ -319,9 +318,9 @@ export default function LeanLedgerReportPage() {
         Aux tarifs publics de l&apos;API Google et d&apos;OrcaRouter (pour{' '}
         <code>GLM 5.3 uncensored</code>) côté inférence, et d&apos;AWS EC2 On-Demand côté location
         des VMs, ce run reviendrait à environ <strong>~$520 + ~$17</strong> (soit{' '}
-        <strong>~$537</strong> au total), hors infrastructure personnelle (le serveur dédié{' '}
-        <code>ashur</code> et nos GPUs d&apos;entraînement amont pour optimiser le compilateur, dont
-        la part amortie sur ce run reste relativement négligeable).
+        <strong>~$537</strong> au total), hors infrastructure personnelle (notre serveur dédié et
+        nos GPUs d&apos;entraînement amont pour optimiser le compilateur, dont la part amortie sur
+        ce run reste relativement négligeable).
       </p>
 
       <OrbResourcesEmbed />
