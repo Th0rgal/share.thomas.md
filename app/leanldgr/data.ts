@@ -372,7 +372,7 @@ export function renderMarkdown(): string {
     '',
     'Ledger maintient deux apps Bitcoin : l\'app historique en C (`LedgerHQ/app-bitcoin@f010982d`), compilée nativement en ARM Thumb directement au-dessus de BOLOS, et la nouvelle V-App en Rust (`LedgerHQ/vanadium@ace8e969`), compilée en RISC-V 32-bit (`RV32IMAC`) et exécutée dans une VM tournant sur BOLOS (pour déléguer une partie de l\'exécution au PC host si je comprends bien).',
     '',
-    'Plutôt que de toucher à l\'UI ou au transport APDU/ECALL (réécrire l\'UI en Lean 4 aurait peu d\'intérêt), on a isolé un kernel commun zero-alloc pour la logique partagée (validation PSBT, accounting des montants, BIP-32, SegWit/Taproot, policies BIP-388/Miniscript, formatage division-free), qui concentre l\'essentiel de la surface d\'attaque, en gardant l\'UI et l\'IO d\'origine dans chaque app :',
+    'Plutôt que de toucher à l\'UI ou au transport APDU/ECALL (réécrire l\'UI en Lean 4 aurait peu d\'intérêt), on a modélisé les BIPs dans un jumeau formel complet en Lean 4 et compilé directement en kernels freestanding zero-alloc, sur slices zero-copy, le cœur de validation et de calcul partagé (typechecker BIP-379/388 Miniscript, invariants locktime BIP-370, accounting des montants et dual-UTXO, BIP-32, CompactSize, tri de clés MuSig2 sans récursion, formatage division-free), en gardant le décodage bas niveau des flux, l\'UI et l\'IO d\'origine dans chaque app :',
     '',
     '```mermaid',
     MERMAID_ARCHITECTURE,
@@ -415,6 +415,17 @@ export function renderMarkdown(): string {
     '- **23,2 M tokens / agent** en moyenne (`696,6 M` tokens cumulés sur `30` agents actifs : `1` coordinateur + `29` subagents).',
     '',
     'Aux tarifs publics de l\'API Google et d\'OrcaRouter (pour `GLM 5.3 uncensored`) côté inférence, et d\'AWS EC2 On-Demand côté location des VMs, ce run reviendrait à environ **~$520 + ~$17** (soit **~$537** au total), hors infrastructure personnelle (notre serveur dédié et nos GPUs d\'entraînement amont pour optimiser le compilateur, dont la part amortie sur ce run reste relativement négligeable).',
+    '',
+    '## 6. Prochaines étapes',
+    '',
+    'Dans cette POC, toutes les portes de validation métier, le typechecking BIP-379/388, le tri MuSig2 et le formatage des montants sont compilés depuis Lean 4 en zero-alloc, tandis que la désérialisation bas niveau des flux (parcours clé-valeur PSBT, lecture des transactions brutes et lexing des descripteurs) reste assurée par le code C et Rust existant (`fastpsbt`, `bip388`) et que l\'émission C99/LLVM de `turbo-lean` fait encore partie de la TCB de compilation.',
+    '',
+    'L\'étape naturelle suivante consisterait à compiler également l\'intégralité des parseurs streaming et des machines d\'état depuis Lean 4 pour ne laisser en C et en Rust qu\'une coquille minimale de syscalls matériels (crypto `cx_*` / `ecall_*`, transport APDU et écrans NBGL), tout en refermant la TCB du compilateur :',
+    '',
+    '- **Parseurs streaming zero-copy et sighash en Lean 4** : compiler directement sur slices plates le lecteur streaming BIP-174/370 (PSBT et transactions sérialisées), le générateur streaming des préimages de sighash BIP-143 et BIP-341 (pilotant le SHA-256 matériel via de simples callbacks C/ECALL), le parseur binaire Script / Tapscript / BIP-388 et l\'automate de session APDU, avec preuves d\'absence totale de lecture hors-bornes, de terminaison bornée et de raffinement exact vis-à-vis de `Spec/`.',
+    '- **Fermeture de la TCB freestanding de `turbo-lean`** : étendre les théorèmes de préservation sémantique de `LeanNative` jusqu\'aux accès mémoire bornés sur slices plates et aux boucles bornées, avec émission directe et validation de traduction LLVM IR / LTO sur les trois cibles 32 bits (`thumbv6m`, `thumbv8m.main`, `riscv32imac`).',
+    '',
+    'En termes d\'effort, compter environ **24 à 36 h** de run autonome supplémentaire sur le même pipeline (soit du même ordre de grandeur que cette POC) pour la compilation et les preuves de bout en bout, couplées à une revue conjointe des hypothèses de modélisation et des frontières matérielles avec les équipes Ledger.',
     ''
   ]
   return lines.join('\n')
