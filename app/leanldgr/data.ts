@@ -176,9 +176,9 @@ export const BENCHMARK_ROWS: BenchmarkRow[] = [
   {
     metric: 'Test suites & preuves',
     origC: '30 ctest + 277 Ragger',
-    patchedC: '31/31 ctest + 277/277 Ragger + 2 405 théorèmes',
+    patchedC: '31/31 ctest + 277/277 Ragger + 2 494 théorèmes',
     origRust: '166 tests (unit + Speculos)',
-    patchedRust: '176/176 tests + 9 fixes prouvés'
+    patchedRust: '176/176 tests (+16 C-ABI) + 9 fixes prouvés'
   }
 ]
 
@@ -383,7 +383,7 @@ export function renderMarkdown(): string {
     '1) **Specs formelles et cross-backtesting** : formalisation des BIPs en Lean 4 à partir du cadrage haut niveau, puis implémentation du kernel exécutable en bouclant sur les test suites des deux repos (`ctest`/Ragger côté C, `cargo test`/Speculos côté Rust) pour affiner la spec jusqu\'à convergence.',
     '2) **Backend LLVM 32-bit dans `turbo-lean`** : ajout du support freestanding 32-bit zero-alloc (`thumbv6m`, `thumbv8m.main`, `riscv32imac`) dans notre compilateur `turbo-lean`. Passer par LLVM IR plutôt que d\'émettre du bytecode ou de l\'assembleur direct m\'a semblé plus sûr (la sémantique LLVM est déjà largement formalisée) et ne demandait qu\'un patch ciblé ; il reste encore de la marge d\'optimisation avec plus de compute.',
     '3) **Intégration dans les deux apps** : shim FFI minimal dans `app-bitcoin` et `vnd-bitcoin` conservant l\'UI/IO d\'origine et linkant les kernels Lean en LTO.',
-    '4) **Boucle d\'optimisation `maxwell`** : benchmarks reproductibles dans notre harness propriétaire `maxwell` sous contrainte de preuve (`0 sorryAx`, 2 405 théorèmes) et de 100 % des tests au vert, jusqu\'à passer sous les baselines Flash, RAM et latence sur les deux targets.',
+    '4) **Boucle d\'optimisation `maxwell`** : itérations pilotées selon notre méthodologie `maxwell` avec des scripts de benchmark reproductibles (`bolos_benchmark.sh`, `vanadium_benchmark.sh`) sous contrainte stricte du noyau Lean (`0 sorryAx`, `2 494` théorèmes) et de 100 % des tests au vert, jusqu\'à passer sous les baselines Flash, RAM et latence sur les deux targets.',
     '',
     '## 3. Résultats et simulation',
     '',
@@ -408,7 +408,7 @@ export function renderMarkdown(): string {
     '',
     '## 5. Résumé des ressources investies',
     '',
-    'L\'ensemble du run autonome (formalisation, patch compilateur `turbo-lean`, preuves des `2 405` théorèmes, intégration C/Rust et boucles `maxwell`) a tourné en **19,9 h** wall-clock (dont 2 heures de pause à cause d\'un problème d\'approvisionnement d\'inférence que j\'ai réglé à la main) à travers **30 agents actifs** et **25 microVMs cloud** orchestrés dans [Orb](https://github.com/th0rgal/orb) :',
+    'L\'ensemble du run autonome (formalisation, patch compilateur `turbo-lean`, preuves des `2 494` théorèmes, intégration C/Rust et boucles `maxwell`) a tourné en **19,9 h** wall-clock sur la fenêtre capturée ci-dessous jusqu\'au merge du repo principal (dont 2 heures de pause à cause d\'un problème d\'approvisionnement d\'inférence que j\'ai réglé à la main) à travers **30 agents actifs** et **25 microVMs cloud** orchestrés dans [Orb](https://github.com/th0rgal/orb) :',
     '',
     '- **379,0 CPU hours** de compute cumulé (`327,4 CPU-h` sur 25 microVMs cloud éphémères AMD Zen + `51,6 CPU-h` sur notre serveur dédié `ashur` pendant les tours actifs).',
     '- **654,9 GB RAM hours** sur les VMs cloud éphémères (`1 049,6 GB RAM-h` en comptant la RAM réservée sur `ashur` durant les tours actifs).',

@@ -171,10 +171,12 @@ export default function LeanLedgerReportPage() {
           d&apos;origine et linkant les kernels Lean en LTO.
         </li>
         <li>
-          <strong>Boucle d&apos;optimisation <code>maxwell</code></strong> : benchmarks
-          reproductibles dans notre harness propriétaire <code>maxwell</code> sous contrainte de
-          preuve (<code>0 sorryAx</code>, <code>2 405</code> théorèmes) et de 100 % des tests au
-          vert, jusqu&apos;à passer sous les baselines Flash, RAM et latence sur les deux targets.
+          <strong>Boucle d&apos;optimisation <code>maxwell</code></strong> : itérations pilotées
+          selon notre méthodologie <code>maxwell</code> avec des scripts de benchmark
+          reproductibles (<code>bolos_benchmark.sh</code>, <code>vanadium_benchmark.sh</code>) sous
+          contrainte stricte du noyau Lean (<code>0 sorryAx</code>, <code>2 494</code> théorèmes) et
+          de 100 % des tests au vert, jusqu&apos;à passer sous les baselines Flash, RAM et latence
+          sur les deux targets.
         </li>
       </ol>
 
@@ -191,14 +193,14 @@ export default function LeanLedgerReportPage() {
             sub="RV32IMAC · Ledger Flex"
             items={RUST_BENCH_BARS}
             variant="rust"
-            footer="176/176 tests unitaires & Speculos · 9 bugs fixés & prouvés"
+            footer="176/176 tests workspace (+16 C-ABI) · 9 bugs fixés & prouvés"
           />
           <BenchmarkColumn
             title="BOLOS App (C → + Lean 4)"
             sub="ARM Thumb · Nano S+ / X"
             items={C_BENCH_BARS}
             variant="c"
-            footer="31/31 ctest · 277/277 Ragger · 2 405 théorèmes (0 sorryAx)"
+            footer="31/31 ctest · 277/277 Ragger · 2 494 théorèmes (0 sorryAx)"
           />
         </div>
       </div>
@@ -288,11 +290,12 @@ export default function LeanLedgerReportPage() {
       <h2 className="section-heading">5. Résumé des ressources investies</h2>
       <p>
         L&apos;ensemble du run autonome (formalisation, patch compilateur <code>turbo-lean</code>,
-        preuves des <code>2 405</code> théorèmes, intégration C/Rust et boucles{' '}
-        <code>maxwell</code>) a tourné en <strong>19,9 h</strong> wall-clock (dont 2 heures de pause
-        à cause d&apos;un problème d&apos;approvisionnement d&apos;inférence que j&apos;ai réglé à
-        la main) à travers <strong>30 agents actifs</strong> et <strong>25 microVMs cloud</strong>{' '}
-        orchestrés dans <a href="https://github.com/th0rgal/orb">Orb</a> :
+        preuves des <code>2 494</code> théorèmes, intégration C/Rust et boucles{' '}
+        <code>maxwell</code>) a tourné en <strong>19,9 h</strong> wall-clock sur la fenêtre capturée
+        ci-dessous jusqu&apos;au merge du repo principal (dont 2 heures de pause à cause d&apos;un
+        problème d&apos;approvisionnement d&apos;inférence que j&apos;ai réglé à la main) à travers{' '}
+        <strong>30 agents actifs</strong> et <strong>25 microVMs cloud</strong> orchestrés dans{' '}
+        <a href="https://github.com/th0rgal/orb">Orb</a> :
       </p>
 
       <ul>
