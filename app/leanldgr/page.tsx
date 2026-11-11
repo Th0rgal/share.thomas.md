@@ -2,11 +2,15 @@ import type { Metadata } from 'next'
 import Mermaid from '../components/Mermaid'
 import OrbResourcesEmbed from './OrbResourcesEmbed'
 import {
+  BOLOS_PATCH_URL,
   C_BENCH_BARS,
   MERMAID_ARCHITECTURE,
   PAGE_TITLE,
+  REPO_URL,
   RUST_BENCH_BARS,
+  TURBO_LEAN_URL,
   VANADIUM_ISSUES,
+  VANADIUM_PATCH_URL,
   type BenchmarkChartItem
 } from './data'
 import './leanldgr.css'
@@ -135,15 +139,55 @@ export default function LeanLedgerReportPage() {
         >
           <code>vanadium@ace8e969</code>
         </a>
-        ), compilée en RISC-V 32-bit (<code>RV32IMAC</code>) et exécutée dans une VM tournant sur
-        BOLOS (pour déléguer une partie de l&apos;exécution au PC host si je comprends bien).
+        ), compilée en RISC-V 32-bit (<code>RV32IMAC</code>) et exécutée par la VM{' '}
+        <code>app-vanadium</code> : 100 % de l&apos;exécution RISC-V reste confinée dans le Secure
+        Element, seule la mémoire paginée — code et données en pages de <code>256 B</code> chiffrées
+        et authentifiées par arbre de Merkle — est déportée sur le host, pour dépasser la limite de
+        RAM/Flash interne du SE.
       </p>
       <p>
         Plutôt que de toucher à l&apos;UI ou au transport APDU/ECALL (réécrire l&apos;UI en Lean 4
-        aurait peu d&apos;intérêt), on a isolé un kernel commun zero-alloc pour la logique partagée
-        (validation PSBT, accounting des montants, BIP-32, SegWit/Taproot, policies
-        BIP-388/Miniscript, formatage division-free), qui concentre l&apos;essentiel de la surface
-        d&apos;attaque, en gardant l&apos;UI et l&apos;IO d&apos;origine dans chaque app :
+        aurait peu d&apos;intérêt), on a gardé l&apos;UI et l&apos;IO d&apos;origine dans chaque app
+        et concentré l&apos;effort sur la logique partagée qui concentre l&apos;essentiel de la
+        surface d&apos;attaque. Le résultat,{' '}
+        <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+          <code>Th0rgal/lean-ledger-bitcoin</code>
+        </a>
+        , combine deux livrables :
+      </p>
+      <ul>
+        <li>
+          <strong>Un jumeau formel complet en Lean 4</strong> des specs{' '}
+          <code>BIP-32/67/143/327/341/352/370/379/388</code> et des deux machines d&apos;état
+          BOLOS/Vanadium, prouvé avec <code>0 sorryAx</code> et servant d&apos;oracle différentiel
+          sur les suites de tests des deux repos.
+        </li>
+        <li>
+          <strong>Un noyau freestanding zero-alloc</strong> (
+          <code>BitcoinLedger/FreestandingKernels.lean</code> : <code>0</code> import runtime,{' '}
+          <code>0</code> allocation tas, <code>0</code> récursion), compilé par{' '}
+          <a href={TURBO_LEAN_URL} target="_blank" rel="noopener noreferrer">
+            <code>turbo-lean</code>
+          </a>{' '}
+          en LLVM IR 32-bit (<code>thumbv6m</code>, <code>thumbv8m.main</code>,{' '}
+          <code>riscv32imac</code>) et lié en LTO dans les deux binaires pour exécuter directement
+          les vérifications critiques : typechecker Miniscript <code>BIP-379/BIP-388</code> en
+          postfixe, machine d&apos;état <code>nLockTime</code> <code>BIP-370</code>, égalité
+          Dual-UTXO et bornes <code>MAX_MONEY</code>, validation de chemins <code>BIP-32</code>,{' '}
+          <code>CompactSize</code> canonique, tri lexicographique <code>O(1)</code>-stack des clés
+          publiques MuSig2/<code>sortedmulti</code>, et formatage ASCII des montants sans division.
+        </li>
+      </ul>
+      <p>
+        Les intégrations sont des patchs minimalistes :{' '}
+        <a href={BOLOS_PATCH_URL} target="_blank" rel="noopener noreferrer">
+          <code>app-bitcoin-lean-opt.patch</code>
+        </a>{' '}
+        côté BOLOS et{' '}
+        <a href={VANADIUM_PATCH_URL} target="_blank" rel="noopener noreferrer">
+          <code>vanadium-bitcoin-lean-opt.patch</code>
+        </a>{' '}
+        côté Vanadium.
       </p>
 
       <Mermaid chart={MERMAID_ARCHITECTURE} />
@@ -159,11 +203,19 @@ export default function LeanLedgerReportPage() {
         <li>
           <strong>Backend LLVM 32-bit dans <code>turbo-lean</code></strong> : ajout du support
           freestanding 32-bit zero-alloc (<code>thumbv6m</code>, <code>thumbv8m.main</code>,{' '}
-          <code>riscv32imac</code>) dans notre compilateur <code>turbo-lean</code>. Passer par LLVM
-          IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct m&apos;a semblé
-          plus sûr (la sémantique LLVM est déjà largement formalisée) et ne demandait qu&apos;un
-          patch ciblé. Notez qu&apos;il reste donc encore de la marge d&apos;optimisation avec plus
-          de compute.
+          <code>riscv32imac</code>) dans notre compilateur{' '}
+          <a href={TURBO_LEAN_URL} target="_blank" rel="noopener noreferrer">
+            <code>turbo-lean</code>
+          </a>
+          . Passer par LLVM IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct
+          m&apos;a semblé plus sûr (la sémantique LLVM est déjà largement formalisée) et ne
+          demandait qu&apos;un patch ciblé. Notez qu&apos;il reste donc encore de la marge
+          d&apos;optimisation avec plus de compute. Transparence sur la TCB : les théorèmes de
+          préservation sémantique couvrent les passes IR de <code>turbo-lean</code>, tandis que le
+          front-end d&apos;extraction LCNF et <code>clang</code>/<code>lld</code> restent dans la
+          TCB de compilation, auditée par tests différentiels C-ABI, contrôle d&apos;absence de
+          symboles indéfinis (<code>llvm-nm</code>) et bornage statique des frames de pile (
+          <code>.su</code>).
         </li>
         <li>
           <strong>Intégration dans les deux apps</strong> : shim FFI minimal dans{' '}
@@ -206,6 +258,25 @@ export default function LeanLedgerReportPage() {
       </div>
 
       <p>
+        Précisions de lecture. <strong>BOLOS</strong> : Flash, ELF et RAM sont mesurés sur Nano S+
+        (ARMv8-M) ; les latences sont données par device (Nano S+ ARMv8-M, Nano X ARMv6-M) ; le
+        delta Flash est celui du patch complet, un delta à profil de link identique (
+        <code>same-flags</code>) sera ajouté au rafraîchissement des benchmarks.{' '}
+        <strong>Vanadium</strong> : la « RAM réservée » est le budget d&apos;adressage statique de
+        la V-App (<code>RW + stack</code>, 514 → 258 pages de <code>256 B</code>) ; le pic
+        d&apos;allocation heap mesuré (<code>peak_heap_bytes</code>), les pages commitées (
+        <code>vm_page_commits</code>), les latences <code>SIGN_PSBT</code> multisig{' '}
+        <code>wsh(3-of-5, 3 in)</code> et les gains cycliques déterministes sur les hotspots
+        (formatage des montants sans division, <code>0</code> récursion stack) seront reportés en
+        même temps. Les gains Vanadium se décomposent en deux parts : le code Lean et les
+        structures sans allocation à profil Cargo identique (<code>same-profile</code>), et le
+        profil de link (LTO, <code>panic = &quot;abort&quot;</code> sans tables{' '}
+        <code>.eh_frame</code>, strip, budget heap/stack réduit de <code>64+64 KiB</code> à{' '}
+        <code>32+32 KiB</code>, un éventuel <code>panic!</code> terminant immédiatement la V-App
+        via <code>ebreak</code> au lieu de dérouler la pile).
+      </p>
+
+      <p>
         La simulation ci-dessous compare notre V-App Rust patchée avec Lean 4 (à gauche) et la
         V-App de référence (à droite) sur Speculos Ledger Flex lors d&apos;un enregistrement de
         compte Taproot suivi d&apos;un signing PSBT, avec le profil RAM en bas :
@@ -224,8 +295,8 @@ export default function LeanLedgerReportPage() {
         />
         <figcaption className="ldgr-video-caption">
           Speculos Ledger Flex (<code>480×600</code>, slow-mo <code>0,3×</code>) :{' '}
-          <code>vnd-bitcoin</code> + Lean 4 termine en <strong>2,02 s</strong> sous un footprint RAM
-          divisé par deux (<strong>64,3 KiB</strong> vs <strong>128,3 KiB</strong> et{' '}
+          <code>vnd-bitcoin</code> + Lean 4 termine en <strong>2,02 s</strong> sous un budget RAM
+          statique divisé par deux (<strong>64,3 KiB</strong> vs <strong>128,3 KiB</strong> et{' '}
           <strong>2,61 s</strong> pour la baseline).
         </figcaption>
       </figure>
