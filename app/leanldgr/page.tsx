@@ -85,11 +85,10 @@ export default function LeanLedgerReportPage() {
         </div>
       </div>
 
-      <h2 className="section-heading">1. Le défi</h2>
+      <h2 className="section-heading">1. Résumé du Challenge de Charles</h2>
       <p>
-        Ce POC vise à montrer comment Lean 4 permet de réécrire les parties critiques d&apos;un
-        logiciel embarqué existant pour obtenir un binaire à la fois prouvé formellement, plus
-        compact et plus rapide que le code C ou Rust d&apos;origine.
+        Montrer qu&apos;il est viable de réécrire un logiciel existant en Lean4 pour obtenir un
+        binaire prouvé formellement, plus compact et plus rapide.
       </p>
 
       <h2 className="section-heading">2. Méthodologie et architecture</h2>
@@ -130,8 +129,8 @@ export default function LeanLedgerReportPage() {
           <strong>Backend LLVM 32 bits dans <code>turbo-lean</code></strong> : ajout du support
           32 bits sans runtime ni allocation (<code>thumbv6m</code>, <code>thumbv8m.main</code>,{' '}
           <code>riscv32imac</code>) dans notre compilateur <code>turbo-lean</code>. Passer par LLVM
-          IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct est nettement plus
-          sûr (la sémantique LLVM est déjà largement formalisée) et demandait une modification
+          IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct m&apos;a semblé
+          plus sûr (la sémantique LLVM est déjà largement formalisée) et demandait une modification
           mineure ; il reste de la marge d&apos;optimisation avec davantage de ressources.
         </li>
         <li>
