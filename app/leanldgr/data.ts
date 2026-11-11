@@ -362,7 +362,7 @@ export function renderMarkdown(): string {
   const lines: string[] = [
     '# Lean 4 Ledger',
     '',
-    'Montrer qu\'il est viable de réécrire un logiciel existant en Lean4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide.',
+    'Notre thèse est qu\'il est déjà viable aujourd\'hui de réécrire un logiciel existant en Lean4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide. Hier Charles m\'a proposé de commencer avec l\'application Bitcoin de Ledger, voici le résultat en une journée.',
     '',
     '## 1. Méthodologie et architecture',
     '',

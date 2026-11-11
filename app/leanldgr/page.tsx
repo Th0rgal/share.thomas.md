@@ -97,8 +97,10 @@ export default function LeanLedgerReportPage() {
       <h1 className="title-display">Lean 4 Ledger</h1>
 
       <p>
-        Montrer qu&apos;il est viable de réécrire un logiciel existant en Lean4 pour obtenir un
-        binaire prouvé formellement, plus compact et plus rapide.
+        Notre thèse est qu&apos;il est déjà viable aujourd&apos;hui de réécrire un logiciel existant
+        en Lean4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide. Hier
+        Charles m&apos;a proposé de commencer avec l&apos;application Bitcoin de Ledger, voici le
+        résultat en une journée.
       </p>
 
       <h2 className="section-heading">1. Méthodologie et architecture</h2>
