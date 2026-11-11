@@ -103,6 +103,13 @@ export default function LeanLedgerReportPage() {
         résultat en une journée.
       </p>
 
+      <div className="ldgr-callout" role="note">
+        <strong>IMPORTANT :</strong> Il s&apos;agit d&apos;une POC réalisée en une journée, pas
+        d&apos;un livrable prêt pour la production : une utilisation réelle demanderait davantage de
+        review interne de notre côté ainsi que la confirmation de plusieurs choix de modélisation et
+        d&apos;intégration avec un expert du domaine.
+      </div>
+
       <h2 className="section-heading">1. Méthodologie et architecture</h2>
       <p>
         Côté temps humain, j&apos;ai passé environ <strong>1 h</strong> au départ pour cadrer le
@@ -291,11 +298,11 @@ export default function LeanLedgerReportPage() {
       <ul>
         <li>
           <strong>379,0 CPU hours</strong> de compute cumulé (<code>327,4 CPU-h</code> sur 25
-          microVMs cloud Boat AMD Zen 5 + <code>51,6 CPU-h</code> sur <code>ashur</code> pendant les
-          tours actifs).
+          microVMs cloud éphémères AMD Zen + <code>51,6 CPU-h</code> sur notre serveur dédié{' '}
+          <code>ashur</code> pendant les tours actifs).
         </li>
         <li>
-          <strong>654,9 GB RAM hours</strong> sur les VMs cloud dédiées (
+          <strong>654,9 GB RAM hours</strong> sur les VMs cloud éphémères (
           <code>1 049,6 GB RAM-h</code> en comptant la RAM réservée sur <code>ashur</code> durant
           les tours actifs).
         </li>
@@ -306,20 +313,21 @@ export default function LeanLedgerReportPage() {
       </ul>
 
       <p>
-        Côté coût estimé, le compute cloud a été facturé <strong>$3,42</strong> au total sur les 25
-        microVMs éphémères Boat (<code>$1,72</code> sur 4 VMs <code>xlarge</code> à{' '}
-        <code>$0,20/h</code>, <code>$1,70</code> sur 20 VMs <code>large</code> à{' '}
-        <code>$0,072/h</code> et <code>&lt;&nbsp;$0,01</code> sur 1 VM <code>default</code>), plus
-        le nœud dédié <code>ashur</code> déjà provisionné (<code>$0</code> marginal,{' '}
-        <code>~$0,46</code> d&apos;équivalent cloud). L&apos;inférence n&apos;a entraîné{' '}
-        <strong>$0 de surcoût marginal</strong> (couverte par nos forfaits Antigravity et les
-        endpoints mis à disposition par l&apos;Ethereum Foundation), mais représente environ{' '}
-        <strong>~$298 en équivalent API public</strong> aux tarifs standards par token grâce à ~90 %
-        de lecture de cache (<code>~$116,00</code> sur Gemini Carbon 4 pour <code>472,0 M</code>{' '}
-        tokens à 94,7 % de cache hit, <code>~$106,50</code> sur GLM-5.3 sans cache pour{' '}
-        <code>74,6 M</code> tokens, <code>~$71,30</code> sur le coordinateur{' '}
-        <code>builtin/smart</code> pour <code>141,0 M</code> tokens et <code>~$3,84</code> sur
-        Qwen3.8-27B), soit <strong>~$301</strong> d&apos;équivalent cloud + API tout compris.
+        En valorisant ce run aux tarifs publics les plus élevés (inférence à l&apos;API Google
+        Gemini Pro au palier haut <code>&gt;&nbsp;200k</code> de contexte : <code>$4,00/M</code> en
+        entrée hors cache, <code>$0,40/M</code> en lecture de cache et <code>$18,00/M</code> en
+        sortie ; location des 25 VMs éphémères en AWS EC2 On-Demand <code>c7a</code> AMD EPYC),
+        l&apos;ensemble revient à environ <strong>~$535 d&apos;API Google</strong> pour les{' '}
+        <code>696,6 M</code> tokens avec ~91,5 % de lecture de cache (<code>~$163,40</code> sur le
+        coordinateur pour <code>141,0 M</code> tokens et <code>~$372,00</code> sur les 29 subagents
+        pour <code>555,6 M</code> tokens) et <strong>~$16,80 sur AWS</strong> pour les 25 VMs (
+        <code>$7,06</code> pour <code>8,6 h</code> en <code>c7a.4xlarge</code> 16 vCPU / 32 GiB à{' '}
+        <code>$0,821/h</code>, <code>$9,72</code> pour <code>23,7 h</code> en{' '}
+        <code>c7a.2xlarge</code> 8 vCPU / 16 GiB à <code>$0,411/h</code> et <code>$0,02</code> en{' '}
+        <code>c7a.xlarge</code>), soit <strong>~$552 au total</strong>. Cette estimation exclut
+        notre infrastructure personnelle (le nœud dédié <code>ashur</code>, ainsi que nos GPUs
+        utilisés en amont pour d&apos;éventuels entraînements de modèles visant à optimiser le
+        compilateur), dont la part amortie sur ce run reste relativement négligeable.
       </p>
 
       <OrbResourcesEmbed />

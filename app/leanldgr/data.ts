@@ -364,6 +364,8 @@ export function renderMarkdown(): string {
     '',
     'Notre thèse est qu\'il est déjà viable aujourd\'hui de réécrire un logiciel existant en Lean4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide. Hier Charles m\'a proposé de commencer avec l\'application Bitcoin de Ledger, voici le résultat en une journée.',
     '',
+    '> **IMPORTANT :** Il s\'agit d\'une POC réalisée en une journée, pas d\'un livrable prêt pour la production : une utilisation réelle demanderait davantage de review interne de notre côté ainsi que la confirmation de plusieurs choix de modélisation et d\'intégration avec un expert du domaine.',
+    '',
     '## 1. Méthodologie et architecture',
     '',
     'Côté temps humain, j\'ai passé environ **1 h** au départ pour cadrer le problème, poser les specs haut niveau et designer le pipeline (j\'avais déjà une idée de la stack Ledger donc j\'ai gagné un peu de temps), **15 min** ce matin pour débloquer un souci de routing d\'inférence, et **1 h** à la fin pour review et polir l\'ensemble. Tout le reste a tourné en autonomie.',
@@ -408,11 +410,11 @@ export function renderMarkdown(): string {
     '',
     'L\'ensemble du run autonome (formalisation, patch compilateur `turbo-lean`, preuves des `2 405` théorèmes, intégration C/Rust et boucles `maxwell`) a tourné en **19,9 h** wall-clock (dont 2 heures de pause à cause d\'un problème d\'approvisionnement d\'inférence que j\'ai réglé à la main) à travers **30 agents actifs** et **25 microVMs cloud** orchestrés dans [Orb](https://github.com/th0rgal/orb) :',
     '',
-    '- **379,0 CPU hours** de compute cumulé (`327,4 CPU-h` sur 25 microVMs cloud Boat AMD Zen 5 + `51,6 CPU-h` sur `ashur` pendant les tours actifs).',
-    '- **654,9 GB RAM hours** sur les VMs cloud dédiées (`1 049,6 GB RAM-h` en comptant la RAM réservée sur `ashur` durant les tours actifs).',
+    '- **379,0 CPU hours** de compute cumulé (`327,4 CPU-h` sur 25 microVMs cloud éphémères AMD Zen + `51,6 CPU-h` sur notre serveur dédié `ashur` pendant les tours actifs).',
+    '- **654,9 GB RAM hours** sur les VMs cloud éphémères (`1 049,6 GB RAM-h` en comptant la RAM réservée sur `ashur` durant les tours actifs).',
     '- **23,2 M tokens / agent** en moyenne (`696,6 M` tokens cumulés sur `30` agents actifs : `1` coordinateur + `29` subagents).',
     '',
-    'Côté coût estimé, le compute cloud a été facturé **$3,42** au total sur les 25 microVMs éphémères Boat (`$1,72` sur 4 VMs `xlarge` à `$0,20/h`, `$1,70` sur 20 VMs `large` à `$0,072/h` et `< $0,01` sur 1 VM `default`), plus le nœud dédié `ashur` déjà provisionné (`$0` marginal, `~$0,46` d\'équivalent cloud). L\'inférence n\'a entraîné **$0 de surcoût marginal** (couverte par nos forfaits Antigravity et les endpoints mis à disposition par l\'Ethereum Foundation), mais représente environ **~$298 en équivalent API public** aux tarifs standards par token grâce à ~90 % de lecture de cache (`~$116,00` sur Gemini Carbon 4 pour `472,0 M` tokens à 94,7 % de cache hit, `~$106,50` sur GLM-5.3 sans cache pour `74,6 M` tokens, `~$71,30` sur le coordinateur `builtin/smart` pour `141,0 M` tokens et `~$3,84` sur Qwen3.8-27B), soit **~$301** d\'équivalent cloud + API tout compris.',
+    'En valorisant ce run aux tarifs publics les plus élevés (inférence à l\'API Google Gemini Pro au palier haut `> 200k` de contexte : `$4,00/M` en entrée hors cache, `$0,40/M` en lecture de cache et `$18,00/M` en sortie ; location des 25 VMs éphémères en AWS EC2 On-Demand `c7a` AMD EPYC), l\'ensemble revient à environ **~$535 d\'API Google** pour les `696,6 M` tokens avec ~91,5 % de lecture de cache (`~$163,40` sur le coordinateur pour `141,0 M` tokens et `~$372,00` sur les 29 subagents pour `555,6 M` tokens) et **~$16,80 sur AWS** pour les 25 VMs (`$7,06` pour `8,6 h` en `c7a.4xlarge` 16 vCPU / 32 GiB à `$0,821/h`, `$9,72` pour `23,7 h` en `c7a.2xlarge` 8 vCPU / 16 GiB à `$0,411/h` et `$0,02` en `c7a.xlarge`), soit **~$552 au total**. Cette estimation exclut notre infrastructure personnelle (le nœud dédié `ashur`, ainsi que nos GPUs utilisés en amont pour d\'éventuels entraînements de modèles visant à optimiser le compilateur), dont la part amortie sur ce run reste relativement négligeable.',
     ''
   ]
   return lines.join('\n')

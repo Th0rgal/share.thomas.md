@@ -165,7 +165,7 @@ export default function OrbResourcesEmbed() {
                 className={`ldgr-orb-seg-btn ${submode === 'dag' ? 'is-active' : ''}`}
                 onClick={() => setSubmode('dag')}
               >
-                {lens === 'inference' ? 'DAG · Subagents (30)' : 'DAG · VMs Boat (25)'}
+                {lens === 'inference' ? 'DAG · Subagents (30)' : 'DAG · VMs cloud (25)'}
               </button>
             </div>
 
@@ -193,8 +193,7 @@ export default function OrbResourcesEmbed() {
                 <>
                   <strong>{fmtFr(totalVal, 1)}M tok</strong>
                   <span>·</span>
-                  <strong>$0 facturé</strong>
-                  <span>(~$298 eq. API)</span>
+                  <strong>~$535 API Google</strong>
                   <span>·</span>
                   <span>pic {fmtFr(curve.peak, 1)} M tok/h</span>
                 </>
@@ -202,8 +201,8 @@ export default function OrbResourcesEmbed() {
                 <>
                   <strong>{fmtFr(totalVal, 1)} CPU-h</strong>
                   <span>·</span>
-                  <strong>$3,42 cloud</strong>
-                  <span>(+$0 ashur)</span>
+                  <strong>~$16,80 AWS</strong>
+                  <span>(hors ashur)</span>
                   <span>·</span>
                   <span>pic {fmtFr(curve.peak, 0)} vCPU</span>
                 </>
@@ -223,7 +222,7 @@ export default function OrbResourcesEmbed() {
                     : 'Compute Flow · Cloud VMs & Host → Execution Waves'
                   : lens === 'inference'
                     ? 'Subagent Execution DAG · 1 coordinateur + 29 workers actifs'
-                    : 'Cloud MicroVM Leases · 25 machines Boat Zen 5'}
+                    : 'Cloud MicroVM Leases · 25 machines éphémères (eq. AWS c7a)'}
               </span>
               {isolated && submode === 'flow' && (
                 <button
@@ -410,8 +409,8 @@ export default function OrbResourcesEmbed() {
                   {isolated
                     ? isolated.costLabel
                     : lens === 'inference'
-                      ? '$0 facturé (~$298 eq. API)'
-                      : '$3,42 Boat (+$0 ashur)'}
+                      ? '~$535 eq. API Google (>200k)'
+                      : '~$16,80 eq. AWS c7a (hors ashur)'}
                 </>
               )}
             </span>
@@ -532,7 +531,7 @@ export default function OrbResourcesEmbed() {
               : "Fenêtre complète : 10 nov. 15:15 UTC → 11 nov. 11:15 UTC (19,9 h wall-clock dont 2 heures de pause à cause d'un problème d'approvisionnement d'inférence réglé à la main)"}
           </span>
           <span className="ldgr-orb-foot-mono">
-            Compute : $3,42 Boat (+$0 ashur) · Inférence : $0 marginal (~$298 eq. API)
+            Compute : ~$16,80 eq. AWS c7a (hors ashur) · Inférence : ~$535 eq. API Google
           </span>
         </div>
       </div>
@@ -578,7 +577,7 @@ function DagTimeline({
         startMin: 0,
         durMin: 1195,
         color: '#cf6a2d',
-        detail: 'Coordinateur racine sur ashur · 141,0M tok · $0 facturé (~$71,30 eq. API, 201 tours)',
+        detail: 'Coordinateur racine sur ashur · 141,0M tok · ~$163,36 eq. API Google (201 tours)',
         y: (y += 16)
       })
       y += 22
@@ -605,7 +604,7 @@ function DagTimeline({
           startMin: a.startMin,
           durMin: a.durMin,
           color,
-          detail: `${a.title} · ${fmtFr(a.tokensM, 1)}M tok · ~$${fmtFr(a.apiEqUsd, 2)} eq. API ($0 facturé, ${a.pool}, ${a.durMin} min)`,
+          detail: `${a.title} · ${fmtFr(a.tokensM, 1)}M tok · ~$${fmtFr(a.apiEqUsd, 2)} eq. API Google (${a.pool}, ${a.durMin} min)`,
           y
         })
         y += 21
@@ -645,7 +644,7 @@ function DagTimeline({
               ? '#2f83bf'
               : '#627eea'
         const vmCostStr =
-          v.costUsd < 0.01 ? `<$0,01` : `$${fmtFr(v.costUsd, 2)}`
+          v.costUsd < 0.01 ? `<$0,01` : `~$${fmtFr(v.costUsd, 2)}`
         out.push({
           id: `${v.id}-${v.startMin}`,
           label: `${v.name} (${v.cpu}c/${v.ramGb}G · ${vmCostStr})`,
@@ -654,7 +653,7 @@ function DagTimeline({
           startMin: v.startMin,
           durMin: v.durMin,
           color,
-          detail: `${v.name} (boat:${v.size}) · $${fmtFr(v.costUsd, 3)} facturé · ${fmtFr(v.cpuH, 1)} CPU-h · ${fmtFr(v.ramGh, 1)} GB·h — ${v.reason}`,
+          detail: `${v.name} (${v.cpu} vCPU / ${v.ramGb} GiB) · ~$${fmtFr(v.costUsd, 2)} eq. AWS c7a · ${fmtFr(v.cpuH, 1)} CPU-h · ${fmtFr(v.ramGh, 1)} GB·h — ${v.reason}`,
           y
         })
         y += 21
