@@ -317,21 +317,12 @@ export default function LeanLedgerReportPage() {
       </ul>
 
       <p>
-        En valorisant ce run aux tarifs publics les plus élevés (inférence à l&apos;API Google
-        Gemini Pro au palier haut <code>&gt;&nbsp;200k</code> de contexte : <code>$4,00/M</code> en
-        entrée hors cache, <code>$0,40/M</code> en lecture de cache et <code>$18,00/M</code> en
-        sortie ; location des 25 VMs éphémères en AWS EC2 On-Demand <code>c7a</code> AMD EPYC),
-        l&apos;ensemble revient à environ <strong>~$535 d&apos;API Google</strong> pour les{' '}
-        <code>696,6 M</code> tokens avec ~91,5 % de lecture de cache (<code>~$163,40</code> sur le
-        coordinateur pour <code>141,0 M</code> tokens et <code>~$372,00</code> sur les 29 subagents
-        pour <code>555,6 M</code> tokens) et <strong>~$16,80 sur AWS</strong> pour les 25 VMs (
-        <code>$7,06</code> pour <code>8,6 h</code> en <code>c7a.4xlarge</code> 16 vCPU / 32 GiB à{' '}
-        <code>$0,821/h</code>, <code>$9,72</code> pour <code>23,7 h</code> en{' '}
-        <code>c7a.2xlarge</code> 8 vCPU / 16 GiB à <code>$0,411/h</code> et <code>$0,02</code> en{' '}
-        <code>c7a.xlarge</code>), soit <strong>~$552 au total</strong>. Cette estimation exclut
-        notre infrastructure personnelle (le nœud dédié <code>ashur</code>, ainsi que nos GPUs
-        utilisés en amont pour d&apos;éventuels entraînements de modèles visant à optimiser le
-        compilateur), dont la part amortie sur ce run reste relativement négligeable.
+        Aux tarifs publics de l&apos;API Google et d&apos;OrcaRouter (pour{' '}
+        <code>GLM 5.3 uncensored</code>) côté inférence, et d&apos;AWS EC2 On-Demand côté location
+        des VMs, ce run reviendrait à environ <strong>~$520 + ~$17</strong> (soit{' '}
+        <strong>~$537</strong> au total), hors infrastructure personnelle (le serveur dédié{' '}
+        <code>ashur</code> et nos GPUs d&apos;entraînement amont pour optimiser le compilateur, dont
+        la part amortie sur ce run reste relativement négligeable).
       </p>
 
       <OrbResourcesEmbed />

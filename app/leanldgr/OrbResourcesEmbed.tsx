@@ -193,7 +193,7 @@ export default function OrbResourcesEmbed() {
                 <>
                   <strong>{fmtFr(totalVal, 1)}M tok</strong>
                   <span>·</span>
-                  <strong>~$535 API Google</strong>
+                  <strong>~$520 API</strong>
                   <span>·</span>
                   <span>pic {fmtFr(curve.peak, 1)} M tok/h</span>
                 </>
@@ -201,7 +201,7 @@ export default function OrbResourcesEmbed() {
                 <>
                   <strong>{fmtFr(totalVal, 1)} CPU-h</strong>
                   <span>·</span>
-                  <strong>~$16,80 AWS</strong>
+                  <strong>~$17 AWS</strong>
                   <span>(hors ashur)</span>
                   <span>·</span>
                   <span>pic {fmtFr(curve.peak, 0)} vCPU</span>
@@ -409,8 +409,8 @@ export default function OrbResourcesEmbed() {
                   {isolated
                     ? isolated.costLabel
                     : lens === 'inference'
-                      ? '~$535 eq. API Google (>200k)'
-                      : '~$16,80 eq. AWS c7a (hors ashur)'}
+                      ? '~$520 eq. API Google + OrcaRouter'
+                      : '~$17 eq. AWS (hors ashur)'}
                 </>
               )}
             </span>
@@ -531,7 +531,7 @@ export default function OrbResourcesEmbed() {
               : "Fenêtre complète : 10 nov. 15:15 UTC → 11 nov. 11:15 UTC (19,9 h wall-clock dont 2 heures de pause à cause d'un problème d'approvisionnement d'inférence réglé à la main)"}
           </span>
           <span className="ldgr-orb-foot-mono">
-            Compute : ~$16,80 eq. AWS c7a (hors ashur) · Inférence : ~$535 eq. API Google
+            Inférence : ~$520 (API Google + OrcaRouter) · Compute : ~$17 AWS (hors ashur)
           </span>
         </div>
       </div>
@@ -604,7 +604,7 @@ function DagTimeline({
           startMin: a.startMin,
           durMin: a.durMin,
           color,
-          detail: `${a.title} · ${fmtFr(a.tokensM, 1)}M tok · ~$${fmtFr(a.apiEqUsd, 2)} eq. API Google (${a.pool}, ${a.durMin} min)`,
+          detail: `${a.title} · ${fmtFr(a.tokensM, 1)}M tok · ~$${fmtFr(a.apiEqUsd, 2)} eq. ${a.pool === 'carbon-4' ? 'API Google' : 'OrcaRouter'} (${a.pool}, ${a.durMin} min)`,
           y
         })
         y += 21
