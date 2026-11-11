@@ -1,16 +1,20 @@
 import type { Metadata } from 'next'
 import Mermaid from '../components/Mermaid'
+import OrbResourcesEmbed from './OrbResourcesEmbed'
 import {
-  BENCHMARK_ROWS,
+  C_BENCH_BARS,
   MERMAID_ARCHITECTURE,
   PAGE_TITLE,
-  VANADIUM_ISSUES
+  RUST_BENCH_BARS,
+  VANADIUM_ISSUES,
+  type BenchmarkChartItem
 } from './data'
+import './leanldgr.css'
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description:
-    'POC Lean 4 sur les applications Bitcoin C (BOLOS) et Rust (Vanadium) de Ledger : preuves formelles, empreinte memoire reduite et execution plus rapide.',
+    'POC Lean 4 sur les apps Bitcoin C (BOLOS) et Rust (Vanadium) de Ledger : preuves formelles, empreinte RAM/Flash réduite et exécution plus rapide.',
   alternates: {
     canonical: 'https://share.thomas.md/leanldgr'
   },
@@ -18,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: PAGE_TITLE,
     description:
-      'Verification formelle Lean 4 et optimisation binaire sur Ledger app-bitcoin (C) et Vanadium (Rust).',
+      'Vérification formelle Lean 4 et optimisation binaire sur Ledger app-bitcoin (C) et Vanadium (Rust).',
     url: 'https://share.thomas.md/leanldgr',
     type: 'article'
   }
@@ -30,6 +34,65 @@ function sevClass(sev: 'High' | 'Medium' | 'Low'): string {
   return 'sev-badge sev-low'
 }
 
+function BenchmarkColumn({
+  title,
+  sub,
+  items,
+  variant,
+  footer
+}: {
+  title: string
+  sub: string
+  items: BenchmarkChartItem[]
+  variant: 'rust' | 'c'
+  footer: string
+}) {
+  return (
+    <div className="ldgr-bench-col">
+      <div className="ldgr-bench-col-head">
+        <span className="ldgr-bench-col-title">{title}</span>
+        <span className="ldgr-bench-col-sub">{sub}</span>
+      </div>
+
+      {items.map((item) => (
+        <div key={item.label} className="ldgr-metric">
+          <div className="ldgr-metric-head">
+            <span className="ldgr-metric-name">{item.label}</span>
+            <span className="ldgr-metric-delta">{item.delta}</span>
+          </div>
+          <div className="ldgr-bars">
+            <div className="ldgr-bar-row">
+              <span className="ldgr-bar-tag">Baseline</span>
+              <div className="ldgr-bar-track">
+                <div className="ldgr-bar-fill is-orig" style={{ width: '100%' }} />
+                <div className="ldgr-bar-val">
+                  <span>{item.origValue}</span>
+                  <span>100 %</span>
+                </div>
+              </div>
+            </div>
+            <div className="ldgr-bar-row is-opt">
+              <span className="ldgr-bar-tag is-opt">+ Lean 4</span>
+              <div className="ldgr-bar-track">
+                <div
+                  className={`ldgr-bar-fill ${variant === 'rust' ? 'is-opt-rust' : 'is-opt-c'}`}
+                  style={{ width: `${item.optPct}%` }}
+                />
+                <div className="ldgr-bar-val">
+                  <span>{item.optValue}</span>
+                  <span>{item.optPct.toFixed(1).replace('.', ',')} %</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+
+      <div className="ldgr-bench-foot">{footer}</div>
+    </div>
+  )
+}
+
 export default function LeanLedgerReportPage() {
   return (
     <article className="is-posts">
@@ -37,7 +100,7 @@ export default function LeanLedgerReportPage() {
 
       <div className="report-subtitle not-prose">
         <span>
-          Cibles :{' '}
+          Targets :{' '}
           <a
             href="https://github.com/LedgerHQ/app-bitcoin/tree/f010982d3050e02813cd7129bebd68cf2d1f2099"
             target="_blank"
@@ -54,65 +117,35 @@ export default function LeanLedgerReportPage() {
             LedgerHQ/vanadium@ace8e969
           </a>
         </span>
-        {' · '}
-        <span>
-          Preuves : <code>0 sorryAx</code> (<code>2 405</code> théorèmes)
-        </span>
-        {' · '}
-        <a href="/leanldgr.md">Raw .md</a>
-      </div>
-
-      <div className="stats-grid not-prose">
-        <div className="stat-card">
-          <div className="stat-value">-49,9 %</div>
-          <div className="stat-label">RAM V-App (Rust)</div>
-          <div className="stat-sub">128,3 KiB → 64,3 KiB sur Flex</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">-20,2 %</div>
-          <div className="stat-label">Code V-App (Rust)</div>
-          <div className="stat-sub">306,0 KiB → 244,4 KiB (-241 pages)</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">-22,5 %</div>
-          <div className="stat-label">Signature PSBT (Flex)</div>
-          <div className="stat-sub">2,61 s → 2,02 s sur Speculos</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">9</div>
-          <div className="stat-label">Anomalies Vanadium</div>
-          <div className="stat-sub">7/9 non signalées (0 issue ouverte)</div>
-        </div>
       </div>
 
       <h2 className="section-heading">1. Résumé du Challenge de Charles</h2>
       <p>
-        Montrer qu&apos;il est viable de réécrire un logiciel existant en Lean4 pour obtenir un
+        Montrer qu&apos;il est viable de réécrire un logiciel existant en Lean 4 pour obtenir un
         binaire prouvé formellement, plus compact et plus rapide.
       </p>
 
       <h2 className="section-heading">2. Méthodologie et architecture</h2>
       <p>
-        Côté temps humain, il m&apos;a fallu environ <strong>1 h</strong> au départ pour cadrer le
-        problème, poser les spécifications haut niveau et concevoir le pipeline (aidé par une
-        connaissance de base du fonctionnement de Ledger), environ <strong>10 min</strong>{' '}
-        d&apos;intervention manuelle hier soir pour régler un souci d&apos;inférence, et{' '}
-        <strong>1 h</strong> à la fin pour relire et polir l&apos;ensemble. Tout le reste a tourné
-        en autonomie.
+        Côté temps humain, j&apos;ai passé environ <strong>1 h</strong> au départ pour cadrer le
+        problème, poser les specs haut niveau et designer le pipeline (aidé par une connaissance de
+        base de la stack Ledger), <strong>10 min</strong> hier soir pour débloquer un souci de
+        routing d&apos;inférence, et <strong>1 h</strong> à la fin pour review et polir
+        l&apos;ensemble. Tout le reste a tourné en autonomie.
       </p>
       <p>
-        Ledger maintient deux applications Bitcoin dont la chaîne de compilation diffère :
-        l&apos;application historique en C (<code>app-bitcoin</code>), compilée nativement en ARM
-        Thumb directement au-dessus de BOLOS, et la nouvelle V-App en Rust (<code>vanadium</code>),
-        compilée en RISC-V 32 bits (<code>RV32IMAC</code>) puis exécutée par pages de 256 octets
-        authentifiées par arbre de Merkle dans une VM tournant sur BOLOS.
+        Ledger maintient deux apps Bitcoin aux toolchains très différentes : l&apos;app historique
+        en C (<code>app-bitcoin</code>), compilée nativement en ARM Thumb directement au-dessus de
+        BOLOS, et la nouvelle V-App en Rust (<code>vanadium</code>), compilée en RISC-V 32-bit (
+        <code>RV32IMAC</code>) puis exécutée par pages de 256 octets authentifiées par Merkle tree
+        dans une VM tournant sur BOLOS.
       </p>
       <p>
-        Plutôt que de toucher à l&apos;interface graphique ou au transport APDU/ECALL (réécrire
-        l&apos;UI en Lean 4 serait pénible et peu utile), nous avons isolé un noyau commun pour la
-        logique partagée (validation PSBT, montants, BIP-32, SegWit/Taproot, politiques
-        BIP-388/Miniscript, formatage sans division), qui concentre l&apos;essentiel de la surface
-        d&apos;attaque, en gardant l&apos;UI et l&apos;IO existantes dans chaque application :
+        Plutôt que de toucher à l&apos;UI ou au transport APDU/ECALL (réécrire l&apos;UI en Lean 4
+        aurait peu d&apos;intérêt), on a isolé un kernel commun zero-alloc pour la logique partagée
+        (validation PSBT, accounting des montants, BIP-32, SegWit/Taproot, policies
+        BIP-388/Miniscript, formatage division-free), qui concentre l&apos;essentiel de la surface
+        d&apos;attaque, en gardant l&apos;UI et l&apos;IO d&apos;origine dans chaque app :
       </p>
 
       <Mermaid chart={MERMAID_ARCHITECTURE} />
@@ -120,74 +153,60 @@ export default function LeanLedgerReportPage() {
       <h2 className="section-heading">3. Plan d&apos;exécution</h2>
       <ol>
         <li>
-          <strong>Spécifications formelles et backtesting croisé</strong> : formalisation des BIPs
-          en Lean 4 à partir du cadrage haut niveau, puis implémentation du noyau exécutable en
-          bouclant sur les suites de tests des deux dépôts (<code>ctest</code>/Ragger côté C,{' '}
+          <strong>Specs formelles et cross-backtesting</strong> : formalisation des BIPs en Lean 4
+          à partir du cadrage haut niveau, puis implémentation du kernel exécutable en bouclant sur
+          les test suites des deux repos (<code>ctest</code>/Ragger côté C,{' '}
           <code>cargo test</code>/Speculos côté Rust) pour affiner la spec jusqu&apos;à convergence.
         </li>
         <li>
-          <strong>Backend LLVM 32 bits dans <code>turbo-lean</code></strong> : ajout du support
-          32 bits sans runtime ni allocation (<code>thumbv6m</code>, <code>thumbv8m.main</code>,{' '}
+          <strong>Backend LLVM 32-bit dans <code>turbo-lean</code></strong> : ajout du support
+          freestanding 32-bit zero-alloc (<code>thumbv6m</code>, <code>thumbv8m.main</code>,{' '}
           <code>riscv32imac</code>) dans notre compilateur <code>turbo-lean</code>. Passer par LLVM
-          IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct m&apos;a semblé
-          plus sûr (la sémantique LLVM est déjà largement formalisée) et demandait une modification
-          mineure ; il reste de la marge d&apos;optimisation avec davantage de ressources.
+          IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct est plus safe (la
+          sémantique LLVM est déjà largement formalisée) et ne demandait qu&apos;un patch ciblé ;
+          il reste encore de la marge d&apos;optimisation avec plus de compute.
         </li>
         <li>
-          <strong>Intégration dans les deux apps</strong> : patch minimal de{' '}
-          <code>app-bitcoin</code> et de <code>vnd-bitcoin</code> conservant l&apos;UI/IO d&apos;origine
-          et liant les noyaux Lean en LTO.
+          <strong>Intégration dans les deux apps</strong> : shim FFI minimal dans{' '}
+          <code>app-bitcoin</code> et <code>vnd-bitcoin</code> conservant l&apos;UI/IO
+          d&apos;origine et linkant les kernels Lean en LTO.
         </li>
         <li>
-          <strong>Boucle d&apos;optimisation <code>maxwell</code></strong> : exécution de benchmarks
-          reproductibles dans notre boucle propriétaire <code>maxwell</code> sous contrainte de
-          preuve (<code>0 sorryAx</code>) et de passage intégral des tests, jusqu&apos;à réduire la
-          Flash, la RAM et le temps d&apos;exécution sous les deux références.
+          <strong>Boucle d&apos;optimisation <code>maxwell</code></strong> : benchmarks
+          reproductibles dans notre harness propriétaire <code>maxwell</code> sous contrainte de
+          preuve (<code>0 sorryAx</code>, <code>2 405</code> théorèmes) et de 100 % des tests au
+          vert, jusqu&apos;à passer sous les baselines Flash, RAM et latence sur les deux targets.
         </li>
       </ol>
 
       <h2 className="section-heading">4. Résultats et simulation</h2>
       <p>
-        Sur les deux cibles, la version patchée avec Lean 4 est simultanément plus légère et plus
-        rapide que l&apos;original non modifié, tout en passant 100 % des suites de tests :
+        Sur les deux targets, le binaire patché avec Lean 4 est simultanément plus léger et plus
+        rapide que la baseline non modifiée (chaque barre compare l&apos;original à{' '}
+        <code>100 %</code> avec la version Lean 4) :
       </p>
 
-      <div className="coverage-table-wrap not-prose">
-        <table className="coverage-table">
-          <thead>
-            <tr>
-              <th>Métrique</th>
-              <th>Original C</th>
-              <th>Patched C (Lean 4)</th>
-              <th>Original Rust</th>
-              <th>Patched Rust (Lean 4)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {BENCHMARK_ROWS.map((row) => (
-              <tr key={row.metric}>
-                <td>
-                  <strong>{row.metric}</strong>
-                </td>
-                <td>{row.origC}</td>
-                <td>
-                  <strong>{row.patchedC}</strong>
-                </td>
-                <td>{row.origRust}</td>
-                <td>
-                  <strong>{row.patchedRust}</strong>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="ldgr-bench-grid not-prose">
+        <BenchmarkColumn
+          title="Vanadium V-App (Rust → + Lean 4)"
+          sub="RV32IMAC · Ledger Flex"
+          items={RUST_BENCH_BARS}
+          variant="rust"
+          footer="176/176 tests unitaires & Speculos · 9 bugs fixés & prouvés"
+        />
+        <BenchmarkColumn
+          title="BOLOS App (C → + Lean 4)"
+          sub="ARM Thumb · Nano S+ / X"
+          items={C_BENCH_BARS}
+          variant="c"
+          footer="31/31 ctest · 277/277 Ragger · 2 405 théorèmes (0 sorryAx)"
+        />
       </div>
 
       <p>
-        La simulation ci-dessous compare côte à côte notre V-App Rust patchée avec Lean 4 (à
-        gauche) et la V-App Rust de référence (à droite) sur Speculos Ledger Flex lors d&apos;un
-        enregistrement de compte Taproot suivi d&apos;une signature PSBT, avec l&apos;empreinte RAM
-        en bas :
+        La simulation side-by-side ci-dessous compare notre V-App Rust patchée avec Lean 4 (à
+        gauche) et la V-App de référence (à droite) sur Speculos Ledger Flex lors d&apos;un
+        enregistrement de compte Taproot suivi d&apos;un signing PSBT, avec le profil RAM en bas :
       </p>
 
       <figure
@@ -218,21 +237,21 @@ export default function LeanLedgerReportPage() {
             borderTop: '1px solid var(--rule)'
           }}
         >
-          Speculos Ledger Flex (<code>480×600</code>, ralenti <code>0,3×</code>) :{' '}
-          <code>vnd-bitcoin</code> patché Lean 4 termine en <strong>2,02 s</strong> sous un budget
-          RAM divisé par deux (<strong>64,3 KiB</strong> contre <strong>128,3 KiB</strong> et{' '}
-          <strong>2,61 s</strong> pour la référence).
+          Speculos Ledger Flex (<code>480×600</code>, slow-mo <code>0,3×</code>) :{' '}
+          <code>vnd-bitcoin</code> + Lean 4 termine en <strong>2,02 s</strong> sous un footprint RAM
+          divisé par deux (<strong>64,3 KiB</strong> vs <strong>128,3 KiB</strong> et{' '}
+          <strong>2,61 s</strong> pour la baseline).
         </figcaption>
       </figure>
 
-      <h2 className="section-heading">5. Anomalies trouvées dans Vanadium</h2>
+      <h2 className="section-heading">5. Bugs et anomalies trouvés dans Vanadium</h2>
       <p>
         La formalisation croisée entre <code>app-bitcoin</code> et <code>vanadium</code> a fait
-        ressortir <strong>9 anomalies</strong> dans <code>LedgerHQ/vanadium</code> (commit{' '}
-        <code>ace8e969</code>). <strong>7 sur 9 n&apos;étaient signalées nulle part</strong> (les 2
-        autres n&apos;avaient qu&apos;un commentaire <code>TODO</code> ou <code>todo!()</code>{' '}
-        partiel dans le code, et <code>0</code> issue GitHub ouverte). Nous n&apos;avons ouvert
-        aucune issue publique sur GitHub ; toutes sont corrigées dans le patch.
+        ressortir <strong>9 bugs et écarts de spec</strong> dans <code>LedgerHQ/vanadium</code> (
+        <code>ace8e969</code>). <strong>7 sur 9 n&apos;étaient documentés nulle part</strong> (les 2
+        autres n&apos;avaient qu&apos;un <code>TODO</code> ou <code>todo!()</code> partiel dans le
+        code, et <code>0</code> issue GitHub ouverte). Nous n&apos;avons ouvert aucune issue
+        publique ; tout est fixé dans le patch.
       </p>
 
       <div className="coverage-table-wrap not-prose">
@@ -240,9 +259,9 @@ export default function LeanLedgerReportPage() {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Niveau</th>
+              <th>Sévérité</th>
               <th>Emplacement</th>
-              <th>Statut amont</th>
+              <th>Statut upstream</th>
               <th>Description</th>
             </tr>
           </thead>
@@ -267,6 +286,35 @@ export default function LeanLedgerReportPage() {
           </tbody>
         </table>
       </div>
+
+      <h2 className="section-heading">6. Résumé des ressources investies</h2>
+      <p>
+        L&apos;ensemble du run autonome (formalisation, patch compilateur <code>turbo-lean</code>,
+        preuves des <code>2 405</code> théorèmes, intégration C/Rust et boucles{' '}
+        <code>maxwell</code>) a tourné en <strong>19,9 h</strong> wall-clock (dont 2 h de pause
+        nocturne) à travers <strong>30 agents actifs</strong> et <strong>25 microVMs cloud</strong>{' '}
+        orchestrés dans <a href="https://github.com/th0rgal/orb">Orb</a> :
+      </p>
+
+      <div className="ldgr-res-kpis not-prose">
+        <div className="ldgr-res-kpi">
+          <div className="ldgr-res-kpi-val">379,0 CPU hours</div>
+          <div className="ldgr-res-kpi-lbl">Compute cumulé</div>
+          <div className="ldgr-res-kpi-sub">327,4 CPU-h Boat Zen 5 + 51,6 CPU-h ashur</div>
+        </div>
+        <div className="ldgr-res-kpi">
+          <div className="ldgr-res-kpi-val">654,9 GB RAM hours</div>
+          <div className="ldgr-res-kpi-lbl">Mémoire VMs dédiées</div>
+          <div className="ldgr-res-kpi-sub">1 049,6 GB·h avec les tours actifs ashur</div>
+        </div>
+        <div className="ldgr-res-kpi">
+          <div className="ldgr-res-kpi-val">23,2 M tok / agent</div>
+          <div className="ldgr-res-kpi-lbl">Inférence moyenne</div>
+          <div className="ldgr-res-kpi-sub">696,6 M tokens sur 30 agents actifs</div>
+        </div>
+      </div>
+
+      <OrbResourcesEmbed />
     </article>
   )
 }

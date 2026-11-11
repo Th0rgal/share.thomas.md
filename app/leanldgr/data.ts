@@ -1,28 +1,112 @@
 export const PAGE_TITLE = 'Lean 4 pour Ledger Bitcoin'
 
 export const MERMAID_ARCHITECTURE = `flowchart TB
-    subgraph Lean["Noyau commun en Lean 4 (0 sorryAx)"]
-        Spec["Spécifications unifiées BIP-32 / 143 / 341 / 370 / 379 / 388"]
-        Kernel["Noyau exécutable sans allocation<br/>BitcoinLedger/FreestandingKernels.lean"]
-        Turbo["turbo-lean (backend LLVM 32 bits)"]
+    subgraph Lean["Kernel commun en Lean 4 (0 sorryAx)"]
+        Spec["Specs unifiées BIP-32 / 143 / 341 / 370 / 379 / 388"]
+        Kernel["Kernel freestanding zero-alloc<br/>BitcoinLedger/FreestandingKernels.lean"]
+        Turbo["turbo-lean (backend LLVM 32-bit)"]
         Spec --> Kernel --> Turbo
     end
 
     subgraph Bolos["App historique C (LedgerHQ/app-bitcoin)"]
         BUI["UI NBGL + transport APDU + syscalls BOLOS<br/>(conservés en C)"]
-        BELF["Clang / LLD LTO (-Oz -fropi -frwpi)<br/>Binaire natif ARM Thumb (Nano S+ / Nano X)"]
+        BELF["Clang / LLD LTO (-Oz -fropi -frwpi)<br/>ELF natif ARM Thumb (Nano S+ / Nano X)"]
         BUI --> BELF
     end
 
     subgraph Vanadium["Nouvelle V-App Rust (LedgerHQ/vanadium)"]
         VUI["UI Ledger Flex + client ECALLs<br/>(conservés en Rust)"]
-        VELF["rustc + LLD (riscv32imac-unknown-none-elf)<br/>ELF paginé 256 B (arbre de Merkle)"]
+        VELF["rustc + LLD (riscv32imac-unknown-none-elf)<br/>ELF paginé 256 B (Merkle tree)"]
         VVM["VM RISC-V app-vanadium sur BOLOS"]
         VUI --> VELF --> VVM
     end
 
-    Turbo -->|"IR LLVM ARMv6-M / ARMv8-M"| BELF
-    Turbo -->|"IR LLVM RV32IMAC"| VELF`
+    Turbo -->|"LLVM IR ARMv6-M / ARMv8-M"| BELF
+    Turbo -->|"LLVM IR RV32IMAC"| VELF`
+
+export interface BenchmarkChartItem {
+  label: string
+  origValue: string
+  optValue: string
+  optPct: number
+  delta: string
+}
+
+export const RUST_BENCH_BARS: BenchmarkChartItem[] = [
+  {
+    label: 'Flash / code (PT_LOAD RX)',
+    origValue: '306,0 KiB (1 196 pages)',
+    optValue: '244,4 KiB (955 pages)',
+    optPct: 79.85,
+    delta: '-20,2 %'
+  },
+  {
+    label: 'RAM totale (RW + stack)',
+    origValue: '128,3 KiB (514 pages)',
+    optValue: '64,3 KiB (258 pages)',
+    optPct: 50.11,
+    delta: '-49,9 %'
+  },
+  {
+    label: 'Taille du binaire ELF',
+    origValue: '529,4 KiB',
+    optValue: '239,0 KiB',
+    optPct: 45.15,
+    delta: '-54,9 %'
+  },
+  {
+    label: 'Instructions exécutées (RV32)',
+    origValue: '234,2 k insns',
+    optValue: '192,6 k insns',
+    optPct: 82.24,
+    delta: '-17,8 %'
+  },
+  {
+    label: 'Latence signature PSBT (Flex)',
+    origValue: '2 605 ms (1 384 page_loads)',
+    optValue: '2 019 ms (1 085 page_loads)',
+    optPct: 77.5,
+    delta: '-22,5 %'
+  }
+]
+
+export const C_BENCH_BARS: BenchmarkChartItem[] = [
+  {
+    label: 'Flash / code (PT_LOAD RX)',
+    origValue: '89,1 KiB (91 231 B)',
+    optValue: '87,6 KiB (89 695 B)',
+    optPct: 98.32,
+    delta: '-1,7 %'
+  },
+  {
+    label: 'RAM statique (.bss + .data)',
+    origValue: '6 376 B',
+    optValue: '6 232 B',
+    optPct: 97.74,
+    delta: '-2,3 %'
+  },
+  {
+    label: 'RAM totale (RW + worst-case stack)',
+    origValue: '18 872 B',
+    optValue: '18 728 B (0 récursion)',
+    optPct: 99.24,
+    delta: '-0,8 %'
+  },
+  {
+    label: 'Instructions ARM Thumb émises',
+    origValue: '30 364 insns',
+    optValue: '29 729 insns',
+    optPct: 97.91,
+    delta: '-2,1 %'
+  },
+  {
+    label: 'Latence PSBT (Nano X / Nano S+)',
+    origValue: '2 824 ms / 4 680 ms',
+    optValue: '2 180 ms / 4 039 ms',
+    optPct: 77.2,
+    delta: '-22,8 %'
+  }
+]
 
 export interface BenchmarkRow {
   metric: string
@@ -34,67 +118,67 @@ export interface BenchmarkRow {
 
 export const BENCHMARK_ROWS: BenchmarkRow[] = [
   {
-    metric: 'Cible matérielle / exécution',
-    origC: 'BOLOS natif ARM Thumb (Nano S+)',
-    patchedC: 'BOLOS natif ARM Thumb (Nano S+)',
+    metric: 'Target / runtime',
+    origC: 'BOLOS natif ARM Thumb (Nano S+ / X)',
+    patchedC: 'BOLOS natif ARM Thumb (Nano S+ / X)',
     origRust: 'VM Vanadium RV32IMAC (Flex)',
     patchedRust: 'VM Vanadium RV32IMAC (Flex)'
   },
   {
-    metric: 'Flash / segment code (PT_LOAD RX)',
+    metric: 'Flash / code (PT_LOAD RX)',
     origC: '91 231 B',
     patchedC: '89 695 B (-1,68 %)',
-    origRust: '306 008 B (1 196 pages, prof. 11)',
-    patchedRust: '244 350 B (-20,15 %, 955 pages, prof. 10)'
+    origRust: '306 008 B (1 196 pages, depth 11)',
+    patchedRust: '244 350 B (-20,15 %, 955 pages, depth 10)'
   },
   {
     metric: 'Taille du fichier ELF',
-    origC: '158 004 B (strippé)',
+    origC: '158 004 B (stripped)',
     patchedC: '156 468 B (-1,54 KiB)',
     origRust: '542 092 B',
     patchedRust: '244 780 B (-54,85 %)'
   },
   {
-    metric: 'RAM statique / segment RW (.bss + .data)',
+    metric: 'RAM statique (.bss + .data)',
     origC: '6 376 B',
     patchedC: '6 232 B (-144 B / -2,26 %)',
     origRust: '65 836 B (heap 64 KiB)',
     patchedRust: '33 068 B (-49,77 %, heap 32 KiB)'
   },
   {
-    metric: 'Pile (stack)',
+    metric: 'Stack',
     origC: '12 496 B max (qsort récursif)',
     patchedC: '12 496 B max (0 récursion, -256 B register_wallet)',
     origRust: '65 536 B alloués',
-    patchedRust: '32 768 B alloués (-50 %, 0 B frame Lean)'
+    patchedRust: '32 768 B alloués (-50 %, 0 B stack frame Lean)'
   },
   {
-    metric: 'RAM totale réservée (RW + pile)',
-    origC: '18 872 B (statique + pire cas pile)',
-    patchedC: '18 728 B (-144 B, pile bornée)',
+    metric: 'RAM totale réservée (RW + stack)',
+    origC: '18 872 B',
+    patchedC: '18 728 B (-144 B, stack bornée)',
     origRust: '131 372 B (514 pages)',
     patchedRust: '65 836 B (-49,89 %, 258 pages)'
   },
   {
-    metric: 'Instructions (binaire / flux signature)',
+    metric: 'Instructions',
     origC: '30 364 insns ARM émises',
     patchedC: '29 729 insns ARM (-2,09 %)',
     origRust: '234 238 insns RV32 exécutées',
     patchedRust: '192 632 insns RV32 (-17,76 %)'
   },
   {
-    metric: 'Vitesse (Speculos Taproot PSBT)',
+    metric: 'Latence signature Taproot PSBT (Speculos)',
     origC: '4 680 ms (Nano S+) / 2 824 ms (Nano X)',
     patchedC: '4 039 ms (-13,7 %) / 2 180 ms (-22,8 %)',
     origRust: '2 605 ms (1 384 page_loads)',
     patchedRust: '2 019 ms (-22,52 %, 1 085 page_loads)'
   },
   {
-    metric: 'Suites de tests',
+    metric: 'Test suites & preuves',
     origC: '30 ctest + 277 Ragger',
     patchedC: '31/31 ctest + 277/277 Ragger + 2 405 théorèmes',
-    origRust: '166 tests (unitaires + Speculos)',
-    patchedRust: '176/176 tests + 9 correctifs prouvés'
+    origRust: '166 tests (unit + Speculos)',
+    patchedRust: '176/176 tests + 9 fixes prouvés'
   }
 ]
 
@@ -115,7 +199,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     location: 'common/src/script.rs:367',
     reportedStatus: 'Non signalé',
     description:
-      'andor(X, Y, Z) compile OP_NOTIF [Y] OP_ELSE [Z] au lieu de [Z] puis [Y] (BIP-379), inversant les branches de dépense par rapport à Bitcoin Core et app-bitcoin.'
+      'andor(X, Y, Z) compile OP_NOTIF [Y] OP_ELSE [Z] au lieu de [Z] puis [Y] (BIP-379), inversant les spending branches par rapport à Bitcoin Core et app-bitcoin.'
   },
   {
     id: 'VND-02',
@@ -124,7 +208,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     location: 'fastpsbt.rs:1052 · analyze.rs:434',
     reportedStatus: 'Non signalé',
     description:
-      'Sommes de satoshis u64 sans borne MAX_MONEY et cast u64 as i64 sur les soldes par compte, permettant un débordement ou une inversion de signe.'
+      'Sommes de satoshis u64 sans borne MAX_MONEY et cast u64 as i64 sur les balances par compte, permettant un overflow ou un flip de signe.'
   },
   {
     id: 'VND-03',
@@ -142,7 +226,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     location: 'common/src/fastpsbt.rs:602',
     reportedStatus: 'Non signalé',
     description:
-      'Calcul du nLockTime non conforme à BIP-370 : accepte une hauteur nulle, rejette un input ayant les deux verrous, et laisse fallback_locktime écraser un verrou de bloc en timestamp.'
+      'Calcul du nLockTime non conforme à BIP-370 : accepte une block height nulle, rejette un input ayant les deux timelocks, et laisse fallback_locktime écraser un block lock en timestamp.'
   },
   {
     id: 'VND-05',
@@ -151,7 +235,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     location: 'common/src/script.rs:145',
     reportedStatus: 'Non signalé',
     description:
-      'Une policy sh(wsh(...)) est acceptée lors de l\'enregistrement (register_account), mais échoue ensuite systématiquement lors de la dérivation d\'adresse et de la signature.'
+      'Une policy sh(wsh(...)) est acceptée lors de register_account, mais échoue ensuite systématiquement à la dérivation d\'adresse et au signing.'
   },
   {
     id: 'VND-06',
@@ -160,7 +244,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     location: 'bip388/lib.rs:5 · register_account.rs',
     reportedStatus: 'TODO partiel (0 issue)',
     description:
-      'Absence de vérification des types Miniscript B/V/K/W, de la non-malléabilité, du mélange hauteur/temps des timelocks et du masquage BIP-68 older(n).'
+      'Absence de typechecking Miniscript B/V/K/W, de check de non-malléabilité, du mix height/time des timelocks et du masquage BIP-68 older(n).'
   },
   {
     id: 'VND-07',
@@ -169,7 +253,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     location: 'get_extended_pubkey.rs:138, 161',
     reportedStatus: 'Non signalé',
     description:
-      'Test off-by-one len() > 256 suivi d\'un cast en u8 : un chemin BIP-32 de longueur 256 est tronqué à depth = 0 dans l\'xpub sérialisé.'
+      'Check off-by-one len() > 256 suivi d\'un cast en u8 : un path BIP-32 de longueur 256 est tronqué à depth = 0 dans l\'xpub sérialisé.'
   },
   {
     id: 'VND-08',
@@ -178,7 +262,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     location: 'musig_signing.rs:463',
     reportedStatus: 'Non signalé',
     description:
-      'Au Round 2 de MuSig2, le pubnonce local recalculé n\'est pas comparé à celui présent dans PSBT_IN_MUSIG2_PUB_NONCE avant de produire la signature partielle.'
+      'Au Round 2 de MuSig2, le pubnonce local recalculé n\'est pas comparé à celui présent dans PSBT_IN_MUSIG2_PUB_NONCE avant d\'émettre la partial signature.'
   },
   {
     id: 'VND-09',
@@ -187,30 +271,27 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     location: 'main.rs:26 · display.rs:167 · fastpsbt.rs:231',
     reportedStatus: 'todo!() sur GetVersion (0 issue)',
     description:
-      'Panic sur Request::GetVersion, rejet des sorties OP_RETURN à l\'affichage, CompactSize non canoniques acceptés et scripts witness_utxo bloqués au-delà de 252 octets.'
+      'Panic sur Request::GetVersion, rejet des outputs OP_RETURN au display, CompactSize non canoniques acceptés et scripts witness_utxo bloqués au-delà de 252 octets.'
   }
 ]
 
 export function renderMarkdown(): string {
   const lines: string[] = [
-    '# Lean 4 pour Ledger Bitcoin : vérification formelle et optimisation sur BOLOS et Vanadium',
+    '# Lean 4 pour Ledger Bitcoin',
     '',
-    '- Dépôts : `LedgerHQ/app-bitcoin` (`f010982d`) · `LedgerHQ/vanadium` (`ace8e969`) · `Th0rgal/lean-ledger-bitcoin`',
-    '- Preuves Lean 4 : `0 sorryAx`, `0 Classical.choice`, `2 405` théorèmes vérifiés',
+    '- Targets : `LedgerHQ/app-bitcoin@f010982d` · `LedgerHQ/vanadium@ace8e969`',
     '',
     '## 1. Résumé du Challenge de Charles',
     '',
-    'Montrer qu\'il est viable de réécrire un logiciel existant en Lean4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide.',
+    'Montrer qu\'il est viable de réécrire un logiciel existant en Lean 4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide.',
     '',
     '## 2. Méthodologie et architecture',
     '',
-    'Côté temps humain, il m\'a fallu environ **1 h** au départ pour cadrer le problème, poser les spécifications haut niveau et concevoir le pipeline (aidé par une connaissance de base du fonctionnement de Ledger), environ **10 min** d\'intervention manuelle hier soir pour régler un souci d\'inférence, et **1 h** à la fin pour relire et polir l\'ensemble. Tout le reste a tourné en autonomie.',
+    'Côté temps humain, j\'ai passé environ **1 h** au départ pour cadrer le problème, poser les specs haut niveau et designer le pipeline (aidé par une connaissance de base de la stack Ledger), **10 min** hier soir pour débloquer un souci de routing d\'inférence, et **1 h** à la fin pour review et polir l\'ensemble. Tout le reste a tourné en autonomie.',
     '',
-    'Ledger maintient deux applications Bitcoin dont la chaîne de compilation diffère :',
-    '1) **`app-bitcoin` (C)** : compilée nativement en ARM Thumb (`thumbv8m.main` / `thumbv6m`) avec liens ROPI/RWPI, exécutée directement au-dessus de BOLOS.',
-    '2) **`vanadium` (`vnd-bitcoin`, Rust)** : compilée en RISC-V 32 bits (`riscv32imac-unknown-none-elf`), découpée en pages de 256 octets authentifiées par arbre de Merkle et chargées à la demande dans la VM `app-vanadium` tournant sur BOLOS.',
+    'Ledger maintient deux apps Bitcoin aux toolchains très différentes : l\'app historique en C (`app-bitcoin`), compilée nativement en ARM Thumb directement au-dessus de BOLOS, et la nouvelle V-App en Rust (`vanadium`), compilée en RISC-V 32-bit (`RV32IMAC`) puis exécutée par pages de 256 octets authentifiées par Merkle tree dans une VM tournant sur BOLOS.',
     '',
-    'Plutôt que de toucher à l\'interface graphique ou au transport APDU/ECALL (réécrire l\'UI en Lean 4 serait pénible et peu utile), nous avons isolé un noyau commun pour la logique partagée (validation PSBT, montants, BIP-32, SegWit/Taproot, politiques BIP-388/Miniscript, formatage sans division), qui concentre l\'essentiel de la surface d\'attaque, en gardant l\'UI et l\'IO existantes dans chaque application :',
+    'Plutôt que de toucher à l\'UI ou au transport APDU/ECALL (réécrire l\'UI en Lean 4 aurait peu d\'intérêt), on a isolé un kernel commun zero-alloc pour la logique partagée (validation PSBT, accounting des montants, BIP-32, SegWit/Taproot, policies BIP-388/Miniscript, formatage division-free), qui concentre l\'essentiel de la surface d\'attaque, en gardant l\'UI et l\'IO d\'origine dans chaque app :',
     '',
     '```mermaid',
     MERMAID_ARCHITECTURE,
@@ -218,30 +299,37 @@ export function renderMarkdown(): string {
     '',
     '## 3. Plan d\'exécution',
     '',
-    '1) **Spécifications formelles et backtesting croisé** : formalisation des BIPs en Lean 4 à partir du cadrage haut niveau, puis implémentation du noyau exécutable en bouclant sur les suites de tests des deux dépôts (`ctest`/Ragger côté C, `cargo test`/Speculos côté Rust) pour affiner la spec jusqu\'à convergence.',
-    '2) **Backend LLVM 32 bits dans `turbo-lean`** : ajout du support 32 bits sans runtime ni allocation (`thumbv6m`, `thumbv8m.main`, `riscv32imac`) dans notre compilateur `turbo-lean`. Passer par LLVM IR plutôt que d\'émettre du bytecode ou de l\'assembleur direct m\'a semblé plus sûr (la sémantique LLVM est déjà largement formalisée) et demandait une modification mineure ; il reste de la marge d\'optimisation avec davantage de ressources.',
-    '3) **Intégration dans les deux apps** : patch minimal de `app-bitcoin` et de `vnd-bitcoin` conservant l\'UI/IO d\'origine et liant les noyaux Lean en LTO.',
-    '4) **Boucle d\'optimisation `maxwell`** : exécution de benchmarks reproductibles dans notre boucle propriétaire `maxwell` sous contrainte de preuve (`0 sorryAx`) et de passage intégral des tests, jusqu\'à réduire la Flash, la RAM et le temps d\'exécution sous les deux références.',
+    '1) **Specs formelles et cross-backtesting** : formalisation des BIPs en Lean 4 à partir du cadrage haut niveau, puis implémentation du kernel exécutable en bouclant sur les test suites des deux repos (`ctest`/Ragger côté C, `cargo test`/Speculos côté Rust) pour affiner la spec jusqu\'à convergence.',
+    '2) **Backend LLVM 32-bit dans `turbo-lean`** : ajout du support freestanding 32-bit zero-alloc (`thumbv6m`, `thumbv8m.main`, `riscv32imac`) dans notre compilateur `turbo-lean`. Passer par LLVM IR plutôt que d\'émettre du bytecode ou de l\'assembleur direct est plus safe (la sémantique LLVM est déjà largement formalisée) et ne demandait qu\'un patch ciblé ; il reste encore de la marge d\'optimisation avec plus de compute.',
+    '3) **Intégration dans les deux apps** : shim FFI minimal dans `app-bitcoin` et `vnd-bitcoin` conservant l\'UI/IO d\'origine et linkant les kernels Lean en LTO.',
+    '4) **Boucle d\'optimisation `maxwell`** : benchmarks reproductibles dans notre harness propriétaire `maxwell` sous contrainte de preuve (`0 sorryAx`, 2 405 théorèmes) et de 100 % des tests au vert, jusqu\'à passer sous les baselines Flash, RAM et latence sur les deux targets.',
     '',
     '## 4. Résultats et simulation',
     '',
-    '| Métrique | Original C (`app-bitcoin`) | Patched C (`+ Lean 4`) | Original Rust (`vanadium`) | Patched Rust (`+ Lean 4`) |',
+    '| Métrique | Baseline C (`app-bitcoin`) | Lean 4 + C | Baseline Rust (`vanadium`) | Lean 4 + Rust |',
     '|---|---|---|---|---|',
     ...BENCHMARK_ROWS.map(
       (r) => `| **${r.metric}** | ${r.origC} | **${r.patchedC}** | ${r.origRust} | **${r.patchedRust}** |`
     ),
     '',
-    'Vidéo de simulation côte à côte (Speculos Ledger Flex) : https://share.thomas.md/leanldgr/vanadium-side-by-side.mp4',
+    'Vidéo de simulation side-by-side (Speculos Ledger Flex) : https://share.thomas.md/leanldgr/vanadium-side-by-side.mp4',
     '',
-    '## 5. Anomalies trouvées dans Vanadium (`apps/bitcoin`)',
+    '## 5. Bugs et anomalies trouvés dans Vanadium',
     '',
-    'La formalisation croisée entre `app-bitcoin` et `vanadium` a fait ressortir **9 anomalies** dans `LedgerHQ/vanadium` (commit `ace8e969`). **7 sur 9 n\'étaient signalées nulle part** (les 2 autres n\'avaient qu\'un commentaire `TODO` ou `todo!()` partiel dans le code, et `0` issue GitHub ouverte). Nous n\'avons ouvert aucune issue publique sur GitHub ; toutes sont corrigées dans le patch.',
+    'La formalisation croisée entre `app-bitcoin` et `vanadium` a fait ressortir **9 bugs et écarts de spec** dans `LedgerHQ/vanadium` (`ace8e969`). **7 sur 9 n\'étaient documentés nulle part** (les 2 autres n\'avaient qu\'un `TODO` ou `todo!()` partiel dans le code, et `0` issue GitHub ouverte). Nous n\'avons ouvert aucune issue publique ; tout est fixé dans le patch.',
     '',
-    '| ID | Niveau | Emplacement | Statut amont | Description |',
+    '| ID | Sévérité | Emplacement | Statut upstream | Description |',
     '|---|---|---|---|---|',
     ...VANADIUM_ISSUES.map(
       (i) => `| \`${i.id}\` | ${i.severityLabel} | \`${i.location}\` | ${i.reportedStatus} | ${i.description} |`
     ),
+    '',
+    '## 6. Résumé des ressources investies',
+    '',
+    '- **Compute** : **379,0 CPU hours** (`327,4 CPU-h` sur 25 microVMs cloud Boat AMD Zen 5 + `51,6 CPU-h` sur l\'hôte `ashur` pendant les tours actifs)',
+    '- **Mémoire** : **654,9 GB RAM hours** sur les VMs cloud dédiées (`1 049,6 GB RAM-h` en incluant la RAM réservée sur `ashur` durant les tours actifs)',
+    '- **Inférence** : **23,2 M tokens / agent actif** (`696,6 M` tokens cumulés sur `30` agents actifs — `1` coordinateur + `29` subagents — soit `21,8 M` sur les `32` missions lancées)',
+    '- **Durée wall-clock** : `19,9 h` (`17,9 h` hors pause nocturne de 2 h), `$3,42` de compute cloud Boat.',
     ''
   ]
   return lines.join('\n')

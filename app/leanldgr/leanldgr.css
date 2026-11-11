@@ -1,0 +1,516 @@
+.ldgr-bench-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin: 1.15rem 0 1.85rem 0;
+}
+
+@media (max-width: 720px) {
+  .ldgr-bench-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ldgr-bench-col {
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--paper-raised);
+  padding: 1rem 1.1rem 1.05rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.ldgr-bench-col-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ldgr-bench-col-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ldgr-bench-col-sub {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+.ldgr-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+}
+
+.ldgr-metric-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ldgr-metric-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.ldgr-metric-delta {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--sev-proof-text);
+  background: var(--sev-proof-bg);
+  border: 1px solid var(--sev-proof-border);
+  padding: 1px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.ldgr-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ldgr-bar-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.ldgr-bar-tag {
+  font-family: var(--font-mono);
+  font-size: 0.69rem;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.ldgr-bar-tag.is-opt {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.ldgr-bar-track {
+  position: relative;
+  height: 22px;
+  border-radius: 5px;
+  background: var(--wash);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.ldgr-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 260ms ease;
+}
+
+.ldgr-bar-fill.is-orig {
+  background: color-mix(in srgb, var(--ink-muted) 22%, transparent);
+}
+
+.ldgr-bar-fill.is-opt-rust {
+  background: color-mix(in srgb, #1d9a78 72%, transparent);
+}
+
+.ldgr-bar-fill.is-opt-c {
+  background: color-mix(in srgb, #2f83bf 72%, transparent);
+}
+
+.ldgr-bar-val {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink);
+  pointer-events: none;
+}
+
+.ldgr-bar-val span:last-child {
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+}
+
+.ldgr-bar-row.is-opt .ldgr-bar-val span:first-child {
+  font-weight: 600;
+}
+
+.ldgr-bench-foot {
+  margin-top: auto;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 0.71rem;
+  color: var(--ink-muted);
+}
+
+/* Top-level invested resources summary strip */
+.ldgr-res-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 1.1rem 0;
+}
+
+@media (max-width: 680px) {
+  .ldgr-res-kpis {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ldgr-res-kpi {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 0.78rem 0.95rem;
+  background: var(--wash);
+}
+
+.ldgr-res-kpi-val {
+  font-size: 1.42rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.ldgr-res-kpi-lbl {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-top: 3px;
+}
+
+.ldgr-res-kpi-sub {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  margin-top: 3px;
+}
+
+/* Scoped Orb Resources Embed — faithful to th0rgal/orb/src/resources.css without .orb-mock page overrides */
+.ldgr-orb-breakout {
+  width: min(980px, calc(100vw - 2rem));
+  margin: 1.15rem 0 1.5rem 50%;
+  transform: translateX(-50%);
+}
+
+.ldgr-orb {
+  --bg: #ffffff;
+  --bg-inset: #f5f4f0;
+  --bg-elev: #fbfaf7;
+  --bg-hover: #efeee9;
+  --bg-btn: #f2f1ec;
+  --fg: #242423;
+  --fg-2: #535250;
+  --fg-3: #7b7a76;
+  --fg-4: #a9a8a2;
+  --fg-strong: #111110;
+  --stroke: #e2e0d9;
+  --stroke-soft: #ebe9e3;
+  --stroke-strong: #cfcdc4;
+  --blue: #2f83bf;
+  --green: #1d9a78;
+  --amber: #d9822b;
+  --purple: #7c65d6;
+  --sans: var(--font-sans);
+  --mono: var(--font-mono);
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  background: var(--bg);
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 14px 16px 16px;
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.035);
+}
+
+html.dark .ldgr-orb,
+[data-theme='dark'] .ldgr-orb {
+  --bg: #141414;
+  --bg-inset: #191919;
+  --bg-elev: #202020;
+  --bg-hover: #272727;
+  --bg-btn: #242424;
+  --fg: #d8d8d7;
+  --fg-2: #b4b4b2;
+  --fg-3: #8a8a88;
+  --fg-4: #5c5c5a;
+  --fg-strong: #ececeb;
+  --stroke: #2f2f2f;
+  --stroke-soft: #262626;
+  --stroke-strong: #3d3d3d;
+  --blue: #3b8eea;
+  --green: #1fa983;
+  --amber: #e28436;
+  --purple: #8f7ae5;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+}
+
+.ldgr-orb-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ldgr-orb-topbar-left,
+.ldgr-orb-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ldgr-orb-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border-radius: var(--radius-md);
+  background: var(--bg-inset);
+  border: 1px solid var(--stroke-soft);
+}
+
+.ldgr-orb-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--green);
+  flex-shrink: 0;
+}
+
+.ldgr-orb-crumb-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-strong);
+}
+
+.ldgr-orb-seg {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-inset);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  gap: 2px;
+}
+
+.ldgr-orb-seg-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-md) - 2px);
+  color: var(--fg-3);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 5px 9px;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+  white-space: nowrap;
+}
+
+.ldgr-orb-seg-btn:hover {
+  color: var(--fg);
+}
+
+.ldgr-orb-seg-btn.is-active {
+  background: var(--bg-elev);
+  color: var(--fg-strong);
+  border-color: var(--stroke-strong);
+}
+
+.ldgr-orb-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 27px;
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  background: var(--bg-inset);
+  border: 1px solid var(--stroke-soft);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg-2);
+  white-space: nowrap;
+}
+
+.ldgr-orb-stamp strong {
+  color: var(--fg-strong);
+  font-weight: 600;
+}
+
+.ldgr-orb-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ldgr-orb-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 13px;
+  border-bottom: 1px solid var(--stroke-soft);
+  font-size: 11px;
+  color: var(--fg-3);
+  flex-wrap: wrap;
+}
+
+.ldgr-orb-col-title {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+
+.ldgr-orb-hover-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--fg-2);
+  background: var(--bg-inset);
+  border: 1px solid var(--stroke-soft);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+}
+
+.ldgr-orb-filter-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  background: color-mix(in srgb, var(--blue) 13%, var(--bg-inset));
+  border: 1px solid color-mix(in srgb, var(--blue) 32%, var(--stroke));
+  color: var(--fg-strong);
+  border-radius: var(--radius-sm);
+  padding: 0 8px;
+  font-family: var(--sans);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.ldgr-orb-sankey-wrap {
+  position: relative;
+  width: 100%;
+  padding: 6px 8px 4px;
+}
+
+.ldgr-orb-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+.ldgr-orb-ribbon {
+  cursor: pointer;
+  transition: stroke-opacity 120ms ease;
+}
+
+.ldgr-orb-node {
+  cursor: pointer;
+  transition: opacity 120ms ease;
+}
+
+.ldgr-orb-node-lbl {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  fill: var(--fg-strong);
+  pointer-events: none;
+}
+
+.ldgr-orb-node-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--fg-3);
+  pointer-events: none;
+}
+
+.ldgr-orb-curve-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-xl);
+  padding: 9px 13px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ldgr-orb-curve-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 22px;
+  flex-wrap: wrap;
+}
+
+.ldgr-orb-curve-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg-2);
+}
+
+.ldgr-orb-dag-scroll {
+  max-height: 410px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 10px 8px;
+}
+
+.ldgr-orb-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px 12px;
+  background: var(--bg-elev);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-lg);
+  font-size: 11px;
+  color: var(--fg-3);
+}
+
+.ldgr-orb-foot-mono {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--fg-2);
+}
