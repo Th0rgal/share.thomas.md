@@ -406,11 +406,13 @@ export function renderMarkdown(): string {
     '',
     '## 5. Résumé des ressources investies',
     '',
-    'L\'ensemble du run autonome (formalisation, patch compilateur `turbo-lean`, preuves des `2 405` théorèmes, intégration C/Rust et boucles `maxwell`) a tourné en **19,9 h** wall-clock (dont 2 h de pause nocturne) à travers **30 agents actifs** et **25 microVMs cloud** orchestrés dans [Orb](https://github.com/th0rgal/orb) :',
+    'L\'ensemble du run autonome (formalisation, patch compilateur `turbo-lean`, preuves des `2 405` théorèmes, intégration C/Rust et boucles `maxwell`) a tourné en **19,9 h** wall-clock (dont 2 heures de pause à cause d\'un problème d\'approvisionnement d\'inférence que j\'ai réglé à la main) à travers **30 agents actifs** et **25 microVMs cloud** orchestrés dans [Orb](https://github.com/th0rgal/orb) :',
     '',
     '- **379,0 CPU hours** de compute cumulé (`327,4 CPU-h` sur 25 microVMs cloud Boat AMD Zen 5 + `51,6 CPU-h` sur `ashur` pendant les tours actifs).',
     '- **654,9 GB RAM hours** sur les VMs cloud dédiées (`1 049,6 GB RAM-h` en comptant la RAM réservée sur `ashur` durant les tours actifs).',
     '- **23,2 M tokens / agent** en moyenne (`696,6 M` tokens cumulés sur `30` agents actifs : `1` coordinateur + `29` subagents).',
+    '',
+    'Côté coût estimé, le compute cloud a été facturé **$3,42** au total sur les 25 microVMs éphémères Boat (`$1,72` sur 4 VMs `xlarge` à `$0,20/h`, `$1,70` sur 20 VMs `large` à `$0,072/h` et `< $0,01` sur 1 VM `default`), plus le nœud dédié `ashur` déjà provisionné (`$0` marginal, `~$0,46` d\'équivalent cloud). L\'inférence n\'a entraîné **$0 de surcoût marginal** (couverte par nos forfaits Antigravity et les endpoints mis à disposition par l\'Ethereum Foundation), mais représente environ **~$298 en équivalent API public** aux tarifs standards par token grâce à ~90 % de lecture de cache (`~$116,00` sur Gemini Carbon 4 pour `472,0 M` tokens à 94,7 % de cache hit, `~$106,50` sur GLM-5.3 sans cache pour `74,6 M` tokens, `~$71,30` sur le coordinateur `builtin/smart` pour `141,0 M` tokens et `~$3,84` sur Qwen3.8-27B), soit **~$301** d\'équivalent cloud + API tout compris.',
     ''
   ]
   return lines.join('\n')

@@ -58,7 +58,6 @@ function BenchmarkColumn({
         <div key={item.label} className="ldgr-metric">
           <div className="ldgr-metric-head">
             <span className="ldgr-metric-name">{item.label}</span>
-            <span className="ldgr-metric-delta">{item.delta}</span>
           </div>
           <div className="ldgr-bars">
             <div className="ldgr-bar-row">
@@ -67,7 +66,6 @@ function BenchmarkColumn({
                 <div className="ldgr-bar-fill is-orig" style={{ width: '100%' }} />
                 <div className="ldgr-bar-val">
                   <span>{item.origValue}</span>
-                  <span>100 %</span>
                 </div>
               </div>
             </div>
@@ -80,7 +78,7 @@ function BenchmarkColumn({
                 />
                 <div className="ldgr-bar-val">
                   <span>{item.optValue}</span>
-                  <span>{item.optPct.toFixed(1).replace('.', ',')} %</span>
+                  <span className="ldgr-bar-delta">{item.delta}</span>
                 </div>
               </div>
             </div>
@@ -174,25 +172,26 @@ export default function LeanLedgerReportPage() {
       <h2 className="section-heading">3. Résultats et simulation</h2>
       <p>
         Sur les deux targets, le binaire patché avec Lean 4 est simultanément plus léger et plus
-        rapide que la baseline non modifiée (chaque barre compare l&apos;original à{' '}
-        <code>100 %</code> avec la version Lean 4) :
+        rapide que la baseline non modifiée :
       </p>
 
-      <div className="ldgr-bench-grid not-prose">
-        <BenchmarkColumn
-          title="Vanadium V-App (Rust → + Lean 4)"
-          sub="RV32IMAC · Ledger Flex"
-          items={RUST_BENCH_BARS}
-          variant="rust"
-          footer="176/176 tests unitaires & Speculos · 9 bugs fixés & prouvés"
-        />
-        <BenchmarkColumn
-          title="BOLOS App (C → + Lean 4)"
-          sub="ARM Thumb · Nano S+ / X"
-          items={C_BENCH_BARS}
-          variant="c"
-          footer="31/31 ctest · 277/277 Ragger · 2 405 théorèmes (0 sorryAx)"
-        />
+      <div className="ldgr-bench-breakout not-prose">
+        <div className="ldgr-bench-grid">
+          <BenchmarkColumn
+            title="Vanadium V-App (Rust → + Lean 4)"
+            sub="RV32IMAC · Ledger Flex"
+            items={RUST_BENCH_BARS}
+            variant="rust"
+            footer="176/176 tests unitaires & Speculos · 9 bugs fixés & prouvés"
+          />
+          <BenchmarkColumn
+            title="BOLOS App (C → + Lean 4)"
+            sub="ARM Thumb · Nano S+ / X"
+            items={C_BENCH_BARS}
+            variant="c"
+            footer="31/31 ctest · 277/277 Ragger · 2 405 théorèmes (0 sorryAx)"
+          />
+        </div>
       </div>
 
       <p>
@@ -281,8 +280,9 @@ export default function LeanLedgerReportPage() {
       <p>
         L&apos;ensemble du run autonome (formalisation, patch compilateur <code>turbo-lean</code>,
         preuves des <code>2 405</code> théorèmes, intégration C/Rust et boucles{' '}
-        <code>maxwell</code>) a tourné en <strong>19,9 h</strong> wall-clock (dont 2 h de pause
-        nocturne) à travers <strong>30 agents actifs</strong> et <strong>25 microVMs cloud</strong>{' '}
+        <code>maxwell</code>) a tourné en <strong>19,9 h</strong> wall-clock (dont 2 heures de pause
+        à cause d&apos;un problème d&apos;approvisionnement d&apos;inférence que j&apos;ai réglé à
+        la main) à travers <strong>30 agents actifs</strong> et <strong>25 microVMs cloud</strong>{' '}
         orchestrés dans <a href="https://github.com/th0rgal/orb">Orb</a> :
       </p>
 
@@ -302,6 +302,23 @@ export default function LeanLedgerReportPage() {
           <code>30</code> agents actifs : <code>1</code> coordinateur + <code>29</code> subagents).
         </li>
       </ul>
+
+      <p>
+        Côté coût estimé, le compute cloud a été facturé <strong>$3,42</strong> au total sur les 25
+        microVMs éphémères Boat (<code>$1,72</code> sur 4 VMs <code>xlarge</code> à{' '}
+        <code>$0,20/h</code>, <code>$1,70</code> sur 20 VMs <code>large</code> à{' '}
+        <code>$0,072/h</code> et <code>&lt;&nbsp;$0,01</code> sur 1 VM <code>default</code>), plus
+        le nœud dédié <code>ashur</code> déjà provisionné (<code>$0</code> marginal,{' '}
+        <code>~$0,46</code> d&apos;équivalent cloud). L&apos;inférence n&apos;a entraîné{' '}
+        <strong>$0 de surcoût marginal</strong> (couverte par nos forfaits Antigravity et les
+        endpoints mis à disposition par l&apos;Ethereum Foundation), mais représente environ{' '}
+        <strong>~$298 en équivalent API public</strong> aux tarifs standards par token grâce à ~90 %
+        de lecture de cache (<code>~$116,00</code> sur Gemini Carbon 4 pour <code>472,0 M</code>{' '}
+        tokens à 94,7 % de cache hit, <code>~$106,50</code> sur GLM-5.3 sans cache pour{' '}
+        <code>74,6 M</code> tokens, <code>~$71,30</code> sur le coordinateur{' '}
+        <code>builtin/smart</code> pour <code>141,0 M</code> tokens et <code>~$3,84</code> sur
+        Qwen3.8-27B), soit <strong>~$301</strong> d&apos;équivalent cloud + API tout compris.
+      </p>
 
       <OrbResourcesEmbed />
     </article>

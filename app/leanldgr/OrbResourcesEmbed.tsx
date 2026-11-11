@@ -34,6 +34,7 @@ interface IsolatedTarget {
   id: string
   label: string
   value: number
+  costLabel: string
   color: string
   note: string
 }
@@ -83,8 +84,8 @@ export default function OrbResourcesEmbed() {
       .nodeSort(null)
       .linkSort(null)
       .extent([
-        [205, 14],
-        [755, 316]
+        [218, 14],
+        [726, 316]
       ])
 
     return layout({
@@ -192,7 +193,8 @@ export default function OrbResourcesEmbed() {
                 <>
                   <strong>{fmtFr(totalVal, 1)}M tok</strong>
                   <span>·</span>
-                  <span>30 agents actifs</span>
+                  <strong>$0 facturé</strong>
+                  <span>(~$298 eq. API)</span>
                   <span>·</span>
                   <span>pic {fmtFr(curve.peak, 1)} M tok/h</span>
                 </>
@@ -200,7 +202,8 @@ export default function OrbResourcesEmbed() {
                 <>
                   <strong>{fmtFr(totalVal, 1)} CPU-h</strong>
                   <span>·</span>
-                  <span>654,9 GB·h cloud (+394,8 ashur)</span>
+                  <strong>$3,42 cloud</strong>
+                  <span>(+$0 ashur)</span>
                   <span>·</span>
                   <span>pic {fmtFr(curve.peak, 0)} vCPU</span>
                 </>
@@ -282,7 +285,7 @@ export default function OrbResourcesEmbed() {
                         className="ldgr-orb-ribbon"
                         onMouseEnter={() =>
                           setHoverText(
-                            `${s.label} → ${t.label} · ${fmtFr(l.value, 1)} ${unitTotal}`
+                            `${s.label} → ${t.label} · ${fmtFr(l.value, 1)} ${unitTotal} · ${l.costLabel}`
                           )
                         }
                         onClick={() =>
@@ -293,6 +296,7 @@ export default function OrbResourcesEmbed() {
                                   id: l.id,
                                   label: `${s.label} → ${t.label}`,
                                   value: l.value,
+                                  costLabel: l.costLabel,
                                   color: s.color,
                                   note: l.note
                                 }
@@ -324,7 +328,7 @@ export default function OrbResourcesEmbed() {
                         style={{ opacity: dimmed ? 0.32 : 1 }}
                         onMouseEnter={() =>
                           setHoverText(
-                            `${n.label} · ${fmtFr(n.value ?? 0, 1)} ${unitTotal} — ${n.sub}`
+                            `${n.label} · ${fmtFr(n.value ?? 0, 1)} ${unitTotal} · ${n.costLabel}`
                           )
                         }
                         onClick={() =>
@@ -335,6 +339,7 @@ export default function OrbResourcesEmbed() {
                                   id: n.id,
                                   label: n.label,
                                   value: n.value ?? 0,
+                                  costLabel: n.costLabel,
                                   color: n.color,
                                   note: n.note
                                 }
@@ -354,21 +359,19 @@ export default function OrbResourcesEmbed() {
                         <text
                           className="ldgr-orb-node-lbl"
                           x={isLeft ? (n.x0 ?? 0) - 10 : (n.x1 ?? 0) + 10}
-                          y={h >= 22 ? cy - 4 : cy + 4}
+                          y={cy - 4}
                           textAnchor={isLeft ? 'end' : 'start'}
                         >
                           {n.label}
                         </text>
-                        {h >= 22 && (
-                          <text
-                            className="ldgr-orb-node-sub"
-                            x={isLeft ? (n.x0 ?? 0) - 10 : (n.x1 ?? 0) + 10}
-                            y={cy + 10}
-                            textAnchor={isLeft ? 'end' : 'start'}
-                          >
-                            {fmtFr(n.value ?? 0, 1)} {unitTotal} · {n.sub}
-                          </text>
-                        )}
+                        <text
+                          className="ldgr-orb-node-sub"
+                          x={isLeft ? (n.x0 ?? 0) - 10 : (n.x1 ?? 0) + 10}
+                          y={cy + 9}
+                          textAnchor={isLeft ? 'end' : 'start'}
+                        >
+                          {fmtFr(n.value ?? 0, 1)} {unitTotal} · {n.sub}
+                        </text>
                       </g>
                     )
                   })}
@@ -403,7 +406,12 @@ export default function OrbResourcesEmbed() {
               ) : (
                 <>
                   Pic {fmtFr(curve.peak, 1)} {unitRate} · Total{' '}
-                  {fmtFr(isolated ? isolated.value : totalVal, 1)} {unitTotal}
+                  {fmtFr(isolated ? isolated.value : totalVal, 1)} {unitTotal} ·{' '}
+                  {isolated
+                    ? isolated.costLabel
+                    : lens === 'inference'
+                      ? '$0 facturé (~$298 eq. API)'
+                      : '$3,42 Boat (+$0 ashur)'}
                 </>
               )}
             </span>
@@ -498,7 +506,7 @@ export default function OrbResourcesEmbed() {
               { idx: 0, lbl: '15:15 UTC' },
               { idx: 19, lbl: '20:00' },
               { idx: 39, lbl: '01:00' },
-              { idx: 56, lbl: 'pause (04:06–06:09)' },
+              { idx: 56, lbl: 'pause inférence (04:06–06:09)' },
               { idx: 79, lbl: '11:15 UTC' }
             ].map((tk, i, arr) => (
               <text
@@ -521,10 +529,10 @@ export default function OrbResourcesEmbed() {
           <span>
             {isolated
               ? isolated.note
-              : 'Fenêtre complète : 10 nov. 15:15 UTC → 11 nov. 11:15 UTC (19,9 h wall-clock dont 2 h de pause nocturne)'}
+              : "Fenêtre complète : 10 nov. 15:15 UTC → 11 nov. 11:15 UTC (19,9 h wall-clock dont 2 heures de pause à cause d'un problème d'approvisionnement d'inférence réglé à la main)"}
           </span>
           <span className="ldgr-orb-foot-mono">
-            Orb telemetry · 25 Boat VMs ($3,42 cloud) + ashur
+            Compute : $3,42 Boat (+$0 ashur) · Inférence : $0 marginal (~$298 eq. API)
           </span>
         </div>
       </div>
@@ -570,7 +578,7 @@ function DagTimeline({
         startMin: 0,
         durMin: 1195,
         color: '#cf6a2d',
-        detail: 'Coordinateur racine sur ashur · 141,0M tok (201 tours)',
+        detail: 'Coordinateur racine sur ashur · 141,0M tok · $0 facturé (~$71,30 eq. API, 201 tours)',
         y: (y += 16)
       })
       y += 22
@@ -597,7 +605,7 @@ function DagTimeline({
           startMin: a.startMin,
           durMin: a.durMin,
           color,
-          detail: `${a.title} · ${fmtFr(a.tokensM, 1)}M tok (${a.pool}, ${a.durMin} min)`,
+          detail: `${a.title} · ${fmtFr(a.tokensM, 1)}M tok · ~$${fmtFr(a.apiEqUsd, 2)} eq. API ($0 facturé, ${a.pool}, ${a.durMin} min)`,
           y
         })
         y += 21
@@ -636,15 +644,17 @@ function DagTimeline({
             : v.size === 'large'
               ? '#2f83bf'
               : '#627eea'
+        const vmCostStr =
+          v.costUsd < 0.01 ? `<$0,01` : `$${fmtFr(v.costUsd, 2)}`
         out.push({
           id: `${v.id}-${v.startMin}`,
-          label: `${v.name} (${v.cpu}c/${v.ramGb}G)`,
+          label: `${v.name} (${v.cpu}c/${v.ramGb}G · ${vmCostStr})`,
           wave: v.track,
           header,
           startMin: v.startMin,
           durMin: v.durMin,
           color,
-          detail: `${v.name} (boat:${v.size}) · ${fmtFr(v.cpuH, 1)} CPU-h · ${fmtFr(v.ramGh, 1)} GB·h — ${v.reason}`,
+          detail: `${v.name} (boat:${v.size}) · $${fmtFr(v.costUsd, 3)} facturé · ${fmtFr(v.cpuH, 1)} CPU-h · ${fmtFr(v.ramGh, 1)} GB·h — ${v.reason}`,
           y
         })
         y += 21

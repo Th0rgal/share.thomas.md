@@ -4,6 +4,7 @@ export interface OrbNodeDatum {
   id: string;
   label: string;
   sub: string;
+  costLabel: string;
   color: string;
   note: string;
 }
@@ -13,6 +14,7 @@ export interface OrbLinkDatum {
   source: string;
   target: string;
   value: number;
+  costLabel: string;
   note: string;
 }
 
@@ -21,6 +23,7 @@ export interface DagAgentBar {
   wave: string;
   pool: string;
   tokensM: number;
+  apiEqUsd: number;
   startMin: number;
   durMin: number;
   state: 'done' | 'capped';
@@ -36,6 +39,7 @@ export interface DagVmBar {
   track: string;
   cpuH: number;
   ramGh: number;
+  costUsd: number;
   startMin: number;
   durMin: number;
   reason: string;
@@ -45,57 +49,57 @@ export const MISSION_SPAN_MINUTES = 1200; // 20h (15:15 UTC -> 11:15 UTC)
 export const BUCKET_MINUTES = 15;
 
 export const INFERENCE_NODES: OrbNodeDatum[] = [
-  { id: 'carbon-4', label: 'AGY · Gemini Carbon 4', sub: '20 subagents actifs', color: '#2d7ec7', note: '472,0M tokens sur les shards de specs, preuves Lean 4, intégration C/Rust et maxwell.' },
-  { id: 'smart', label: 'Core · builtin/smart', sub: '1 coordinateur', color: '#cf6a2d', note: '141,0M tokens sur 201 tours d\'orchestration, revues de diff et déploiement.' },
-  { id: 'glm-5.3', label: 'EF · GLM-5.3', sub: '7 subagents', color: '#627eea', note: '74,6M tokens : audit mutationnel, shims FFI 32 bits et acceptance review.' },
-  { id: 'qwen-3.8', label: 'EF · Qwen3.8-27B', sub: '2 subagents', color: '#129690', note: '9,0M tokens : audit indépendant final et inspection en lecture seule.' },
-  { id: 'coord', label: 'Orchestration & steering', sub: 'ashur · 201 tours', color: '#cf6a2d', note: 'Pilotage du DAG, triage des quorums et assemblage final.' },
-  { id: 'w1', label: 'Wave 1 · Specs & turbo-lean', sub: '8 subagents', color: '#2f83bf', note: 'Formalisation BIP-32/143/341/370/379/388 + backend LLVM 32-bit ILP32 dans turbo-lean.' },
-  { id: 'w15', label: 'Wave 1.5 · Audit & remédiation', sub: '6 subagents', color: '#7c65d6', note: 'Double audit adversarial des specs, tests de mutation et remédiation complète.' },
-  { id: 'w2', label: 'Wave 2 · Noyaux Lean & preuves', sub: '7 subagents', color: '#1d9a78', note: 'Implémentation freestanding sans allocation et clôture des 2 405 théorèmes (0 sorryAx).' },
-  { id: 'w3', label: 'Wave 3 · Link C/Rust & tests', sub: '4 subagents', color: '#0e9aa7', note: 'Intégration LTO dans app-bitcoin et vnd-bitcoin + passage ctest, Ragger et Speculos.' },
-  { id: 'w4', label: 'Wave 4 · Boucle maxwell', sub: '4 subagents', color: '#d9822b', note: 'Optimisation Flash, RAM et cycles sur BOLOS et Vanadium + revue finale.' },
+  { id: 'carbon-4', label: 'AGY · Gemini Carbon 4', sub: '20 agents · $0 (~$116 API)', costLabel: '$0 facturé · ~$116,00 eq. API (94,7 % cache)', color: '#2d7ec7', note: '472,0M tokens (20 subagents) : $0 marginal sur forfait Antigravity (~$116,00 eq. API @ $2/$0,10/$10 par M tok, 94,7 % de cache hit).' },
+  { id: 'smart', label: 'Core · builtin/smart', sub: '1 coord · $0 (~$71 API)', costLabel: '$0 facturé · ~$71,30 eq. API (80,7 % cache)', color: '#cf6a2d', note: '141,0M tokens sur 201 tours d\'orchestration : $0 marginal (~$71,30 eq. API avec 80,7 % de lecture cache).' },
+  { id: 'glm-5.3', label: 'EF · GLM-5.3', sub: '7 agents · $0 (~$106,5 API)', costLabel: '$0 facturé · ~$106,49 eq. API (0 % cache)', color: '#627eea', note: '74,6M tokens sur l\'endpoint Ethereum Foundation : $0 marginal (~$106,49 eq. API @ $1,40/M in, $4,40/M out sans cache).' },
+  { id: 'qwen-3.8', label: 'EF · Qwen3.8-27B', sub: '2 agents · $0 (~$3,8 API)', costLabel: '$0 facturé · ~$3,84 eq. API', color: '#129690', note: '9,0M tokens sur l\'endpoint Ethereum Foundation : $0 marginal (~$3,84 eq. API).' },
+  { id: 'coord', label: 'Orchestration & steering', sub: '201 tours · ~$71,3 API', costLabel: '$0 facturé · ~$71,30 eq. API', color: '#cf6a2d', note: 'Pilotage du DAG, triage des quorums et assemblage final sur ashur (~$71,30 eq. API).' },
+  { id: 'w1', label: 'Wave 1 · Specs & turbo-lean', sub: '8 agents · ~$42,6 API', costLabel: '$0 facturé · ~$42,56 eq. API', color: '#2f83bf', note: 'Formalisation BIP-32/143/341/370/379/388 + backend LLVM 32-bit ILP32 dans turbo-lean (~$42,56 eq. API).' },
+  { id: 'w15', label: 'Wave 1.5 · Audit & remédiation', sub: '6 agents · ~$90,8 API', costLabel: '$0 facturé · ~$90,83 eq. API', color: '#7c65d6', note: 'Double audit adversarial des specs, tests de mutation GLM-5.3 et remédiation complète (~$90,83 eq. API).' },
+  { id: 'w2', label: 'Wave 2 · Noyaux Lean & preuves', sub: '7 agents · ~$53,2 API', costLabel: '$0 facturé · ~$53,16 eq. API', color: '#1d9a78', note: 'Implémentation freestanding sans allocation et clôture des 2 405 théorèmes (~$53,16 eq. API).' },
+  { id: 'w3', label: 'Wave 3 · Link C/Rust & tests', sub: '4 agents · ~$15,1 API', costLabel: '$0 facturé · ~$15,05 eq. API', color: '#0e9aa7', note: 'Intégration LTO dans app-bitcoin et vnd-bitcoin + passage ctest, Ragger et Speculos (~$15,05 eq. API).' },
+  { id: 'w4', label: 'Wave 4 · Boucle maxwell', sub: '4 agents · ~$24,7 API', costLabel: '$0 facturé · ~$24,74 eq. API', color: '#d9822b', note: 'Optimisation Flash, RAM et cycles sur BOLOS et Vanadium + revue finale (~$24,74 eq. API).' },
 ];
 
 export const INFERENCE_LINKS: OrbLinkDatum[] = [
-  { id: 'smart->coord', source: 'smart', target: 'coord', value: 141.02, note: 'Coordinateur racine sur ashur (1 292 messages assistant).' },
-  { id: 'carbon-4->w1', source: 'carbon-4', target: 'w1', value: 120.57, note: 'Shards W1-S1..S4 (specs Bitcoin) + W1-C1 (backend LLVM 32 bits turbo-lean).' },
-  { id: 'carbon-4->w15', source: 'carbon-4', target: 'w15', value: 81.73, note: 'Audit Spec A + shards de remédiation R1, R2a et R2b.' },
-  { id: 'carbon-4->w2', source: 'carbon-4', target: 'w2', value: 130.03, note: 'Shards I1..I4 : noyaux freestanding et preuves formelles Lean 4.' },
-  { id: 'carbon-4->w3', source: 'carbon-4', target: 'w3', value: 53.91, note: 'Shards T1 (BOLOS Speculos/Ragger) et T2 (Vanadium RV32IMAC) + review.' },
-  { id: 'carbon-4->w4', source: 'carbon-4', target: 'w4', value: 85.78, note: 'Boucles d\'optimisation W4-O1 (BOLOS) et W4-O2 (Vanadium Flex) + audit.' },
-  { id: 'glm-5.3->w1', source: 'glm-5.3', target: 'w1', value: 9.05, note: 'Harness de benchmarks dorés W1-H1 + premiers essais specs.' },
-  { id: 'glm-5.3->w15', source: 'glm-5.3', target: 'w15', value: 49.53, note: 'Audit adversarial par mutation (Audit B) + remédiation R2.' },
-  { id: 'glm-5.3->w2', source: 'glm-5.3', target: 'w2', value: 14.72, note: 'Shard I5 : shims FFI 32 bits BOLOS/Vanadium et harnais d\'équivalence.' },
-  { id: 'glm-5.3->w3', source: 'glm-5.3', target: 'w3', value: 1.26, note: 'Final Acceptance Review sur Th0rgal/lean-ledger-bitcoin.' },
-  { id: 'qwen-3.8->w2', source: 'qwen-3.8', target: 'w2', value: 0.42, note: 'Inspection rapide du build Lean sur large-e.' },
-  { id: 'qwen-3.8->w4', source: 'qwen-3.8', target: 'w4', value: 8.54, note: 'Audit indépendant W4-Review-B des PRs finaux.' },
+  { id: 'smart->coord', source: 'smart', target: 'coord', value: 141.02, costLabel: '~$71,30 eq. API ($0 facturé)', note: 'Coordinateur racine sur ashur (1 292 messages assistant · ~$71,30 eq. API).' },
+  { id: 'carbon-4->w1', source: 'carbon-4', target: 'w1', value: 120.57, costLabel: '~$29,63 eq. API ($0 facturé)', note: 'Shards W1-S1..S4 (specs Bitcoin) + W1-C1 (backend LLVM 32 bits turbo-lean) · ~$29,63 eq. API.' },
+  { id: 'carbon-4->w15', source: 'carbon-4', target: 'w15', value: 81.73, costLabel: '~$20,09 eq. API ($0 facturé)', note: 'Audit Spec A + shards de remédiation R1, R2a et R2b · ~$20,09 eq. API.' },
+  { id: 'carbon-4->w2', source: 'carbon-4', target: 'w2', value: 130.03, costLabel: '~$31,96 eq. API ($0 facturé)', note: 'Shards I1..I4 : noyaux freestanding et preuves formelles Lean 4 · ~$31,96 eq. API.' },
+  { id: 'carbon-4->w3', source: 'carbon-4', target: 'w3', value: 53.91, costLabel: '~$13,25 eq. API ($0 facturé)', note: 'Shards T1 (BOLOS Speculos/Ragger) et T2 (Vanadium RV32IMAC) + review · ~$13,25 eq. API.' },
+  { id: 'carbon-4->w4', source: 'carbon-4', target: 'w4', value: 85.78, costLabel: '~$21,08 eq. API ($0 facturé)', note: 'Boucles d\'optimisation W4-O1 (BOLOS) et W4-O2 (Vanadium Flex) + audit · ~$21,08 eq. API.' },
+  { id: 'glm-5.3->w1', source: 'glm-5.3', target: 'w1', value: 9.05, costLabel: '~$12,93 eq. API ($0 facturé)', note: 'Harness de benchmarks dorés W1-H1 + premiers essais specs · ~$12,93 eq. API.' },
+  { id: 'glm-5.3->w15', source: 'glm-5.3', target: 'w15', value: 49.53, costLabel: '~$70,74 eq. API ($0 facturé)', note: 'Audit adversarial par mutation (Audit B) + remédiation R2 · ~$70,74 eq. API.' },
+  { id: 'glm-5.3->w2', source: 'glm-5.3', target: 'w2', value: 14.72, costLabel: '~$21,02 eq. API ($0 facturé)', note: 'Shard I5 : shims FFI 32 bits BOLOS/Vanadium et harnais d\'équivalence · ~$21,02 eq. API.' },
+  { id: 'glm-5.3->w3', source: 'glm-5.3', target: 'w3', value: 1.26, costLabel: '~$1,80 eq. API ($0 facturé)', note: 'Final Acceptance Review sur Th0rgal/lean-ledger-bitcoin · ~$1,80 eq. API.' },
+  { id: 'qwen-3.8->w2', source: 'qwen-3.8', target: 'w2', value: 0.42, costLabel: '~$0,18 eq. API ($0 facturé)', note: 'Inspection rapide du build Lean sur large-e · ~$0,18 eq. API.' },
+  { id: 'qwen-3.8->w4', source: 'qwen-3.8', target: 'w4', value: 8.54, costLabel: '~$3,66 eq. API ($0 facturé)', note: 'Audit indépendant W4-Review-B des PRs finaux · ~$3,66 eq. API.' },
 ];
 
 export const COMPUTE_NODES: OrbNodeDatum[] = [
-  { id: 'boat-large', label: 'Boat · large (Zen 5)', sub: '20 VMs · 8 vCPU / 16 GB', color: '#2f83bf', note: '189,4 CPU-h et 378,9 GB RAM-h sur 20 microVMs dédiées aux preuves Lean et Speculos.' },
-  { id: 'boat-xlarge', label: 'Boat · xlarge (Zen 5)', sub: '4 VMs · 16 vCPU / 32 GB', color: '#1d9a78', note: '137,5 CPU-h et 275,0 GB RAM-h pour compiler turbo-lean et faire tourner maxwell.' },
-  { id: 'ashur', label: 'Fleet · ashur', sub: '8 vCPU · tours actifs', color: '#cf6a2d', note: '51,6 CPU-h (394,8 GB RAM-h réservés pendant les tours actifs du coordinateur et 2 revues locales).' },
-  { id: 'boat-default', label: 'Boat · default', sub: '1 VM · 4 vCPU / 8 GB', color: '#627eea', note: '0,48 CPU-h et 0,96 GB RAM-h pour la revue d\'acceptation isolée.' },
-  { id: 'coord', label: 'Orchestration & steering', sub: '47,6 CPU-h', color: '#cf6a2d', note: 'Tours actifs sur ashur (hors attente passive des jobs distants).' },
-  { id: 'w1', label: 'Wave 1 · Specs & turbo-lean', sub: '93,1 CPU-h', color: '#2f83bf', note: 'Build LLVM/Lean 32 bits sur xlarge + formalisation parallèle sur large.' },
-  { id: 'w15', label: 'Wave 1.5 · Audit & remédiation', sub: '54,2 CPU-h', color: '#7c65d6', note: ' Vérification croisée des specs et tests de mutation Lean.' },
-  { id: 'w2', label: 'Wave 2 · Noyaux Lean & preuves', sub: '71,7 CPU-h', color: '#1d9a78', note: 'Compilation parallèle turbo-lean et vérification sans sorryAx des 5 shards.' },
-  { id: 'w3', label: 'Wave 3 · Link C/Rust & tests', sub: '20,4 CPU-h', color: '#0e9aa7', note: 'Suites ctest, Ragger et Speculos BOLOS/Vanadium.' },
-  { id: 'w4', label: 'Wave 4 · Boucle maxwell', sub: '92,0 CPU-h', color: '#d9822b', note: 'Benchmarks itératifs Speculos Nano S+/Nano X/Flex et réduction binaire LTO.' },
+  { id: 'boat-large', label: 'Boat · large (Zen 5)', sub: '20 VMs · $1,70 ($0,072/h)', costLabel: '$1,70 facturé (20 VMs @ $0,072/h)', color: '#2f83bf', note: '189,4 CPU-h et 378,9 GB RAM-h sur 20 microVMs (8 vCPU / 16 GB @ $0,072/h) : $1,70 facturé.' },
+  { id: 'boat-xlarge', label: 'Boat · xlarge (Zen 5)', sub: '4 VMs · $1,72 ($0,20/h)', costLabel: '$1,72 facturé (4 VMs @ $0,20/h)', color: '#1d9a78', note: '137,5 CPU-h et 275,0 GB RAM-h sur 4 microVMs (16 vCPU / 32 GB @ $0,20/h) : $1,72 facturé.' },
+  { id: 'ashur', label: 'Fleet · ashur', sub: '8 vCPU · $0 (~$0,46 eq.)', costLabel: '$0 marginal (~$0,46 eq. cloud)', color: '#cf6a2d', note: '51,6 CPU-h actifs sur nœud statique dédié déjà provisionné : $0 marginal (~$0,46 d\'équivalent cloud).' },
+  { id: 'boat-default', label: 'Boat · default', sub: '1 VM · <$0,01 ($0,036/h)', costLabel: '$0,004 facturé (1 VM @ $0,036/h)', color: '#627eea', note: '0,48 CPU-h et 0,96 GB RAM-h pour la revue d\'acceptation isolée : $0,004 facturé.' },
+  { id: 'coord', label: 'Orchestration & steering', sub: '$0 (~$0,43 eq.)', costLabel: '$0 marginal (~$0,43 eq. cloud)', color: '#cf6a2d', note: 'Tours actifs sur ashur hors attente passive : $0 marginal (~$0,43 eq. cloud).' },
+  { id: 'w1', label: 'Wave 1 · Specs & turbo-lean', sub: '$1,01 cloud', costLabel: '$1,01 facturé sur Boat', color: '#2f83bf', note: 'Build LLVM/Lean 32 bits sur 2 xlarge ($0,62) + specs parallèles sur 5 large ($0,39) = $1,01 facturé.' },
+  { id: 'w15', label: 'Wave 1.5 · Audit & remédiation', sub: '$0,48 cloud', costLabel: '$0,48 facturé sur Boat', color: '#7c65d6', note: 'Vérification croisée des specs et tests de mutation sur 6 VMs large = $0,48 facturé.' },
+  { id: 'w2', label: 'Wave 2 · Noyaux Lean & preuves', sub: '$0,65 cloud', costLabel: '$0,65 facturé sur Boat', color: '#1d9a78', note: 'Compilation parallèle turbo-lean et preuves sans sorryAx sur 7 VMs large = $0,65 facturé.' },
+  { id: 'w3', label: 'Wave 3 · Link C/Rust & tests', sub: '$0,18 cloud', costLabel: '$0,18 facturé sur Boat', color: '#0e9aa7', note: 'Suites ctest, Ragger et Speculos BOLOS/Vanadium sur 2 large + 1 default = $0,18 facturé.' },
+  { id: 'w4', label: 'Wave 4 · Boucle maxwell', sub: '$1,10 cloud', costLabel: '$1,10 facturé sur Boat', color: '#d9822b', note: 'Benchmarks itératifs Speculos Nano S+/Nano X/Flex sur 2 VMs xlarge = $1,10 facturé (+ audit sur ashur).' },
 ];
 
 export const COMPUTE_LINKS: OrbLinkDatum[] = [
-  { id: 'ashur->coord', source: 'ashur', target: 'coord', value: 47.58, note: 'Coordinateur actif sur ashur (5,92 h de tours cumulés × 8 vCPU).' },
-  { id: 'ashur->w3', source: 'ashur', target: 'w3', value: 0.22, note: 'Revue locale GLM-5.3 sur ashur.' },
-  { id: 'ashur->w4', source: 'ashur', target: 'w4', value: 3.77, note: 'Audit final indépendant Qwen3.8-27B sur ashur.' },
-  { id: 'boat-xlarge->w1', source: 'boat-xlarge', target: 'w1', value: 49.31, note: '2 VMs xlarge (16 vCPU) pour compiler turbo-lean 32-bit et le harnais doré.' },
-  { id: 'boat-large->w1', source: 'boat-large', target: 'w1', value: 43.79, note: '5 VMs large (8 vCPU) pour formaliser les specs Bitcoin.' },
-  { id: 'boat-large->w15', source: 'boat-large', target: 'w15', value: 54.20, note: '6 VMs large pour les audits de spec et la remédiation.' },
-  { id: 'boat-large->w2', source: 'boat-large', target: 'w2', value: 71.71, note: '7 VMs large pour les preuves Lean 4 des 5 shards exécutables.' },
-  { id: 'boat-large->w3', source: 'boat-large', target: 'w3', value: 19.74, note: '2 VMs large pour l\'intégration ELF ARM Thumb / RISC-V et Speculos.' },
-  { id: 'boat-default->w3', source: 'boat-default', target: 'w3', value: 0.48, note: '1 VM default (4 vCPU) pour la revue d\'acceptation.' },
-  { id: 'boat-xlarge->w4', source: 'boat-xlarge', target: 'w4', value: 88.21, note: '2 VMs xlarge (16 vCPU) pour les boucles d\'optimisation maxwell BOLOS & Vanadium.' },
+  { id: 'ashur->coord', source: 'ashur', target: 'coord', value: 47.58, costLabel: '$0 marginal (~$0,43 eq. cloud)', note: 'Coordinateur actif sur ashur (5,92 h de tours cumulés × 8 vCPU · $0 marginal).' },
+  { id: 'ashur->w3', source: 'ashur', target: 'w3', value: 0.22, costLabel: '$0 marginal', note: 'Revue locale GLM-5.3 sur ashur ($0 marginal).' },
+  { id: 'ashur->w4', source: 'ashur', target: 'w4', value: 3.77, costLabel: '$0 marginal (~$0,03 eq. cloud)', note: 'Audit final indépendant Qwen3.8-27B sur ashur ($0 marginal).' },
+  { id: 'boat-xlarge->w1', source: 'boat-xlarge', target: 'w1', value: 49.31, costLabel: '$0,62 facturé', note: '2 VMs xlarge (16 vCPU) pour compiler turbo-lean 32-bit et le harnais doré ($0,62 facturé).' },
+  { id: 'boat-large->w1', source: 'boat-large', target: 'w1', value: 43.79, costLabel: '$0,39 facturé', note: '5 VMs large (8 vCPU) pour formaliser les specs Bitcoin ($0,39 facturé).' },
+  { id: 'boat-large->w15', source: 'boat-large', target: 'w15', value: 54.20, costLabel: '$0,48 facturé', note: '6 VMs large pour les audits de spec et la remédiation ($0,48 facturé).' },
+  { id: 'boat-large->w2', source: 'boat-large', target: 'w2', value: 71.71, costLabel: '$0,65 facturé', note: '7 VMs large pour les preuves Lean 4 des 5 shards exécutables ($0,65 facturé).' },
+  { id: 'boat-large->w3', source: 'boat-large', target: 'w3', value: 19.74, costLabel: '$0,18 facturé', note: '2 VMs large pour l\'intégration ELF ARM Thumb / RISC-V et Speculos ($0,18 facturé).' },
+  { id: 'boat-default->w3', source: 'boat-default', target: 'w3', value: 0.48, costLabel: '$0,004 facturé', note: '1 VM default (4 vCPU) pour la revue d\'acceptation ($0,004 facturé).' },
+  { id: 'boat-xlarge->w4', source: 'boat-xlarge', target: 'w4', value: 88.21, costLabel: '$1,10 facturé', note: '2 VMs xlarge (16 vCPU) pour les boucles d\'optimisation maxwell BOLOS & Vanadium ($1,10 facturé).' },
 ];
 
 export const INFERENCE_SERIES: Record<string, number[]> = {
@@ -3718,6 +3722,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w1",
     "pool": "carbon-4",
     "tokensM": 34.37,
+    "apiEqUsd": 8.45,
     "startMin": 43,
     "durMin": 73,
     "state": "capped",
@@ -3728,6 +3733,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w1",
     "pool": "glm-5.3",
     "tokensM": 4.27,
+    "apiEqUsd": 6.1,
     "startMin": 45,
     "durMin": 101,
     "state": "done",
@@ -3738,6 +3744,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w1",
     "pool": "glm-5.3",
     "tokensM": 2.55,
+    "apiEqUsd": 3.64,
     "startMin": 45,
     "durMin": 8,
     "state": "capped",
@@ -3748,6 +3755,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w1",
     "pool": "glm-5.3",
     "tokensM": 2.23,
+    "apiEqUsd": 3.18,
     "startMin": 45,
     "durMin": 8,
     "state": "capped",
@@ -3758,6 +3766,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w1",
     "pool": "carbon-4",
     "tokensM": 17.48,
+    "apiEqUsd": 4.3,
     "startMin": 46,
     "durMin": 56,
     "state": "done",
@@ -3768,6 +3777,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w1",
     "pool": "carbon-4",
     "tokensM": 21.08,
+    "apiEqUsd": 5.18,
     "startMin": 47,
     "durMin": 66,
     "state": "done",
@@ -3778,6 +3788,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w1",
     "pool": "carbon-4",
     "tokensM": 16.31,
+    "apiEqUsd": 4.01,
     "startMin": 57,
     "durMin": 90,
     "state": "done",
@@ -3788,6 +3799,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w1",
     "pool": "carbon-4",
     "tokensM": 31.34,
+    "apiEqUsd": 7.7,
     "startMin": 65,
     "durMin": 115,
     "state": "done",
@@ -3798,6 +3810,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w15",
     "pool": "carbon-4",
     "tokensM": 11.33,
+    "apiEqUsd": 2.78,
     "startMin": 180,
     "durMin": 20,
     "state": "done",
@@ -3808,6 +3821,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w15",
     "pool": "glm-5.3",
     "tokensM": 17.57,
+    "apiEqUsd": 25.09,
     "startMin": 180,
     "durMin": 19,
     "state": "done",
@@ -3818,6 +3832,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w15",
     "pool": "carbon-4",
     "tokensM": 24.08,
+    "apiEqUsd": 5.92,
     "startMin": 204,
     "durMin": 66,
     "state": "done",
@@ -3828,6 +3843,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w15",
     "pool": "glm-5.3",
     "tokensM": 31.97,
+    "apiEqUsd": 45.66,
     "startMin": 204,
     "durMin": 126,
     "state": "capped",
@@ -3838,6 +3854,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w15",
     "pool": "carbon-4",
     "tokensM": 19.45,
+    "apiEqUsd": 4.78,
     "startMin": 342,
     "durMin": 64,
     "state": "done",
@@ -3848,6 +3865,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w15",
     "pool": "carbon-4",
     "tokensM": 26.87,
+    "apiEqUsd": 6.6,
     "startMin": 342,
     "durMin": 77,
     "state": "capped",
@@ -3858,6 +3876,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w2",
     "pool": "carbon-4",
     "tokensM": 18.43,
+    "apiEqUsd": 4.53,
     "startMin": 431,
     "durMin": 92,
     "state": "capped",
@@ -3868,6 +3887,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w2",
     "pool": "carbon-4",
     "tokensM": 16.28,
+    "apiEqUsd": 4.0,
     "startMin": 431,
     "durMin": 49,
     "state": "done",
@@ -3878,6 +3898,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w2",
     "pool": "carbon-4",
     "tokensM": 22.67,
+    "apiEqUsd": 5.57,
     "startMin": 431,
     "durMin": 91,
     "state": "capped",
@@ -3888,6 +3909,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w2",
     "pool": "carbon-4",
     "tokensM": 50.27,
+    "apiEqUsd": 12.35,
     "startMin": 432,
     "durMin": 155,
     "state": "done",
@@ -3898,6 +3920,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w2",
     "pool": "glm-5.3",
     "tokensM": 14.72,
+    "apiEqUsd": 21.02,
     "startMin": 432,
     "durMin": 30,
     "state": "done",
@@ -3908,6 +3931,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w2",
     "pool": "qwen-3.8",
     "tokensM": 0.42,
+    "apiEqUsd": 0.18,
     "startMin": 517,
     "durMin": 4,
     "state": "capped",
@@ -3918,6 +3942,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w2",
     "pool": "carbon-4",
     "tokensM": 22.38,
+    "apiEqUsd": 5.5,
     "startMin": 530,
     "durMin": 100,
     "state": "done",
@@ -3928,6 +3953,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w3",
     "pool": "carbon-4",
     "tokensM": 36.89,
+    "apiEqUsd": 9.07,
     "startMin": 654,
     "durMin": 104,
     "state": "done",
@@ -3938,6 +3964,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w3",
     "pool": "carbon-4",
     "tokensM": 15.39,
+    "apiEqUsd": 3.78,
     "startMin": 654,
     "durMin": 41,
     "state": "done",
@@ -3948,6 +3975,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w3",
     "pool": "glm-5.3",
     "tokensM": 1.27,
+    "apiEqUsd": 1.81,
     "startMin": 763,
     "durMin": 4,
     "state": "done",
@@ -3958,6 +3986,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w3",
     "pool": "carbon-4",
     "tokensM": 1.62,
+    "apiEqUsd": 0.4,
     "startMin": 764,
     "durMin": 4,
     "state": "done",
@@ -3968,6 +3997,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w4",
     "pool": "carbon-4",
     "tokensM": 54.72,
+    "apiEqUsd": 13.45,
     "startMin": 900,
     "durMin": 235,
     "state": "capped",
@@ -3978,6 +4008,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w4",
     "pool": "carbon-4",
     "tokensM": 27.22,
+    "apiEqUsd": 6.69,
     "startMin": 900,
     "durMin": 73,
     "state": "done",
@@ -3988,6 +4019,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w4",
     "pool": "carbon-4",
     "tokensM": 3.84,
+    "apiEqUsd": 0.94,
     "startMin": 1143,
     "durMin": 11,
     "state": "done",
@@ -3998,6 +4030,7 @@ export const DAG_AGENTS: DagAgentBar[] = [
     "wave": "w4",
     "pool": "qwen-3.8",
     "tokensM": 8.54,
+    "apiEqUsd": 3.66,
     "startMin": 1144,
     "durMin": 59,
     "state": "done",
@@ -4015,6 +4048,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w1",
     "cpuH": 29.55,
     "ramGh": 59.1,
+    "costUsd": 0.369,
     "startMin": 41,
     "durMin": 111,
     "reason": "Wave 1 Track H1: Ledger golden builder VM (Lean 4.35, turbo-lean, Ledger BOLOS unit-tests + Speculos/Ragger + Vanadium RV32IMAC test harnesses) for snapshotting"
@@ -4028,6 +4062,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w1",
     "cpuH": 19.76,
     "ramGh": 39.53,
+    "costUsd": 0.247,
     "startMin": 41,
     "durMin": 74,
     "reason": "Wave 1 Track C1: Build turbo-lean + extend LeanNative LLVM backend & proofs to 32-bit ILP32 freestanding targets (thumbv6m, thumbv8mMain, riscv32imac)"
@@ -4041,6 +4076,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w1",
     "cpuH": 1.29,
     "ramGh": 2.57,
+    "costUsd": 0.012,
     "startMin": 43,
     "durMin": 10,
     "reason": "start_mission: W1-S1: Deduce Spec/{Basic,Bip32,Script}.lean from app-bitcoin + vanadium"
@@ -4054,6 +4090,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w1",
     "cpuH": 1.29,
     "ramGh": 2.58,
+    "costUsd": 0.012,
     "startMin": 44,
     "durMin": 10,
     "reason": "start_mission: W1-S3: Deduce Spec/{Psbt,MerkleProtocol}.lean from app-bitcoin + vanadium"
@@ -4067,6 +4104,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w1",
     "cpuH": 7.57,
     "ramGh": 15.15,
+    "costUsd": 0.068,
     "startMin": 45,
     "durMin": 57,
     "reason": "Wave 1 Track S1: Deduce Spec/{Basic,Bip32,Script}.lean on Gemini Carbon 4 low"
@@ -4080,6 +4118,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w1",
     "cpuH": 8.97,
     "ramGh": 17.94,
+    "costUsd": 0.081,
     "startMin": 45,
     "durMin": 67,
     "reason": "Wave 1 Track S3: Deduce Spec/{Psbt,MerkleProtocol}.lean on Gemini Carbon 4 low"
@@ -4093,6 +4132,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w1",
     "cpuH": 12.14,
     "ramGh": 24.29,
+    "costUsd": 0.109,
     "startMin": 56,
     "durMin": 91,
     "reason": "Wave 1 Track S2 replacement VM (Spec/WalletPolicy.lean)"
@@ -4106,6 +4146,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w1",
     "cpuH": 12.52,
     "ramGh": 25.05,
+    "costUsd": 0.113,
     "startMin": 56,
     "durMin": 94,
     "reason": "Wave 1 Track S4 replacement VM (Spec/{Musig2,SilentPayments,AppStateMachine}.lean)"
@@ -4119,6 +4160,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w15",
     "cpuH": 3.73,
     "ramGh": 7.46,
+    "costUsd": 0.034,
     "startMin": 173,
     "durMin": 28,
     "reason": "Wave 1.5 adversarial spec auditor A (Gemini Carbon 4 low via antigravity) against BOLOS app-bitcoin and Vanadium vnd-bitcoin"
@@ -4132,6 +4174,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w15",
     "cpuH": 3.5,
     "ramGh": 6.99,
+    "costUsd": 0.031,
     "startMin": 173,
     "durMin": 26,
     "reason": "Wave 1.5 adversarial spec auditor B (EF glm-5.3 via opencode) + mutation/vacuity audit against BOLOS app-bitcoin and Vanadium vnd-bitcoin"
@@ -4145,6 +4188,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w15",
     "cpuH": 9.02,
     "ramGh": 18.04,
+    "costUsd": 0.081,
     "startMin": 201,
     "durMin": 68,
     "reason": "Wave 1.5 Spec Remediation R1 (Basic, Bip32, Script, WalletPolicy)"
@@ -4158,6 +4202,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w15",
     "cpuH": 16.54,
     "ramGh": 33.07,
+    "costUsd": 0.149,
     "startMin": 201,
     "durMin": 124,
     "reason": "Wave 1.5 Spec Remediation R2 (Psbt, MerkleProtocol, Musig2, SilentPayments, AppStateMachine, Unified)"
@@ -4171,6 +4216,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w15",
     "cpuH": 11.48,
     "ramGh": 22.95,
+    "costUsd": 0.103,
     "startMin": 332,
     "durMin": 86,
     "reason": "Wave 1.5 Spec Remediation R2b (Musig2, SilentPayments, AppStateMachine, Unified) on Gemini Carbon 4"
@@ -4184,6 +4230,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w15",
     "cpuH": 9.94,
     "ramGh": 19.88,
+    "costUsd": 0.086,
     "startMin": 332,
     "durMin": 75,
     "reason": "Wave 1.5 Spec Remediation R2a (MerkleProtocol, Psbt) on Gemini Carbon 4"
@@ -4197,6 +4244,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w2",
     "cpuH": 21.05,
     "ramGh": 42.09,
+    "costUsd": 0.189,
     "startMin": 429,
     "durMin": 158,
     "reason": "Wave 2 Shard I4: BitcoinLedger/{Musig2,SilentPayments,AppStateMachine} + Proofs"
@@ -4210,6 +4258,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w2",
     "cpuH": 12.42,
     "ramGh": 24.84,
+    "costUsd": 0.112,
     "startMin": 429,
     "durMin": 93,
     "reason": "Wave 2 Shard I3: BitcoinLedger/{Psbt,MerkleProtocol} + Proofs/{Psbt,MerkleProtocol}"
@@ -4223,6 +4272,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w2",
     "cpuH": 13.31,
     "ramGh": 26.62,
+    "costUsd": 0.12,
     "startMin": 429,
     "durMin": 100,
     "reason": "Wave 2 Shard I1: BitcoinLedger/{Basic,Bip32,Script} + FreestandingKernels + Proofs"
@@ -4236,6 +4286,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w2",
     "cpuH": 6.81,
     "ramGh": 13.62,
+    "costUsd": 0.061,
     "startMin": 429,
     "durMin": 51,
     "reason": "Wave 2 Shard I2: BitcoinLedger/WalletPolicy + Proofs/WalletPolicy"
@@ -4249,6 +4300,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w2",
     "cpuH": 4.4,
     "ramGh": 8.79,
+    "costUsd": 0.04,
     "startMin": 429,
     "durMin": 33,
     "reason": "Wave 2 Shard I5: BOLOS & Vanadium 32-bit FFI shims + turbo-lean freestanding ELF build pipeline"
@@ -4262,6 +4314,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w2",
     "cpuH": 13.72,
     "ramGh": 27.44,
+    "costUsd": 0.123,
     "startMin": 528,
     "durMin": 103,
     "reason": "Wave 2 Shard I1 fresh warm Boat VM (replacing unresponsive large-e)"
@@ -4275,6 +4328,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w3",
     "cpuH": 14.11,
     "ramGh": 28.22,
+    "costUsd": 0.127,
     "startMin": 652,
     "durMin": 106,
     "reason": "Wave 3 BOLOS Speculos & FFI integration suite (T1)"
@@ -4288,6 +4342,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w3",
     "cpuH": 5.63,
     "ramGh": 11.26,
+    "costUsd": 0.051,
     "startMin": 652,
     "durMin": 42,
     "reason": "Wave 3 Vanadium RISC-V V-App & client integration suite (T2)"
@@ -4301,6 +4356,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w3",
     "cpuH": 0.48,
     "ramGh": 0.96,
+    "costUsd": 0.004,
     "startMin": 763,
     "durMin": 7,
     "reason": "Final acceptance audit of Th0rgal/lean-ledger-bitcoin (antigravity auditor)"
@@ -4314,6 +4370,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w4",
     "cpuH": 68.27,
     "ramGh": 136.54,
+    "costUsd": 0.853,
     "startMin": 898,
     "durMin": 256,
     "reason": "Wave 4 BOLOS app-bitcoin + turbo-lean storage/RAM/speed optimization, Speculos test verification, and Speculos screenshot capture"
@@ -4327,6 +4384,7 @@ export const DAG_VMS: DagVmBar[] = [
     "track": "w4",
     "cpuH": 19.94,
     "ramGh": 39.88,
+    "costUsd": 0.249,
     "startMin": 898,
     "durMin": 75,
     "reason": "Wave 4 Vanadium vnd-bitcoin RV32IMAC storage/RAM/speed optimization, Speculos Flex E2E verification, and Speculos Flex screenshot capture"
