@@ -163,7 +163,8 @@ export default function LeanLedgerReportPage() {
           <code>riscv32imac</code>) dans notre compilateur <code>turbo-lean</code>. Passer par LLVM
           IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct m&apos;a semblé
           plus sûr (la sémantique LLVM est déjà largement formalisée) et ne demandait qu&apos;un
-          patch ciblé ; il reste encore de la marge d&apos;optimisation avec plus de compute.
+          patch ciblé. Notez qu&apos;il reste donc encore de la marge d&apos;optimisation avec plus
+          de compute.
         </li>
         <li>
           <strong>Intégration dans les deux apps</strong> : shim FFI minimal dans{' '}
