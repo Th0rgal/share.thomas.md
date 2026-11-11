@@ -95,7 +95,7 @@ function BenchmarkColumn({
 
 export default function LeanLedgerReportPage() {
   return (
-    <article className="is-posts">
+    <article className="is-posts ldgr-article">
       <h1 className="title-display">Lean 4 Ledger</h1>
 
       <p>
@@ -201,16 +201,7 @@ export default function LeanLedgerReportPage() {
         enregistrement de compte Taproot suivi d&apos;un signing PSBT, avec le profil RAM en bas :
       </p>
 
-      <figure
-        className="not-prose"
-        style={{
-          margin: '1.35rem 0 2rem 0',
-          border: '1px solid var(--rule)',
-          borderRadius: '10px',
-          overflow: 'hidden',
-          background: 'var(--wash)'
-        }}
-      >
+      <figure className="ldgr-video-figure not-prose">
         <video
           src="/leanldgr/vanadium-side-by-side.mp4"
           poster="/leanldgr/vanadium-ram-poster.png"
@@ -221,14 +212,7 @@ export default function LeanLedgerReportPage() {
           playsInline
           style={{ display: 'block', width: '100%', height: 'auto' }}
         />
-        <figcaption
-          style={{
-            padding: '0.6rem 0.9rem',
-            fontSize: '0.78rem',
-            color: 'var(--ink-muted)',
-            borderTop: '1px solid var(--rule)'
-          }}
-        >
+        <figcaption className="ldgr-video-caption">
           Speculos Ledger Flex (<code>480×600</code>, slow-mo <code>0,3×</code>) :{' '}
           <code>vnd-bitcoin</code> + Lean 4 termine en <strong>2,02 s</strong> sous un footprint RAM
           divisé par deux (<strong>64,3 KiB</strong> vs <strong>128,3 KiB</strong> et{' '}
@@ -267,8 +251,20 @@ export default function LeanLedgerReportPage() {
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <span className={sevClass(issue.severity)}>{issue.severityLabel}</span>
                   </td>
-                  <td style={{ whiteSpace: 'nowrap' }}>
-                    <code>{issue.location}</code>
+                  <td>
+                    <div className="ldgr-loc-list">
+                      {issue.locations.map((loc) => (
+                        <a
+                          key={loc.url}
+                          href={loc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ldgr-loc-link"
+                        >
+                          <code>{loc.label}</code>
+                        </a>
+                      ))}
+                    </div>
                   </td>
                   <td style={{ whiteSpace: 'nowrap', fontSize: '0.8rem', color: 'var(--ink-muted)' }}>
                     {issue.reportedStatus}
@@ -290,23 +286,22 @@ export default function LeanLedgerReportPage() {
         orchestrés dans <a href="https://github.com/th0rgal/orb">Orb</a> :
       </p>
 
-      <div className="ldgr-res-kpis not-prose">
-        <div className="ldgr-res-kpi">
-          <div className="ldgr-res-kpi-val">379,0 CPU hours</div>
-          <div className="ldgr-res-kpi-lbl">Compute cumulé</div>
-          <div className="ldgr-res-kpi-sub">327,4 CPU-h Boat Zen 5 + 51,6 CPU-h ashur</div>
-        </div>
-        <div className="ldgr-res-kpi">
-          <div className="ldgr-res-kpi-val">654,9 GB RAM hours</div>
-          <div className="ldgr-res-kpi-lbl">Mémoire VMs dédiées</div>
-          <div className="ldgr-res-kpi-sub">1 049,6 GB·h avec les tours actifs ashur</div>
-        </div>
-        <div className="ldgr-res-kpi">
-          <div className="ldgr-res-kpi-val">23,2 M tok / agent</div>
-          <div className="ldgr-res-kpi-lbl">Inférence moyenne</div>
-          <div className="ldgr-res-kpi-sub">696,6 M tokens sur 30 agents actifs</div>
-        </div>
-      </div>
+      <ul>
+        <li>
+          <strong>379,0 CPU hours</strong> de compute cumulé (<code>327,4 CPU-h</code> sur 25
+          microVMs cloud Boat AMD Zen 5 + <code>51,6 CPU-h</code> sur <code>ashur</code> pendant les
+          tours actifs).
+        </li>
+        <li>
+          <strong>654,9 GB RAM hours</strong> sur les VMs cloud dédiées (
+          <code>1 049,6 GB RAM-h</code> en comptant la RAM réservée sur <code>ashur</code> durant
+          les tours actifs).
+        </li>
+        <li>
+          <strong>23,2 M tokens / agent</strong> en moyenne (<code>696,6 M</code> tokens cumulés sur{' '}
+          <code>30</code> agents actifs : <code>1</code> coordinateur + <code>29</code> subagents).
+        </li>
+      </ul>
 
       <OrbResourcesEmbed />
     </article>

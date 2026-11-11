@@ -1,8 +1,30 @@
+.ldgr-article > .title-display {
+  margin-bottom: 0.45em;
+}
+
+.ldgr-article .section-heading {
+  margin: 3.1rem 0 1rem 0;
+}
+
+.ldgr-article ol,
+.ldgr-article ul {
+  margin: 1.15rem 0 1.65rem 0;
+  padding-left: 1.35rem;
+}
+
+.ldgr-article li + li {
+  margin-top: 0.65rem;
+}
+
+.ldgr-article .mermaid-diagram {
+  margin: 2.25rem 0 2.6rem 0;
+}
+
 .ldgr-bench-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem;
-  margin: 1.15rem 0 1.85rem 0;
+  gap: 1.15rem;
+  margin: 1.75rem 0 2.35rem 0;
 }
 
 @media (max-width: 720px) {
@@ -15,10 +37,10 @@
   border: 1px solid var(--rule);
   border-radius: 12px;
   background: var(--paper-raised);
-  padding: 1rem 1.1rem 1.05rem 1.1rem;
+  padding: 1.15rem 1.25rem 1.2rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 1rem;
 }
 
 .ldgr-bench-col-head {
@@ -157,53 +179,26 @@
   color: var(--ink-muted);
 }
 
-/* Top-level invested resources summary strip */
-.ldgr-res-kpis {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin: 1rem 0 1.1rem 0;
-}
-
-@media (max-width: 680px) {
-  .ldgr-res-kpis {
-    grid-template-columns: 1fr;
-  }
-}
-
-.ldgr-res-kpi {
+.ldgr-video-figure {
+  margin: 1.75rem 0 2.6rem 0;
   border: 1px solid var(--rule);
   border-radius: 10px;
-  padding: 0.78rem 0.95rem;
+  overflow: hidden;
   background: var(--wash);
 }
 
-.ldgr-res-kpi-val {
-  font-size: 1.42rem;
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-}
-
-.ldgr-res-kpi-lbl {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--ink);
-  margin-top: 3px;
-}
-
-.ldgr-res-kpi-sub {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
+.ldgr-video-caption {
+  padding: 0.7rem 1rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
   color: var(--ink-muted);
-  margin-top: 3px;
+  border-top: 1px solid var(--rule);
 }
 
 /* Wide breakout container for Vanadium issues table (no horizontal scroll) */
 .ldgr-issues-breakout {
   width: min(980px, calc(100vw - 2rem));
-  margin: 1.05rem 0 1.85rem 50%;
+  margin: 1.8rem 0 2.6rem 50%;
   transform: translateX(-50%);
 }
 
@@ -218,15 +213,41 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;
-  line-height: 1.45;
+  line-height: 1.48;
 }
 
 .ldgr-issues-table th,
 .ldgr-issues-table td {
-  padding: 0.62rem 0.82rem;
+  padding: 0.72rem 0.9rem;
   text-align: left;
   border-bottom: 1px solid var(--rule);
   vertical-align: top;
+}
+
+.ldgr-loc-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.28rem;
+}
+
+.ldgr-loc-link {
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+
+.ldgr-loc-link code {
+  display: inline-block;
+  text-decoration: underline;
+  text-decoration-color: var(--ink-underline);
+  text-underline-offset: 0.18em;
+  transition: border-color 0.15s ease, background-color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.ldgr-loc-link:hover code {
+  border-color: var(--rule-strong);
+  background: var(--wash-hover);
+  text-decoration-color: currentColor;
 }
 
 .ldgr-issues-table tr:last-child td {
@@ -271,7 +292,7 @@
 /* Scoped Orb Resources Embed — faithful to th0rgal/orb/src/resources.css without .orb-mock page overrides */
 .ldgr-orb-breakout {
   width: min(980px, calc(100vw - 2rem));
-  margin: 1.15rem 0 1.5rem 50%;
+  margin: 2rem 0 2.25rem 50%;
   transform: translateX(-50%);
 }
 
@@ -303,7 +324,7 @@
   background: var(--bg);
   border: 1px solid var(--stroke);
   border-radius: 14px;
-  padding: 14px 16px 16px;
+  padding: 16px 18px 18px;
   color: var(--fg);
   font-family: var(--sans);
   font-size: 12.5px;
@@ -312,7 +333,7 @@
   font-variant-numeric: tabular-nums;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   box-shadow: 0 2px 14px rgba(0, 0, 0, 0.035);
 }
 

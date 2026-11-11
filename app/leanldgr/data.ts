@@ -182,21 +182,36 @@ export const BENCHMARK_ROWS: BenchmarkRow[] = [
   }
 ]
 
+export interface IssueLocation {
+  label: string
+  url: string
+}
+
 export interface VanadiumIssue {
   id: string
   severity: 'High' | 'Medium' | 'Low'
   severityLabel: string
-  location: string
+  locations: IssueLocation[]
   reportedStatus: string
   description: string
 }
+
+const VANADIUM_BLOB =
+  'https://github.com/LedgerHQ/vanadium/blob/ace8e96982408959dea9e7fbc59ee36e8c54e645'
+const BIP388_BLOB =
+  'https://github.com/bigspider/bip388/blob/c19282ad0fac28e9206436a2b44b9f44f5c59b4d'
 
 export const VANADIUM_ISSUES: VanadiumIssue[] = [
   {
     id: 'VND-01',
     severity: 'High',
     severityLabel: 'Critical',
-    location: 'common/src/script.rs:367',
+    locations: [
+      {
+        label: 'common/src/script.rs:367',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/common/src/script.rs#L367-L373`
+      }
+    ],
     reportedStatus: 'Unreported',
     description:
       'andor(X, Y, Z) compiles to OP_NOTIF [Y] OP_ELSE [Z] OP_ENDIF instead of [Z] then [Y] (BIP-379), inverting the true/false spending branches relative to Bitcoin Core and app-bitcoin.'
@@ -205,7 +220,16 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     id: 'VND-02',
     severity: 'High',
     severityLabel: 'Critical',
-    location: 'fastpsbt.rs:1052 · analyze.rs:434',
+    locations: [
+      {
+        label: 'fastpsbt.rs:1052',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/common/src/fastpsbt.rs#L1052-L1054`
+      },
+      {
+        label: 'analyze.rs:434',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/sign_psbt/analyze.rs#L433-L470`
+      }
+    ],
     reportedStatus: 'Unreported',
     description:
       'Unbounded u64 satoshi sums (missing MAX_MONEY bounds) and unchecked u64 as i64 casts on per-account balances allow integer overflow and sign flips.'
@@ -214,7 +238,16 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     id: 'VND-03',
     severity: 'High',
     severityLabel: 'High',
-    location: 'sign_psbt/analyze.rs:223, 305',
+    locations: [
+      {
+        label: 'analyze.rs:153',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/sign_psbt/analyze.rs#L153-L172`
+      },
+      {
+        label: 'analyze.rs:223',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/sign_psbt/analyze.rs#L223-L253`
+      }
+    ],
     reportedStatus: 'Unreported',
     description:
       'When both non_witness_utxo and witness_utxo are supplied on an input, their prevout equality is never checked (CVE-2020-14199 class), unlike app-bitcoin.'
@@ -223,7 +256,12 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     id: 'VND-04',
     severity: 'High',
     severityLabel: 'High',
-    location: 'common/src/fastpsbt.rs:602',
+    locations: [
+      {
+        label: 'common/src/fastpsbt.rs:602',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/common/src/fastpsbt.rs#L602-L633`
+      }
+    ],
     reportedStatus: 'Unreported',
     description:
       'Non-compliant BIP-370 nLockTime computation: accepts zero height locks, rejects dual-locked inputs, and lets fallback_locktime overwrite a block-height lock into a timestamp.'
@@ -232,7 +270,12 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     id: 'VND-05',
     severity: 'Medium',
     severityLabel: 'Medium',
-    location: 'common/src/script.rs:145',
+    locations: [
+      {
+        label: 'common/src/script.rs:145',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/common/src/script.rs#L145-L170`
+      }
+    ],
     reportedStatus: 'Unreported',
     description:
       'sh(wsh(...)) policies succeed during register_account, then unconditionally fail during address derivation and PSBT signing.'
@@ -241,7 +284,16 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     id: 'VND-06',
     severity: 'Medium',
     severityLabel: 'Medium',
-    location: 'bip388/lib.rs:5 · register_account.rs',
+    locations: [
+      {
+        label: 'bip388/src/lib.rs:5',
+        url: `${BIP388_BLOB}/src/lib.rs#L5-L8`
+      },
+      {
+        label: 'register_account.rs:189',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/register_account.rs#L189-L190`
+      }
+    ],
     reportedStatus: 'Partial TODO (0 issues)',
     description:
       'Missing Miniscript B/V/K/W typechecking, non-malleability enforcement, height/time timelock mixing checks, and BIP-68 older(n) flag masking.'
@@ -250,7 +302,16 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     id: 'VND-07',
     severity: 'Medium',
     severityLabel: 'Medium',
-    location: 'get_extended_pubkey.rs:138, 161',
+    locations: [
+      {
+        label: 'get_extended_pubkey.rs:138',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/get_extended_pubkey.rs#L138-L140`
+      },
+      {
+        label: 'get_extended_pubkey.rs:161',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/get_extended_pubkey.rs#L161`
+      }
+    ],
     reportedStatus: 'Unreported',
     description:
       'Off-by-one len() > 256 guard followed by u8 cast: a 256-step BIP-32 path wraps to depth = 0 in the serialized xpub.'
@@ -259,7 +320,12 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     id: 'VND-08',
     severity: 'Low',
     severityLabel: 'Low',
-    location: 'musig_signing.rs:463',
+    locations: [
+      {
+        label: 'musig_signing.rs:463',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/musig_signing.rs#L463-L466`
+      }
+    ],
     reportedStatus: 'Unreported',
     description:
       'In MuSig2 Round 2, the recomputed local pubnonce is not verified against PSBT_IN_MUSIG2_PUB_NONCE before emitting a partial signature.'
@@ -268,7 +334,24 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     id: 'VND-09',
     severity: 'Low',
     severityLabel: 'Low',
-    location: 'main.rs:26 · display.rs:167 · fastpsbt.rs:231',
+    locations: [
+      {
+        label: 'main.rs:26',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/main.rs#L26`
+      },
+      {
+        label: 'display.rs:167',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/sign_psbt/display.rs#L167`
+      },
+      {
+        label: 'fastpsbt.rs:231',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/common/src/fastpsbt.rs#L231-L250`
+      },
+      {
+        label: 'fastpsbt.rs:1046',
+        url: `${VANADIUM_BLOB}/apps/bitcoin/common/src/fastpsbt.rs#L1046-L1048`
+      }
+    ],
     reportedStatus: 'todo!() on GetVersion (0 issues)',
     description:
       'Request::GetVersion panics via todo!(), OP_RETURN outputs are rejected during display, non-canonical CompactSize encodings are accepted, and witness_utxo scripts > 252 B fail.'
@@ -316,16 +399,18 @@ export function renderMarkdown(): string {
     '',
     '| ID | Severity | Location | Upstream status | Description |',
     '|---|---|---|---|---|',
-    ...VANADIUM_ISSUES.map(
-      (i) => `| \`${i.id}\` | ${i.severityLabel} | \`${i.location}\` | ${i.reportedStatus} | ${i.description} |`
-    ),
+    ...VANADIUM_ISSUES.map((i) => {
+      const locs = i.locations.map((l) => `[\`${l.label}\`](${l.url})`).join(' · ')
+      return `| \`${i.id}\` | ${i.severityLabel} | ${locs} | ${i.reportedStatus} | ${i.description} |`
+    }),
     '',
     '## 5. Résumé des ressources investies',
     '',
-    '- **Compute** : **379,0 CPU hours** (`327,4 CPU-h` sur 25 microVMs cloud Boat AMD Zen 5 + `51,6 CPU-h` sur l\'hôte `ashur` pendant les tours actifs)',
-    '- **Mémoire** : **654,9 GB RAM hours** sur les VMs cloud dédiées (`1 049,6 GB RAM-h` en incluant la RAM réservée sur `ashur` durant les tours actifs)',
-    '- **Inférence** : **23,2 M tokens / agent actif** (`696,6 M` tokens cumulés sur `30` agents actifs — `1` coordinateur + `29` subagents)',
-    '- **Durée wall-clock** : `19,9 h` (`17,9 h` hors pause nocturne de 2 h), `$3,42` de compute cloud Boat.',
+    'L\'ensemble du run autonome (formalisation, patch compilateur `turbo-lean`, preuves des `2 405` théorèmes, intégration C/Rust et boucles `maxwell`) a tourné en **19,9 h** wall-clock (dont 2 h de pause nocturne) à travers **30 agents actifs** et **25 microVMs cloud** orchestrés dans [Orb](https://github.com/th0rgal/orb) :',
+    '',
+    '- **379,0 CPU hours** de compute cumulé (`327,4 CPU-h` sur 25 microVMs cloud Boat AMD Zen 5 + `51,6 CPU-h` sur `ashur` pendant les tours actifs).',
+    '- **654,9 GB RAM hours** sur les VMs cloud dédiées (`1 049,6 GB RAM-h` en comptant la RAM réservée sur `ashur` durant les tours actifs).',
+    '- **23,2 M tokens / agent** en moyenne (`696,6 M` tokens cumulés sur `30` agents actifs : `1` coordinateur + `29` subagents).',
     ''
   ]
   return lines.join('\n')
