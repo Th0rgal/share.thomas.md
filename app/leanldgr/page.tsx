@@ -103,12 +103,11 @@ export default function LeanLedgerReportPage() {
         résultat en une journée.
       </p>
 
-      <div className="ldgr-callout" role="note">
-        <strong>IMPORTANT :</strong> Il s&apos;agit d&apos;une POC réalisée en une journée, pas
-        d&apos;un livrable prêt pour la production : une utilisation réelle demanderait davantage de
-        review interne de notre côté ainsi que la confirmation de plusieurs choix de modélisation et
-        d&apos;intégration avec un expert du domaine.
-      </div>
+      <p>
+        <strong>Important :</strong> il s&apos;agit d&apos;une POC d&apos;une journée, pas d&apos;un
+        livrable prêt pour la production — un déploiement réel demanderait davantage de review
+        interne et la validation des choix de modélisation avec un expert du domaine.
+      </p>
 
       <h2 className="section-heading">1. Méthodologie et architecture</h2>
       <p>

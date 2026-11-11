@@ -364,7 +364,7 @@ export function renderMarkdown(): string {
     '',
     'Notre thèse est qu\'il est déjà viable aujourd\'hui de réécrire un logiciel existant en Lean4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide. Hier Charles m\'a proposé de commencer avec l\'application Bitcoin de Ledger, voici le résultat en une journée.',
     '',
-    '> **IMPORTANT :** Il s\'agit d\'une POC réalisée en une journée, pas d\'un livrable prêt pour la production : une utilisation réelle demanderait davantage de review interne de notre côté ainsi que la confirmation de plusieurs choix de modélisation et d\'intégration avec un expert du domaine.',
+    '**Important :** il s\'agit d\'une POC d\'une journée, pas d\'un livrable prêt pour la production — un déploiement réel demanderait davantage de review interne et la validation des choix de modélisation avec un expert du domaine.',
     '',
     '## 1. Méthodologie et architecture',
     '',
