@@ -158,9 +158,9 @@ export default function LeanLedgerReportPage() {
       </p>
       <p>
         Plutôt que de toucher à l&apos;UI ou au transport APDU/ECALL (réécrire l&apos;UI en Lean 4
-        aurait peu d&apos;intérêt), on a gardé l&apos;UI et l&apos;IO d&apos;origine dans chaque app
-        et concentré l&apos;effort sur la logique partagée qui concentre l&apos;essentiel de la
-        surface d&apos;attaque. Le résultat,{' '}
+        aurait peu d&apos;intérêt), on a gardé le décodage bas niveau des flux, l&apos;UI et
+        l&apos;IO d&apos;origine dans chaque app et concentré l&apos;effort sur des vérifications
+        ciblées de la logique partagée. Le résultat,{' '}
         <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
           <code>Th0rgal/lean-ledger-bitcoin</code>
         </a>
@@ -174,7 +174,7 @@ export default function LeanLedgerReportPage() {
           {PROOF_SCOPE}
         </li>
         <li>
-          <strong>Un sous-ensemble exécutable freestanding</strong> (
+          <strong>Un sous-ensemble exécutable freestanding sur slices zero-copy</strong> (
           <code>BitcoinLedger/FreestandingKernels.lean</code>), compilé via{' '}
           <a href={TURBO_LEAN_URL} target="_blank" rel="noopener noreferrer">
             <code>turbo-lean</code>
@@ -394,6 +394,47 @@ export default function LeanLedgerReportPage() {
       </p>
 
       <OrbResourcesEmbed />
+
+      <h2 className="section-heading">6. Prochaines étapes</h2>
+      <p>
+        Dans cette POC, toutes les portes de validation métier, le typechecking BIP-379/388, le tri
+        MuSig2 et le formatage des montants sont compilés depuis Lean 4 en zero-alloc, tandis que la
+        désérialisation bas niveau des flux (parcours clé-valeur PSBT, lecture des transactions
+        brutes et lexing des descripteurs) reste assurée par le code C et Rust existant (
+        <code>fastpsbt</code>, <code>bip388</code>) et que l&apos;émission C99/LLVM de{' '}
+        <code>turbo-lean</code> fait encore partie de la TCB de compilation.
+      </p>
+      <p>
+        L&apos;étape naturelle suivante consisterait à compiler également l&apos;intégralité des
+        parseurs streaming et des machines d&apos;état depuis Lean 4 pour ne laisser en C et en Rust
+        qu&apos;une coquille minimale de syscalls matériels (crypto <code>cx_*</code> /{' '}
+        <code>ecall_*</code>, transport APDU et écrans NBGL), tout en refermant la TCB du
+        compilateur :
+      </p>
+      <ul>
+        <li>
+          <strong>Parseurs streaming zero-copy et sighash en Lean 4</strong> : compiler directement
+          sur slices plates le lecteur streaming BIP-174/370 (PSBT et transactions sérialisées), le
+          générateur streaming des préimages de sighash BIP-143 et BIP-341 (pilotant le SHA-256
+          matériel via de simples callbacks C/ECALL), le parseur binaire Script / Tapscript /
+          BIP-388 et l&apos;automate de session APDU, avec preuves d&apos;absence totale de lecture
+          hors-bornes, de terminaison bornée et de raffinement exact vis-à-vis de <code>Spec/</code>
+          .
+        </li>
+        <li>
+          <strong>Fermeture de la TCB freestanding de <code>turbo-lean</code></strong> : étendre les
+          théorèmes de préservation sémantique de <code>LeanNative</code> jusqu&apos;aux accès
+          mémoire bornés sur slices plates et aux boucles bornées, avec émission directe et
+          validation de traduction LLVM IR / LTO sur les trois cibles 32 bits (<code>thumbv6m</code>
+          , <code>thumbv8m.main</code>, <code>riscv32imac</code>).
+        </li>
+      </ul>
+      <p>
+        En termes d&apos;effort, compter environ <strong>24 à 36 h</strong> de run autonome
+        supplémentaire sur le même pipeline (soit du même ordre de grandeur que cette POC) pour la
+        compilation et les preuves de bout en bout, couplées à une revue conjointe des hypothèses de
+        modélisation et des frontières matérielles avec les équipes Ledger.
+      </p>
     </article>
   )
 }
