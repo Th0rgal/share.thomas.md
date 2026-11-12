@@ -596,6 +596,8 @@ function DagTimeline({
             : a.pool === 'glm-5.3'
               ? '#627eea'
               : '#129690'
+        const stateNote =
+          a.state === 'capped' ? ' · budget de tour atteint, relayé' : ''
         out.push({
           id: a.id,
           label: `${a.id.slice(0, 6)} · ${a.title.replace(/^Wave \d(\.\d)?\s*/i, '')}`,
@@ -604,7 +606,7 @@ function DagTimeline({
           startMin: a.startMin,
           durMin: a.durMin,
           color,
-          detail: `${a.title} · ${fmtFr(a.tokensM, 1)}M tok · ~$${fmtFr(a.apiEqUsd, 2)} eq. ${a.pool === 'carbon-4' ? 'API Google' : 'OrcaRouter'} (${a.pool}, ${a.durMin} min)`,
+          detail: `${a.title} · ${fmtFr(a.tokensM, 1)}M tok · ~$${fmtFr(a.apiEqUsd, 2)} eq. ${a.pool === 'carbon-4' ? 'API Google' : 'OrcaRouter'} (${a.pool}, ${a.durMin} min)${stateNote}`,
           y
         })
         y += 21
