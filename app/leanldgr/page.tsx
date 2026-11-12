@@ -12,8 +12,7 @@ import {
   PROOF_SCOPE,
   RUST_TEST_HISTORY,
   TCB_SCOPE,
-  VIDEO_CAPTION,
-  VIDEO_DESCRIPTION,
+  RAM_CURVE_NOTICE,
   BOLOS_PATCH_URL,
   C_BENCH_BARS,
   MERMAID_ARCHITECTURE,
@@ -154,8 +153,8 @@ export default function LeanLedgerReportPage() {
         ), compilée en RISC-V 32-bit (<code>RV32IMAC</code>) et exécutée par la VM{' '}
         <code>app-vanadium</code> : 100 % de l&apos;exécution RISC-V reste confinée dans le Secure
         Element, seule la mémoire paginée — code et données en pages de <code>256 B</code> chiffrées
-        et authentifiées par arbre de Merkle — est déportée sur le host, pour dépasser la limite de
-        RAM/Flash interne du SE.
+        et authentifiées par arbre de Merkle — est déportée sur le host non fiable, utilisé comme
+        stockage et non comme moteur de calcul, pour dépasser la limite de RAM/Flash interne du SE.
       </p>
       <p>
         Plutôt que de toucher à l&apos;UI ou au transport APDU/ECALL (réécrire l&apos;UI en Lean 4
@@ -239,7 +238,7 @@ export default function LeanLedgerReportPage() {
         </li>
       </ol>
 
-      <h2 className="section-heading">3. Résultats et simulation</h2>
+      <h2 className="section-heading">3. Résultats et limites des mesures</h2>
       <p>{BENCHMARK_STATUS}</p>
 
       <div className="ldgr-bench-breakout not-prose">
@@ -271,13 +270,13 @@ export default function LeanLedgerReportPage() {
             <caption>Synthèse T6 · BOLOS Nano S+ mainnet et Vanadium plain, sauf scénario indiqué</caption>
             <thead>
               <tr>
-                <th>Métrique</th><th>Référence C</th><th>Lean + C</th><th>Référence Rust</th><th>Lean + Rust</th>
+                <th>Métrique</th><th>Référence C</th><th>Lean + C</th><th>Référence Rust</th><th>Lean + Rust</th><th>Contrôle Rust same_profile_lean</th>
               </tr>
             </thead>
             <tbody>
               {BENCHMARK_ROWS.map((row) => (
                 <tr key={row.metric}>
-                  {[row.metric, row.origC, row.patchedC, row.origRust, row.patchedRust].map((cell, index) => <td key={index}>{cell}</td>)}
+                  {[row.metric, row.origC, row.patchedC, row.origRust, row.patchedRust, row.sameProfileRust ?? 'Voir les contrôles détaillés ci-dessous'].map((cell, index) => <td key={index}>{formatMeasurement(cell)}</td>)}
                 </tr>
               ))}
             </tbody>
@@ -290,7 +289,7 @@ export default function LeanLedgerReportPage() {
               <thead><tr>{table.headers.map((header) => <th key={header}>{header}</th>)}</tr></thead>
               <tbody>
                 {table.rows.map((row, rowIndex) => (
-                  <tr key={rowIndex}>{row.map((cell, index) => <td key={index}>{formatMeasurement(cell)}</td>)}</tr>
+                  <tr key={rowIndex}>{row.map((cell, index) => <td key={index}>{formatMeasurement(cell, table.headers[index])}</td>)}</tr>
                 ))}
               </tbody>
             </table>
@@ -298,21 +297,7 @@ export default function LeanLedgerReportPage() {
         ))}
       </div>
 
-      <p>{VIDEO_DESCRIPTION}</p>
-
-      <figure className="ldgr-video-figure not-prose">
-        <video
-          src="/leanldgr/vanadium-side-by-side.mp4"
-          poster="/leanldgr/vanadium-ram-poster.png"
-          controls
-          autoPlay
-          loop
-          muted
-          playsInline
-          style={{ display: 'block', width: '100%', height: 'auto' }}
-        />
-        <figcaption className="ldgr-video-caption">{VIDEO_CAPTION}</figcaption>
-      </figure>
+      <p>{RAM_CURVE_NOTICE}</p>
 
       <h2 className="section-heading">4. Bugs et anomalies trouvés dans Vanadium</h2>
       <p>

@@ -7,19 +7,18 @@ export const VANADIUM_PATCH_URL =
   'https://github.com/Th0rgal/lean-ledger-bitcoin/blob/96deef7c795358b82a37831bf3b1ace2741cbf24/ffi/vanadium/patches/vanadium-bitcoin-lean-opt.patch'
 export const TURBO_LEAN_URL = 'https://github.com/Th0rgal/turbo-lean'
 
-export const PROOF_SCOPE = 'L’audit T2 précédent compte 2 585 constantes .thmInfo au total, déclarations générées incluses, dont 879 dans Proofs.* : ce total ne désigne pas autant de preuves indépendantes écrites à la main. Le jumeau formel complet est distinct du sous-ensemble exécutable : 45 exports ABI llb_*, à ne pas confondre avec les symboles internes émis par le compilateur.'
-export const TCB_SCOPE = 'Transparence sur la TCB : lowerModuleForTarget_sound porte sur la transformation de LLVMAst, pas sur une preuve de bout en bout du binaire. La commande emit-freestanding-c-lib impose le garde codeHasHeapOps=false ; ce contrôle exclut les opérations de tas reconnues dans ce périmètre, sans prouver une pile nulle ni l’absence de heap dans toute l’application. L’extraction LCNF et les frontières clang/rustc/lld restent non vérifiées dans la TCB. Les tests différentiels C-ABI, llvm-nm et les rapports de pile .su apportent des contrôles complémentaires, non une preuve de ces frontières. Absence de récursion ne signifie pas absence de frames de pile : les frames maximales des kernels sont 176 B sur thumbv6m et 96 B sur RV32 (120 frames analysées sur RV32), sans borner toute l’application.'
-export const BENCHMARK_STATUS = 'T6 — mesures publiées dans benchmarks/bolos_results.json (commit 222e139) et benchmarks/vanadium_results.json (commit 90ba9da). Provenance : Serveur dédié, même hôte pour référence et Lean. Ces résultats ne démontrent pas un gain uniforme : BOLOS augmente la Flash et les instructions émises ; plusieurs latences régressent. Les patchs liés restent épinglés sur 96deef7, distinct des commits de publication des mesures.'
-export const BENCHMARK_READING = 'Précisions de lecture. Les tailles de sections et comptes statiques ARM sont déterministes pour ces artefacts ; les instructions ARM émises ne sont pas des instructions exécutées. Les compteurs RV32, pages et échanges VM décrivent le travail exécuté du scénario, pas sa durée. Le wall-clock Speculos dépend du bruit hôte, du transport et du scénario, sans mesure sur matériel physique. BOLOS : contrôle lean_sameflags séparé du patch lean_opt, Nano S+ ARMv8-M et Nano X thumbv6m selon les cibles publiées. Vanadium : plain (production) et autoapprove (E2E) ne sont pas interchangeables. Le profil Cargo/link optimisé inclut LTO, panic = "abort" (arrêt sans déroulement de pile), retrait de .eh_frame et stripping ; réduire le fichier ELF ne signifie pas réduire autant le code chargé RX. Le contrôle same_profile_lean conserve panic = "unwind", strip = "none" et les budgets heap/stack de 64+64 KiB, contre 32+32 KiB optimisés. RW + pile est une réservation statique (514 → 258 pages de 256 B), pas peak_heap_bytes. Le pic heap Lean est instrumenté ; la référence ne fournit aucun pic heap, donc aucun pourcentage de gain heap ne peut être calculé. Les latences Vanadium référence/optimisé suivent ABBA : une paire de chauffe exclue, 5 cycles, 10 échantillons par variante et workload ; les durées same-profile sont des observations uniques, pas une comparaison ABBA équivalente. Les cycles RDTSCP et nanosecondes hôte restent des mesures empiriques, pas des cycles ARM/RV32 déterministes. Les frames maximales des kernels sont 176 B sur thumbv6m et 96 B sur RV32 ; ce ne sont pas les piles maximales des applications ni des chaînes d’appels complètes.'
+export const PROOF_SCOPE = 'L’audit T2 précédent rapporte 0 sorryAx et zéro axiome ajouté/non standard (axiomes Lean standard propext et Quot.sound autorisés), sans nouvelle vérification ici. Il compte 2 585 constantes .thmInfo au total, déclarations générées incluses, dont 879 dans Proofs.* : ce total ne désigne pas autant de preuves indépendantes écrites à la main. Le jumeau formel complet est distinct du sous-ensemble exécutable : 45 exports ABI llb_*, à ne pas confondre avec les symboles internes émis par le compilateur.'
+export const TCB_SCOPE = 'Transparence sur la TCB : lowerModuleForTarget_sound porte sur la transformation de LLVMAst, pas sur une preuve de bout en bout du binaire. La commande emit-freestanding-c-lib impose le garde codeHasHeapOps=false ; ce contrôle exclut les opérations de tas reconnues dans ce périmètre, sans prouver une pile nulle ni l’absence de heap dans toute l’application. L’extraction LCNF et les frontières clang/rustc/lld restent non vérifiées dans la TCB. Les tests différentiels C-ABI, llvm-nm et les rapports de pile .su apportent des contrôles complémentaires, non une preuve de ces frontières. Absence de récursion ne signifie pas absence de frames de pile : le JSON Vanadium rapporte une frame kernel maximale de 96 B sur RV32 (120 frames analysées), sans borner toute l’application ; le JSON BOLOS ne fournit pas de maximum de frame kernel thumbv6m.'
+export const BENCHMARK_STATUS = 'T6 — mesures publiées dans benchmarks/bolos_results.json (commit 222e139) et benchmarks/vanadium_results.json (commit 90ba9da). Provenance Option2 : Serveur dédié de la flotte, même hôte pour référence et Lean. Ces résultats ne démontrent pas un gain uniforme : BOLOS augmente la Flash et les instructions émises ; plusieurs latences régressent. Les patchs liés restent épinglés sur 96deef7, distinct des commits de publication des mesures.'
+export const BENCHMARK_READING = 'Précisions de lecture. Les tailles de sections et comptes statiques ARM sont déterministes pour ces artefacts ; les instructions ARM émises ne sont pas des instructions exécutées. Les compteurs RV32, pages et échanges VM décrivent le travail exécuté du scénario, pas sa durée. Le wall-clock Speculos dépend du bruit hôte, du transport et du scénario, sans mesure sur matériel physique. BOLOS : contrôle lean_sameflags séparé du patch lean_opt, Nano S+ ARMv8-M et Nano X thumbv6m selon les cibles publiées. Vanadium : plain (production) et autoapprove (E2E) ne sont pas interchangeables. Le profil Cargo/link optimisé inclut LTO, panic = "abort" (arrêt sans déroulement de pile), retrait de .eh_frame et stripping ; réduire le fichier ELF ne signifie pas réduire autant le code chargé RX. Le contrôle same_profile_lean conserve panic = "unwind", strip = "none" et les budgets heap/stack de 64+64 KiB, contre 32+32 KiB optimisés. RW + pile est une réservation statique (514 → 258 pages de 256 B), pas peak_heap_bytes. Le pic heap Lean est instrumenté ; la référence ne fournit aucun pic heap, donc aucun pourcentage de gain heap ne peut être calculé. Les latences Vanadium référence/optimisé suivent ABBA : une paire de chauffe exclue, 5 cycles, 10 échantillons par variante et workload ; les durées same-profile sont des observations uniques, pas une comparaison ABBA équivalente. Les cycles RDTSCP et nanosecondes hôte restent des mesures empiriques, pas des cycles ARM/RV32 déterministes. La frame kernel maximale RV32 publiée est de 96 B ; ce n’est pas la pile maximale de l’application ni une chaîne d’appels complète. Le maximum de frame kernel thumbv6m n’est pas fourni par ces JSON.'
 export const RUST_TEST_HISTORY = 'Historique : 176 tests workspace et 16 tests C-ABI rapportés séparément ; aucune nouvelle validation.'
-export const C_TEST_HISTORY = 'Relance hôte validée : référence 30/30 ctest, Lean 31/31. Historique Ragger non relancé : Nano S+ 277 passed, 5 skipped ; Nano X 53 passed, 2 skipped.'
-export const VIDEO_DESCRIPTION = 'La vidéo historique montre la V-App Rust patchée avec Lean 4 et la V-App de référence sous Speculos Ledger Flex lors d’un enregistrement de compte Taproot suivi d’un signing PSBT. Le profil affiché correspond au budget RAM statique, pas au pic heap mesuré.'
-export const VIDEO_CAPTION = 'Simulation historique Speculos Ledger Flex (480×600, ralenti 0,3×) ; les durées wall-clock et budgets affichés ne constituent pas les résultats T6 ; aucun nouvel enregistrement authentique n’est disponible.'
+export const C_TEST_HISTORY = 'Résultats hôte précédemment rapportés, non relancés ici : référence 30/30 ctest, Lean 31/31. Historique Ragger non relancé : Nano S+ 277 passed, 5 skipped ; Nano X 53 passed, 2 skipped.'
+export const RAM_CURVE_NOTICE = 'La courbe RAM a été retirée faute de compteurs réels comparables entre référence et Lean. Les JSON ne fournissent pas de pic heap pour la référence ; RW + pile décrit une réservation statique, pas une consommation RAM observée au cours du temps. Aucune courbe ni vidéo synthétique ne remplace ces mesures manquantes.'
 
 export const MERMAID_ARCHITECTURE = `flowchart TB
     subgraph Lean["lean-ledger-bitcoin (audit T2 : 2 585 constantes .thmInfo dont générées, 879 Proofs.*)"]
         Spec["Jumeau formel Lean 4 : specs BIP-32 / 67 / 143 / 327 / 341 / 352 / 370 / 379 / 388<br/>+ machines d'état BOLOS & Vanadium"]
-        Kernel["Noyaux freestanding : 45 exports ABI llb_*<br/>BitcoinLedger/FreestandingKernels.lean<br/>codeHasHeapOps=false · frames kernels max 176 B thumbv6m / 96 B RV32"]
+        Kernel["Noyaux freestanding : 45 exports ABI llb_*<br/>BitcoinLedger/FreestandingKernels.lean<br/>codeHasHeapOps=false · frame kernel max publiée 96 B RV32"]
         Turbo["turbo-lean : Lean → LLVM IR 32-bit<br/>(thumbv6m, thumbv8m.main, riscv32imac)"]
         Spec -->|"preuves / oracle différentiel"| Kernel
         Kernel --> Turbo
@@ -34,7 +33,7 @@ export const MERMAID_ARCHITECTURE = `flowchart TB
     subgraph Vanadium["Nouvelle V-App Rust (LedgerHQ/vanadium)"]
         VUI["UI Ledger Flex + client ECALLs<br/>(conservés en Rust)"]
         VELF["rustc + LLD (riscv32imac-unknown-none-elf)<br/>ELF en pages de 256 B chiffrées / authentifiées (arbre de Merkle)"]
-        VVM["VM RISC-V app-vanadium dans le Secure Element<br/>(mémoire paginée déportée sur le host)"]
+        VVM["VM RISC-V app-vanadium dans le Secure Element<br/>(host non fiable : stockage des pages, pas de calcul)"]
         VUI --> VELF --> VVM
     end
 
@@ -50,7 +49,7 @@ export interface BenchmarkChartItem {
 }
 
 function measure(label: string, reference: number, lean: number, unit: string): BenchmarkChartItem {
-  const format = (value: number) => `${value.toLocaleString('fr-FR', { maximumFractionDigits: 3 })} ${unit}`
+  const format = (value: number) => formatMeasurement(`${value.toLocaleString('fr-FR', { maximumFractionDigits: 3 })} ${unit}`)
   const delta = (lean / reference - 1) * 100
   return {
     label,
@@ -87,6 +86,7 @@ export interface BenchmarkRow {
   patchedC: string
   origRust: string
   patchedRust: string
+  sameProfileRust?: string
 }
 
 export const BENCHMARK_ROWS: BenchmarkRow[] = [
@@ -102,76 +102,92 @@ export const BENCHMARK_ROWS: BenchmarkRow[] = [
     origC: '91 231 B (89,1 KiB · Nano S+)',
     patchedC: '93 791 B (+2,81 % · Nano S+)',
     origRust: '306 522 B (plain, 1 198 pages, depth 11)',
-    patchedRust: '267 954 B (-12,58 %, plain, 1 047 pages, depth 11)'
+    patchedRust: '267 954 B (-12,58 %, plain, 1 047 pages, depth 11)',
+    sameProfileRust: '292 560 B (-4,55 %, plain, 1 143 pages, depth 11)'
   },
   {
     metric: 'Taille du fichier ELF',
     origC: '158 004 B (154,3 KiB, stripped)',
     patchedC: '160 564 B (+2 560 B, stripped)',
     origRust: '542 552 B (plain)',
-    patchedRust: '268 384 B (-50,53 %, plain)'
+    patchedRust: '268 384 B (-50,53 %, plain)',
+    sameProfileRust: '538 860 B (-0,68 %, plain)'
   },
   {
     metric: 'RAM statique (.bss + .data)',
     origC: '6 376 B (Nano S+)',
     patchedC: '6 232 B (-144 B / -2,26 % · Nano S+)',
     origRust: '65 836 B (64,3 KiB, heap 64 KiB)',
-    patchedRust: '33 076 B (-49,76 %, budget heap 32 KiB)'
+    patchedRust: '33 076 B (-49,76 %, budget heap 32 KiB)',
+    sameProfileRust: '65 844 B (+8 B, budget heap 64 KiB)'
   },
   {
     metric: 'Stack',
     origC: '12 496 B max Nano S+ / 11 248 B Nano X (qsort récursif)',
-    patchedC: '12 496 B max Nano S+ / 11 248 B Nano X (0 récursion ; frame kernel max 176 B thumbv6m)',
+    patchedC: '12 496 B max Nano S+ / 11 248 B Nano X (qsort récursif absent ; frame kernel max non fournie)',
     origRust: '65 536 B (64 KiB) alloués',
-    patchedRust: '32 768 B réservés ; frame kernel max 96 B RV32 (176 B thumbv6m), pas une borne de chaîne complète'
+    patchedRust: '32 768 B réservés ; frame kernel max 96 B RV32, pas une borne de chaîne complète',
+    sameProfileRust: '65 536 B réservés'
   },
   {
     metric: 'RAM totale réservée (budget statique RW + stack)',
     origC: '18 872 B (Nano S+)',
     patchedC: '18 728 B (-144 B, stack bornée · Nano S+)',
     origRust: '131 372 B (128,3 KiB, 514 pages)',
-    patchedRust: '65 844 B (-49,88 %, 258 pages)'
+    patchedRust: '65 844 B (-49,88 %, 258 pages)',
+    sameProfileRust: '131 380 B (+8 B, 514 pages)'
   },
   {
     metric: 'Pic d\u2019allocation heap (peak_heap_bytes)',
     origC: '—',
     patchedC: '—',
     origRust: 'absent du JSON, non instrumenté',
-    patchedRust: '5 318 B sur sign_transaction (pas de delta heap calculable)'
+    patchedRust: '5 318 B sur sign_transaction (pas de delta heap calculable)',
+    sameProfileRust: '5 318 B sur sign_transaction (référence absente)'
   },
   {
     metric: 'Pages VM commitées (sign_transaction)',
     origC: '—',
     patchedC: '—',
     origRust: '169',
-    patchedRust: '155 (same-profile : 154)'
+    patchedRust: '155',
+    sameProfileRust: '154'
   },
   {
     metric: 'Instructions',
     origC: '30 364 insns ARM émises',
     patchedC: '31 169 insns ARM émises (+2,65 %)',
     origRust: '234 214 insns RV32 exécutées (sign_transaction)',
-    patchedRust: '200 029 insns RV32 (-14,60 %)'
+    patchedRust: '200 029 insns RV32 (-14,60 %)',
+    sameProfileRust: '199 963 insns RV32 (sign_transaction)'
   },
   {
     metric: 'Latence médiane Speculos (BOLOS TR_3IN ; Vanadium sign_transaction)',
     origC: '2 436,324 ms (Nano S+) / 2 437,730 ms (Nano X)',
     patchedC: '2 435,271 ms (-0,04 %) / 2 592,269 ms (+6,34 %)',
     origRust: '4 976,32 ms (1 325 page_loads)',
-    patchedRust: '4 249,16 ms (-14,61 %, 1 232 page_loads)'
+    patchedRust: '4 249,16 ms (-14,61 %, 1 232 page_loads)',
+    sameProfileRust: '4 099,36 ms (1 observation, 1 258 page_loads ; pas un ABBA équivalent)'
   },
   {
-    metric: 'Latence médiane SIGN_PSBT_WSH3OF5_3IN (Speculos)',
-    origC: '7 304,089 ms (Nano S+) / 7 944,300 ms (Nano X)',
-    patchedC: '7 598,486 ms (+4,03 %) / 8 065,090 ms (+1,52 %)',
+    metric: 'Latence médiane SIGN_PSBT_WSH3OF5_3IN · Nano S+ (Speculos)',
+    origC: '7 304,089 ms',
+    patchedC: '7 598,486 ms (+4,03 %)',
+    origRust: 'scénario absent du JSON Vanadium',
+    patchedRust: 'non mesuré, ne pas substituer sign_transaction'
+  },
+  {
+    metric: 'Latence médiane SIGN_PSBT_WSH3OF5_3IN · Nano X (Speculos)',
+    origC: '7 944,300 ms',
+    patchedC: '8 065,090 ms (+1,52 %)',
     origRust: 'scénario absent du JSON Vanadium',
     patchedRust: 'non mesuré, ne pas substituer sign_transaction'
   },
   {
     metric: 'Test suites & preuves',
-    origC: 'Relance hôte : 30/30 ctest ; Ragger historique non relancé',
+    origC: 'Historique hôte, non relancé ici : 30/30 ctest ; Ragger historique non relancé',
     patchedC:
-      'Relance hôte : 31/31 ctest ; historique Ragger non relancé : Nano S+ 277 passed / 5 skipped, Nano X 53 passed / 2 skipped ; 2 585 .thmInfo (879 Proofs.*)',
+      'Historique hôte, non relancé ici : 31/31 ctest ; historique Ragger non relancé : Nano S+ 277 passed / 5 skipped, Nano X 53 passed / 2 skipped ; 2 585 .thmInfo (879 Proofs.*)',
     origRust: 'Historique : 166 tests workspace',
     patchedRust:
       'Historique : 176 tests workspace et 16 tests C-ABI rapportés séparément ; pas de relance validée'
@@ -317,10 +333,16 @@ export const MEASUREMENT_TABLES: MeasurementTable[] = [
 
 export const BENCHMARK_CONCLUSIONS = 'Régressions et contrôles : BOLOS mainnet Flash +2 560 B sur Nano S+ et +3 328 B sur Nano X ; lean_sameflags monte à 94 303 B et 95 327 B. La RAM statique baisse de 144 B, mais la pile maximale analysée reste 12 496 B / 11 248 B ; register_wallet baisse de 256 B tandis que get_extended_pubkey augmente de 8 B. qsort récursif disparaît, mais __udivmoddi4 reste présent en sameflags. La suite de hotspots hôte régresse (217 096 156 → 224 373 258 cycles, ratio 0,968×), malgré le formatage à 4,795× ; Merkle, MuSig2 et SegWit ralentissent. Vanadium plain same-profile réduit RX de 4,55 % et ELF de 0,68 %, mais RW + pile augmente de 8 B (131 372 → 131 380 B) : la baisse optimisée de réservation ne vient pas du seul code Lean. La médiane get_fingerprint régresse de 0,17 % malgré moins d’instructions ; les médianes sign_transaction, send_to_silent_payment et silent_payment_account baissent respectivement de 14,61 %, 5,15 % et 9,76 %. Aucun gain wall-clock universel ni attribution intégrale au compilateur ne peut en être déduit.'
 
-export function formatMeasurement(value: string | number): string {
-  return typeof value === 'number'
-    ? value.toLocaleString('fr-FR', { maximumFractionDigits: 4 })
-    : value
+export function formatMeasurement(value: string | number, header = ''): string {
+  const format = (n: number) => n.toLocaleString('fr-FR', { maximumFractionDigits: 4 })
+  if (typeof value === 'number') {
+    return /\bB\b|_bytes$/.test(header)
+      ? `${format(value)} B (${format(value / 1024)} KiB)`
+      : format(value)
+  }
+  return value.replace(/([+-]?\d[\d \u00a0\u202f]*(?:,\d+)?) B\b/g, (match, bytes: string) =>
+    `${match} (${format(Number(bytes.replace(/[ \u00a0\u202f]/g, '').replace(',', '.')) / 1024)} KiB)`
+  )
 }
 
 export interface IssueLocation {
@@ -346,7 +368,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
   {
     id: 'VND-01',
     severity: 'High',
-    severityLabel: 'Critical',
+    severityLabel: 'High · risque de blocage des fonds',
     locations: [
       {
         label: 'common/src/script.rs:367',
@@ -437,7 +459,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     ],
     reportedStatus: 'Partial TODO (0 issues)',
     description:
-      'Missing BIP-379 Miniscript B/V/K/W typechecking, non-malleability enforcement, height/time timelock mixing checks, and BIP-68 older(n) flag masking — now fully enforced in the patched V-App via llb_miniscript_check_postfix.'
+      'Missing BIP-379 Miniscript B/V/K/W typechecking, non-malleability, unconditional signature requirement, height/time timelock mixing, BIP-68 older(n) masking and resource checks. Medium is the source report’s triage, not a demonstrated exploit severity; impact depends on the accepted policy. The pinned patch adds llb_miniscript_check_postfix; no new exhaustive validation or proof of exploitability is claimed here.'
   },
   {
     id: 'VND-07',
@@ -511,7 +533,7 @@ export function renderMarkdown(): string {
     '',
     'Côté temps humain, j\'ai passé environ **1 h** au départ pour cadrer le problème, poser les specs haut niveau et designer le pipeline (j\'avais déjà une idée de la stack Ledger donc j\'ai gagné un peu de temps), **15 min** ce matin pour débloquer un souci de routing d\'inférence, et **1 h** à la fin pour review et polir l\'ensemble. Tout le reste a tourné en autonomie.',
     '',
-    'Ledger maintient deux apps Bitcoin : l\'app historique en C (`LedgerHQ/app-bitcoin@f010982d`), compilée nativement en ARM Thumb directement au-dessus de BOLOS, et la nouvelle V-App en Rust (`LedgerHQ/vanadium@ace8e969`), compilée en RISC-V 32-bit (`RV32IMAC`) et exécutée par la VM `app-vanadium` : 100 % de l\'exécution RISC-V reste confinée dans le Secure Element, seule la mémoire paginée — code et données en pages de `256 B` chiffrées et authentifiées par arbre de Merkle — est déportée sur le host, pour dépasser la limite de RAM/Flash interne du SE.',
+    'Ledger maintient deux apps Bitcoin : l\'app historique en C (`LedgerHQ/app-bitcoin@f010982d`), compilée nativement en ARM Thumb directement au-dessus de BOLOS, et la nouvelle V-App en Rust (`LedgerHQ/vanadium@ace8e969`), compilée en RISC-V 32-bit (`RV32IMAC`) et exécutée par la VM `app-vanadium` : 100 % de l\'exécution RISC-V reste confinée dans le Secure Element, seule la mémoire paginée — code et données en pages de `256 B` chiffrées et authentifiées par arbre de Merkle — est déportée sur le host non fiable, utilisé comme stockage et non comme moteur de calcul, pour dépasser la limite de RAM/Flash interne du SE.',
     '',
     'Plutôt que de toucher à l\'UI ou au transport APDU/ECALL (réécrire l\'UI en Lean 4 aurait peu d\'intérêt), on a gardé l\'UI et l\'IO d\'origine dans chaque app et concentré l\'effort sur la logique partagée qui concentre l\'essentiel de la surface d\'attaque. Le résultat, [Th0rgal/lean-ledger-bitcoin](https://github.com/Th0rgal/lean-ledger-bitcoin), combine deux livrables :',
     '',
@@ -531,14 +553,14 @@ export function renderMarkdown(): string {
     '3) **Intégration dans les deux apps** : shim FFI minimal dans `app-bitcoin` et `vnd-bitcoin` conservant l\'UI/IO d\'origine et linkant les kernels Lean en LTO.',
     '4) **Boucle d\'optimisation `maxwell`** : itérations avec les scripts reproductibles `bolos_benchmark.sh` et `vanadium_benchmark.sh`, en contrôlant les invariants formels et les régressions. Les JSON publiés pour T6 documentent gains et régressions ; ils ne remplacent pas une validation de déploiement sur matériel physique.',
     '',
-    '## 3. Résultats et simulation',
+    '## 3. Résultats et limites des mesures',
     '',
     BENCHMARK_STATUS,
     '',
-    '| Métrique | Baseline C (`app-bitcoin`) | Lean 4 + C | Baseline Rust (`vanadium`) | Lean 4 + Rust |',
-    '|---|---|---|---|---|',
+    '| Métrique | Baseline C (`app-bitcoin`) | Lean 4 + C | Baseline Rust (`vanadium`) | Lean 4 + Rust | Contrôle Rust same_profile_lean |',
+    '|---|---|---|---|---|---|',
     ...BENCHMARK_ROWS.map(
-      (r) => `| **${r.metric}** | ${r.origC} | **${r.patchedC}** | ${r.origRust} | **${r.patchedRust}** |`
+      (r) => `| **${r.metric}** | ${formatMeasurement(r.origC)} | **${formatMeasurement(r.patchedC)}** | ${formatMeasurement(r.origRust)} | **${formatMeasurement(r.patchedRust)}** | ${formatMeasurement(r.sameProfileRust ?? 'Voir les contrôles détaillés ci-dessous')} |`
     ),
     '',
     BENCHMARK_READING,
@@ -550,14 +572,10 @@ export function renderMarkdown(): string {
       '',
       `| ${table.headers.join(' | ')} |`,
       `| ${table.headers.map(() => '---').join(' | ')} |`,
-      ...table.rows.map((row) => `| ${row.map(formatMeasurement).join(' | ')} |`),
+      ...table.rows.map((row) => `| ${row.map((cell, index) => formatMeasurement(cell, table.headers[index])).join(' | ')} |`),
       ''
     ]),
-    VIDEO_DESCRIPTION,
-    '',
-    VIDEO_CAPTION,
-    '',
-    'Vidéo de simulation : https://share.thomas.md/leanldgr/vanadium-side-by-side.mp4',
+    RAM_CURVE_NOTICE,
     '',
     '## 4. Bugs et anomalies trouvés dans Vanadium',
     '',
