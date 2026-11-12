@@ -2,6 +2,18 @@ import type { Metadata } from 'next'
 import Mermaid from '../components/Mermaid'
 import OrbResourcesEmbed from './OrbResourcesEmbed'
 import {
+  BENCHMARK_CONCLUSIONS,
+  BENCHMARK_ROWS,
+  MEASUREMENT_TABLES,
+  formatMeasurement,
+  BENCHMARK_READING,
+  BENCHMARK_STATUS,
+  C_TEST_HISTORY,
+  PROOF_SCOPE,
+  RUST_TEST_HISTORY,
+  TCB_SCOPE,
+  VIDEO_CAPTION,
+  VIDEO_DESCRIPTION,
   BOLOS_PATCH_URL,
   C_BENCH_BARS,
   MERMAID_ARCHITECTURE,
@@ -18,7 +30,7 @@ import './leanldgr.css'
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description:
-    'POC Lean 4 sur les apps Bitcoin C (BOLOS) et Rust (Vanadium) de Ledger : preuves formelles, empreinte RAM/Flash réduite et exécution plus rapide.',
+    'POC Lean 4 sur les apps Bitcoin C (BOLOS) et Rust (Vanadium) de Ledger : jumeau formel, sous-ensemble freestanding 32-bit et observations de benchmarks.',
   alternates: {
     canonical: 'https://share.thomas.md/leanldgr'
   },
@@ -26,7 +38,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: PAGE_TITLE,
     description:
-      'Vérification formelle Lean 4 et optimisation binaire sur Ledger app-bitcoin (C) et Vanadium (Rust).',
+      'Modélisation formelle Lean 4 et intégration de noyaux freestanding sur Ledger app-bitcoin (C) et Vanadium (Rust).',
     url: 'https://share.thomas.md/leanldgr',
     type: 'article'
   }
@@ -67,7 +79,7 @@ function BenchmarkColumn({
             <div className="ldgr-bar-row">
               <span className="ldgr-bar-tag">Baseline</span>
               <div className="ldgr-bar-track">
-                <div className="ldgr-bar-fill is-orig" style={{ width: '100%' }} />
+                <div className="ldgr-bar-fill is-orig" style={{ width: `${100 / Math.max(100, item.optPct) * 100}%` }} />
                 <div className="ldgr-bar-val">
                   <span>{item.origValue}</span>
                 </div>
@@ -78,7 +90,7 @@ function BenchmarkColumn({
               <div className="ldgr-bar-track">
                 <div
                   className={`ldgr-bar-fill ${variant === 'rust' ? 'is-opt-rust' : 'is-opt-c'}`}
-                  style={{ width: `${item.optPct}%` }}
+                  style={{ width: `${item.optPct / Math.max(100, item.optPct) * 100}%` }}
                 />
                 <div className="ldgr-bar-val">
                   <span>{item.optValue}</span>
@@ -157,29 +169,30 @@ export default function LeanLedgerReportPage() {
       </p>
       <ul>
         <li>
-          <strong>Un jumeau formel complet en Lean 4</strong> des specs{' '}
-          <code>BIP-32/67/143/327/341/352/370/379/388</code> et des deux machines d&apos;état
-          BOLOS/Vanadium, prouvé avec <code>0 sorryAx</code> et servant d&apos;oracle différentiel
-          sur les suites de tests des deux repos.
+          <strong>Un jumeau formel en Lean 4</strong> des specs{' '}
+          <code>BIP-32/67/143/327/341/352/370/379/388</code> et des machines d&apos;état
+          BOLOS/Vanadium, avec <code>0 sorryAx</code>, utilisé comme oracle différentiel.{' '}
+          {PROOF_SCOPE}
         </li>
         <li>
-          <strong>Un noyau freestanding zero-alloc</strong> (
-          <code>BitcoinLedger/FreestandingKernels.lean</code> : <code>0</code> import runtime,{' '}
-          <code>0</code> allocation tas, <code>0</code> récursion), compilé par{' '}
+          <strong>Un sous-ensemble exécutable freestanding</strong> (
+          <code>BitcoinLedger/FreestandingKernels.lean</code>), compilé via{' '}
           <a href={TURBO_LEAN_URL} target="_blank" rel="noopener noreferrer">
             <code>turbo-lean</code>
           </a>{' '}
-          en LLVM IR 32-bit (<code>thumbv6m</code>, <code>thumbv8m.main</code>,{' '}
-          <code>riscv32imac</code>) et lié en LTO dans les deux binaires pour exécuter directement
-          les vérifications critiques : typechecker Miniscript <code>BIP-379/BIP-388</code> en
-          postfixe, machine d&apos;état <code>nLockTime</code> <code>BIP-370</code>, égalité
-          Dual-UTXO et bornes <code>MAX_MONEY</code>, validation de chemins <code>BIP-32</code>,{' '}
-          <code>CompactSize</code> canonique, tri lexicographique <code>O(1)</code>-stack des clés
-          publiques MuSig2/<code>sortedmulti</code>, et formatage ASCII des montants sans division.
+          (<code>emit-freestanding-c-lib</code>, garde <code>codeHasHeapOps=false</code>) en LLVM IR
+          32-bit (<code>thumbv6m</code>, <code>thumbv8m.main</code>, <code>riscv32imac</code>) et
+          lié en LTO via <code>45</code> exports ABI <code>llb_*</code> (distincts des symboles
+          internes et du jumeau formel complet) pour les vérifications ciblées : typechecker
+          Miniscript <code>BIP-379/BIP-388</code> en postfixe, machine d&apos;état{' '}
+          <code>nLockTime</code> <code>BIP-370</code>, égalité Dual-UTXO et bornes{' '}
+          <code>MAX_MONEY</code>, validation de chemins <code>BIP-32</code>,{' '}
+          <code>CompactSize</code> canonique, tri lexicographique sans récursion des clés publiques
+          MuSig2/<code>sortedmulti</code>, et formatage ASCII des montants sans division.
         </li>
       </ul>
       <p>
-        Les intégrations sont des patchs minimalistes :{' '}
+        Les intégrations sont des patchs sources épinglés sur <code>96deef7</code> :{' '}
         <a href={BOLOS_PATCH_URL} target="_blank" rel="noopener noreferrer">
           <code>app-bitcoin-lean-opt.patch</code>
         </a>{' '}
@@ -210,12 +223,7 @@ export default function LeanLedgerReportPage() {
           . Passer par LLVM IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct
           m&apos;a semblé plus sûr (la sémantique LLVM est déjà largement formalisée) et ne
           demandait qu&apos;un patch ciblé. Notez qu&apos;il reste donc encore de la marge
-          d&apos;optimisation avec plus de compute. Transparence sur la TCB : les théorèmes de
-          préservation sémantique couvrent les passes IR de <code>turbo-lean</code>, tandis que le
-          front-end d&apos;extraction LCNF et <code>clang</code>/<code>lld</code> restent dans la
-          TCB de compilation, auditée par tests différentiels C-ABI, contrôle d&apos;absence de
-          symboles indéfinis (<code>llvm-nm</code>) et bornage statique des frames de pile (
-          <code>.su</code>).
+          d&apos;optimisation avec plus de compute. {TCB_SCOPE}
         </li>
         <li>
           <strong>Intégration dans les deux apps</strong> : shim FFI minimal dans{' '}
@@ -223,64 +231,74 @@ export default function LeanLedgerReportPage() {
           d&apos;origine et linkant les kernels Lean en LTO.
         </li>
         <li>
-          <strong>Boucle d&apos;optimisation <code>maxwell</code></strong> : itérations pilotées
-          selon notre méthodologie <code>maxwell</code> avec des scripts de benchmark
-          reproductibles (<code>bolos_benchmark.sh</code>, <code>vanadium_benchmark.sh</code>) sous
-          contrainte stricte du noyau Lean (<code>0 sorryAx</code>, <code>2 494</code> théorèmes) et
-          de 100 % des tests au vert, jusqu&apos;à passer sous les baselines Flash, RAM et latence
-          sur les deux targets.
+          <strong>Boucle d&apos;optimisation <code>maxwell</code></strong> : itérations avec les
+          scripts reproductibles <code>bolos_benchmark.sh</code> et{' '}
+          <code>vanadium_benchmark.sh</code>, en contrôlant les invariants formels et les
+            régressions. Les JSON publiés pour T6 documentent gains et régressions ; ils ne
+            remplacent pas une validation de déploiement sur matériel physique.
         </li>
       </ol>
 
       <h2 className="section-heading">3. Résultats et simulation</h2>
-      <p>
-        Sur les deux targets, le binaire patché avec Lean 4 est simultanément plus léger et plus
-        rapide que la baseline non modifiée :
-      </p>
+      <p>{BENCHMARK_STATUS}</p>
 
       <div className="ldgr-bench-breakout not-prose">
         <div className="ldgr-bench-grid">
           <BenchmarkColumn
             title="Vanadium V-App (Rust → + Lean 4)"
-            sub="RV32IMAC · Ledger Flex"
+            sub="RV32IMAC · Flex · T6"
             items={RUST_BENCH_BARS}
             variant="rust"
-            footer="176/176 tests workspace (+16 C-ABI) · 9 bugs fixés & prouvés"
+            footer={RUST_TEST_HISTORY}
           />
           <BenchmarkColumn
             title="BOLOS App (C → + Lean 4)"
-            sub="ARM Thumb · Nano S+ / X"
+            sub="ARM Thumb · Nano S+ / X · T6"
             items={C_BENCH_BARS}
             variant="c"
-            footer="31/31 ctest · 277/277 Ragger · 2 494 théorèmes (0 sorryAx)"
+            footer={C_TEST_HISTORY}
           />
         </div>
       </div>
 
-      <p>
-        Précisions de lecture. <strong>BOLOS</strong> : Flash, ELF et RAM sont mesurés sur Nano S+
-        (ARMv8-M) ; les latences sont données par device (Nano S+ ARMv8-M, Nano X ARMv6-M) ; le
-        delta Flash est celui du patch complet, un delta à profil de link identique (
-        <code>same-flags</code>) sera ajouté au rafraîchissement des benchmarks.{' '}
-        <strong>Vanadium</strong> : la « RAM réservée » est le budget d&apos;adressage statique de
-        la V-App (<code>RW + stack</code>, 514 → 258 pages de <code>256 B</code>) ; le pic
-        d&apos;allocation heap mesuré (<code>peak_heap_bytes</code>), les pages commitées (
-        <code>vm_page_commits</code>), les latences <code>SIGN_PSBT</code> multisig{' '}
-        <code>wsh(3-of-5, 3 in)</code> et les gains cycliques déterministes sur les hotspots
-        (formatage des montants sans division, <code>0</code> récursion stack) seront reportés en
-        même temps. Les gains Vanadium se décomposent en deux parts : le code Lean et les
-        structures sans allocation à profil Cargo identique (<code>same-profile</code>), et le
-        profil de link (LTO, <code>panic = &quot;abort&quot;</code> sans tables{' '}
-        <code>.eh_frame</code>, strip, budget heap/stack réduit de <code>64+64 KiB</code> à{' '}
-        <code>32+32 KiB</code>, un éventuel <code>panic!</code> terminant immédiatement la V-App
-        via <code>ebreak</code> au lieu de dérouler la pile).
-      </p>
+      <p>Échelle commune à chaque paire : la plus grande valeur occupe toute la largeur, sans troncature. Un delta positif signifie une augmentation, pas un gain.</p>
+      <p>{BENCHMARK_READING}</p>
+      <p>{BENCHMARK_CONCLUSIONS}</p>
 
-      <p>
-        La simulation ci-dessous compare notre V-App Rust patchée avec Lean 4 (à gauche) et la
-        V-App de référence (à droite) sur Speculos Ledger Flex lors d&apos;un enregistrement de
-        compte Taproot suivi d&apos;un signing PSBT, avec le profil RAM en bas :
-      </p>
+      <div className="ldgr-measures-breakout not-prose">
+        <div className="ldgr-measures-scroll">
+          <table className="ldgr-issues-table">
+            <caption>Synthèse T6 · BOLOS Nano S+ mainnet et Vanadium plain, sauf scénario indiqué</caption>
+            <thead>
+              <tr>
+                <th>Métrique</th><th>Référence C</th><th>Lean + C</th><th>Référence Rust</th><th>Lean + Rust</th>
+              </tr>
+            </thead>
+            <tbody>
+              {BENCHMARK_ROWS.map((row) => (
+                <tr key={row.metric}>
+                  {[row.metric, row.origC, row.patchedC, row.origRust, row.patchedRust].map((cell, index) => <td key={index}>{cell}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {MEASUREMENT_TABLES.map((table) => (
+          <div className="ldgr-measures-scroll" key={table.title}>
+            <table className="ldgr-issues-table">
+              <caption>{table.title}</caption>
+              <thead><tr>{table.headers.map((header) => <th key={header}>{header}</th>)}</tr></thead>
+              <tbody>
+                {table.rows.map((row, rowIndex) => (
+                  <tr key={rowIndex}>{row.map((cell, index) => <td key={index}>{formatMeasurement(cell)}</td>)}</tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+
+      <p>{VIDEO_DESCRIPTION}</p>
 
       <figure className="ldgr-video-figure not-prose">
         <video
@@ -293,12 +311,7 @@ export default function LeanLedgerReportPage() {
           playsInline
           style={{ display: 'block', width: '100%', height: 'auto' }}
         />
-        <figcaption className="ldgr-video-caption">
-          Speculos Ledger Flex (<code>480×600</code>, slow-mo <code>0,3×</code>) :{' '}
-          <code>vnd-bitcoin</code> + Lean 4 termine en <strong>2,02 s</strong> sous un budget RAM
-          statique divisé par deux (<strong>64,3 KiB</strong> vs <strong>128,3 KiB</strong> et{' '}
-          <strong>2,61 s</strong> pour la baseline).
-        </figcaption>
+        <figcaption className="ldgr-video-caption">{VIDEO_CAPTION}</figcaption>
       </figure>
 
       <h2 className="section-heading">4. Bugs et anomalies trouvés dans Vanadium</h2>
@@ -361,7 +374,8 @@ export default function LeanLedgerReportPage() {
       <h2 className="section-heading">5. Résumé des ressources investies</h2>
       <p>
         L&apos;ensemble du run autonome (formalisation, patch compilateur <code>turbo-lean</code>,
-        preuves des <code>2 494</code> théorèmes, intégration C/Rust et boucles{' '}
+        preuves et vérifications Lean 4 (<code>2 585</code> constantes <code>.thmInfo</code> dont{' '}
+        <code>879</code> dans <code>Proofs.*</code>, <code>0 sorryAx</code>), intégration C/Rust et boucles{' '}
         <code>maxwell</code>) a tourné en <strong>19,9 h</strong> wall-clock sur la fenêtre capturée
         ci-dessous jusqu&apos;au merge du repo principal (dont 2 heures de pause à cause d&apos;un
         problème d&apos;approvisionnement d&apos;inférence que j&apos;ai réglé à la main) à travers{' '}
