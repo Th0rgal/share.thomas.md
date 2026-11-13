@@ -266,13 +266,15 @@ export default function LeanLedgerReportPage() {
       </ul>
       <p>
         Chaque énoncé est un « si et seulement si » ou une égalité, avec un exemple accepté et un
-        exemple refusé. Ne sont pas encore couvertes : les fonctions qui lisent ou écrivent un
-        buffer (contrôle Miniscript, tris, formatage) et la chaîne de compilation.
+        exemple refusé.
       </p>
 
       <p>
-        Ensuite l&apos;optimisation. Le binaire patché avec Lean 4 est plus léger sur les deux targets. Il est plus rapide sur
-        Vanadium ; sur BOLOS la latence est inchangée sur Nano S+ et en hausse sur Nano X :
+        Côté performances, on n&apos;a pas spécialement cherché à optimiser, d&apos;autant qu&apos;on
+        passe par LLVM sans cibler directement le matériel final, mais on obtient quand même des
+        résultats intéressants. Le binaire patché avec Lean 4 est plus léger sur les deux targets
+        et plus rapide sur Vanadium ; sur BOLOS la latence est inchangée sur Nano S+ et en hausse
+        sur Nano X :
       </p>
 
       <div className="ldgr-bench-breakout not-prose">
