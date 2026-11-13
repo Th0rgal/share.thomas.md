@@ -439,7 +439,7 @@ export function renderMarkdown(): string {
     '',
     '## 4. Bugs et anomalies trouvés dans Vanadium',
     '',
-    'La formalisation croisée entre `app-bitcoin` et `vanadium` a fait ressortir **9 bugs et écarts de spec** dans `LedgerHQ/vanadium` (`ace8e969`). Chacun a été revérifié à la main dans le code upstream. Aucune issue publique n\'existait ; deux étaient signalés par un `TODO` ou un `todo!()` dans le code. Depuis, la [PR upstream #301](https://github.com/LedgerHQ/vanadium/pull/301) du 13 novembre en corrige quatre (montants, profondeur xpub, pubnonce MuSig2, GetVersion et CompactSize) ; `andor`, double UTXO, `nLockTime`, `sh(wsh)` et `OP_RETURN` restent ouverts. Notre patch les corrige tous.',
+    'La formalisation croisée entre `app-bitcoin` et `vanadium` a fait ressortir **9 bugs et écarts de spec** dans `LedgerHQ/vanadium` (`ace8e969`). Chacun a été revérifié dans le code upstream. Aucune issue publique n\'existait ; deux étaient signalés par un `TODO` ou un `todo!()` dans le code. Depuis, la [PR upstream #301](https://github.com/LedgerHQ/vanadium/pull/301) du 13 novembre en corrige quatre (montants, profondeur xpub, pubnonce MuSig2, GetVersion et CompactSize) ; `andor`, double UTXO, `nLockTime`, `sh(wsh)` et `OP_RETURN` restent ouverts. Notre patch les corrige tous.',
     '',
     '| ID | Severity | Location | Upstream status | Description |',
     '|---|---|---|---|---|',
