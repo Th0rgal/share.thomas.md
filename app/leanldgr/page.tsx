@@ -163,25 +163,16 @@ export default function LeanLedgerReportPage() {
           qu&apos;elle répond comme les apps.
         </li>
         <li>
-          <strong>Un noyau freestanding zero-alloc</strong> (
-          <code>BitcoinLedger/FreestandingKernels.lean</code> : <code>45</code> exports C-ABI dont{' '}
-          <code>31</code> appelés — <code>19</code> côté C, <code>23</code> côté Rust,{' '}
-          <code>11</code> communs —, <code>0</code> import runtime, <code>0</code> allocation tas),
-          compilé par{' '}
+          <strong>Un noyau Lean compilé dans les deux apps</strong> (
+          <code>BitcoinLedger/FreestandingKernels.lean</code>) : c&apos;est le code Lean réellement
+          exécuté sur l&apos;appareil.{' '}
           <a href={TURBO_LEAN_URL} target="_blank" rel="noopener noreferrer">
             <code>turbo-lean</code>
           </a>{' '}
-          en LLVM IR 32-bit (<code>thumbv6m</code>, <code>thumbv8m.main</code>,{' '}
-          <code>riscv32imac</code>) et lié en LTO dans les deux binaires pour exécuter directement
-          les vérifications critiques : typechecker Miniscript <code>BIP-379/BIP-388</code> en
-          postfixe, machine d&apos;état <code>nLockTime</code> <code>BIP-370</code>, égalité
-          Dual-UTXO et bornes <code>MAX_MONEY</code>, validation de chemins <code>BIP-32</code>,{' '}
-          <code>CompactSize</code> canonique, tri lexicographique <code>O(1)</code>-stack des clés
-          publiques MuSig2/<code>sortedmulti</code>, et formatage ASCII des montants sans division.
-          Les parseurs PSBT/Script, la crypto et l&apos;UI restent en C/Rust. <code>27</code> des{' '}
-          <code>45</code> exports sont prouvés égaux à la spec ; le typechecker Miniscript, les deux
-          tris et le formateur de montants sont pour l&apos;instant couverts par tests
-          différentiels, pas par un théorème de bout en bout.
+          le compile en LLVM IR 32-bit et il remplace dans chaque app les vérifications sensibles :
+          policies Miniscript, <code>nLockTime</code>, montants, chemins <code>BIP-32</code>, tri
+          des clés et formatage des montants. <code>27</code> de ses <code>45</code> fonctions sont
+          prouvées égales à la spec, les autres sont testées contre elle.
         </li>
       </ul>
       <p>
@@ -193,9 +184,12 @@ export default function LeanLedgerReportPage() {
         <a href={VANADIUM_PATCH_URL} target="_blank" rel="noopener noreferrer">
           <code>vanadium-bitcoin-lean-opt.patch</code>
         </a>{' '}
-        côté Vanadium (environ <code>1 150</code> lignes écrites à la main côté C, le reste du
-        patch étant l&apos;IR LLVM généré, et <code>1 400</code> côté Rust, dont la moitié de
-        tests).
+        côté Vanadium. Le C/Rust qui reste fait trois choses : appeler le noyau Lean à la place des
+        vérifications d&apos;origine, parser les PSBT et les scripts, et parler au matériel (clés,
+        crypto, écran et transport passent par les appels système de BOLOS). Cette dernière partie
+        ne peut pas être du Lean : elle est fournie par l&apos;OS du Secure Element. Les parseurs,
+        eux, pourraient l&apos;être ; c&apos;est la suite logique, ils manipulent des buffers que
+        notre backend ne sait pas encore couvrir par des preuves.
       </p>
 
       <Mermaid chart={MERMAID_ARCHITECTURE} />
