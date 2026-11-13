@@ -299,9 +299,9 @@ export default function LeanLedgerReportPage() {
       <p>Ce qui nous semble le plus intéressant :</p>
       <ul>
         <li>
-          La machine d&apos;état <code>nLockTime</code> <code>BIP-370</code> tient dans un seul{' '}
-          <code>u64</code> et est prouvée égale à la règle du modèle, pour toute liste
-          d&apos;inputs.
+          Le calcul du <code>nLockTime</code> selon <code>BIP-370</code>, là où Vanadium semble
+          avoir un bug (à confirmer avec vous), a été prouvé conforme à la règle pour n&apos;importe
+          quelle liste d&apos;inputs sans intervention de notre côté.
         </li>
         <li>
           Un seul noyau Lean sert trois ISA et deux apps : il est émis en LLVM IR puis compilé avec

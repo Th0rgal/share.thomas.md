@@ -461,7 +461,7 @@ export function renderMarkdown(): string {
     '',
     'Ce qui nous semble le plus intéressant :',
     '',
-    '- La machine d\'état `nLockTime` `BIP-370` tient dans un seul `u64` et est prouvée égale à la règle du modèle, pour toute liste d\'inputs.',
+    '- Le calcul du `nLockTime` selon `BIP-370`, là où Vanadium semble avoir un bug (à confirmer avec vous), a été prouvé conforme à la règle pour n\'importe quelle liste d\'inputs sans intervention de notre côté.',
     '- Un seul noyau Lean sert trois ISA et deux apps : il est émis en LLVM IR puis compilé avec les flags de chaque app, avec une frame de pile maximale de `96 B`.',
     '- Sur Vanadium, une signature exécute `14,6 %` d\'instructions RV32 en moins et charge `5 %` de pages en moins, à profil de compilation identique.',
     '- La formalisation croisée des deux apps a suffi à faire ressortir les 11 bugs de la section 4.',
