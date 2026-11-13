@@ -335,9 +335,9 @@ export default function LeanLedgerReportPage() {
         <a href="https://github.com/LedgerHQ/vanadium/pull/301" target="_blank" rel="noopener noreferrer">
           PR upstream #301
         </a>{' '}
-        du 13 novembre en corrige quatre (montants, profondeur xpub, pubnonce MuSig2, GetVersion et
+        du 13 novembre en corrige cinq (montants, profondeur xpub, pubnonce MuSig2, GetVersion,
         CompactSize) ; <code>andor</code>, double UTXO, <code>nLockTime</code>,{' '}
-        <code>sh(wsh)</code> et <code>OP_RETURN</code> restent ouverts. Notre patch les corrige
+        <code>sh(wsh)</code>, les contrôles Miniscript et <code>OP_RETURN</code> restent ouverts. Notre patch les corrige
         tous.
       </p>
 
