@@ -141,8 +141,8 @@ export default function LeanLedgerReportPage() {
           <code>vanadium@ace8e969</code>
         </a>
         ), compilée en RISC-V 32-bit (<code>RV32IMAC</code>) et exécutée dans une VM
-        tournant sur BOLOS (je crois que c&apos;est pour streamer le code et les données de
-        l&apos;app depuis le host).
+        tournant sur BOLOS (pour streamer le code et les données de
+        l&apos;app depuis le host, si j&apos;ai bien compris).
       </p>
       <p>
         Plutôt que de toucher à l&apos;UI ou au transport APDU/ECALL (réécrire l&apos;UI en Lean 4
