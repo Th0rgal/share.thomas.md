@@ -236,7 +236,38 @@ export default function LeanLedgerReportPage() {
 
       <h2 className="section-heading">3. Résultats</h2>
       <p>
-        Le binaire patché avec Lean 4 est plus léger sur les deux targets. Il est plus rapide sur
+        D&apos;abord la spec. Elle tient en 800 lignes de Lean (
+        <a href={`${REPO_URL}/tree/main/Spec`} target="_blank" rel="noopener noreferrer">
+          <code>Spec/</code>
+        </a>
+        ) et dit, en clair :
+      </p>
+      <ul>
+        <li>
+          Aucune signature ne sort sans approbation à l&apos;écran, sauf pour un échange
+          pré-approuvé dont le destinataire, le montant et les frais correspondent exactement.
+        </li>
+        <li>
+          Entrées = sorties + frais, sans dépassement arithmétique ni frais négatifs.
+        </li>
+        <li>
+          Une sortie n&apos;est masquée comme « monnaie rendue » que si elle appartient à la
+          branche de change du portefeuille ; toute autre sortie est affichée.
+        </li>
+        <li>Un nonce MuSig2 ne sert qu&apos;une fois, quelle que soit la suite de commandes.</li>
+        <li>
+          Une commande de lecture ne modifie rien, et une commande qui échoue ne laisse aucune
+          trace dans l&apos;état de l&apos;app.
+        </li>
+      </ul>
+      <p>
+        Ces propriétés sont prouvées sur un modèle Lean des deux apps, que l&apos;on compare aux
+        apps C/Rust par tests. Le Lean réellement embarqué est le noyau décrit plus haut ;
+        l&apos;affichage et la crypto ne sont pas modélisés.
+      </p>
+
+      <p>
+        Ensuite l&apos;optimisation. Le binaire patché avec Lean 4 est plus léger sur les deux targets. Il est plus rapide sur
         Vanadium ; sur BOLOS la latence est inchangée sur Nano S+ et en hausse sur Nano X :
       </p>
 
