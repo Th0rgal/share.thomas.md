@@ -296,13 +296,11 @@ export default function LeanLedgerReportPage() {
       </div>
 
       <figure className="not-prose" style={{ margin: '1.75rem 0 2.2rem 0' }}>
-        <video
-          src="/leanldgr/vanadium-trace-v2.mp4"
-          poster="/leanldgr/vanadium-trace-poster.png"
-          controls
-          loop
-          muted
-          playsInline
+        <img
+          src="/leanldgr/vanadium-trace.webp"
+          alt="Signature Taproot sur Vanadium : référence et variante Lean côte à côte, avec les instructions exécutées cumulées"
+          width={960}
+          height={840}
           style={{ display: 'block', width: '100%', height: 'auto', borderRadius: 6 }}
         />
         <figcaption style={{ padding: '0.7rem 0', fontSize: '0.8rem', lineHeight: 1.45, opacity: 0.75 }}>
@@ -310,7 +308,8 @@ export default function LeanLedgerReportPage() {
           droite. En bas, les instructions RV32 exécutées, cumulées, un point par échange APDU :
           234 214 contre 200 692 (−14,3 %), et 1 307 chargements de page contre 1 240. Tout est
           mesuré ; les runs sont instrumentés et en auto-approbation, donc la durée affichée
-          n&apos;est pas une latence.
+          n&apos;est pas une latence (
+          <a href="/leanldgr/vanadium-trace-v2.mp4">version mp4</a>).
         </figcaption>
       </figure>
 
