@@ -12,7 +12,7 @@ export const MERMAID_ARCHITECTURE = `flowchart TB
         Spec["Spec exécutable Lean 4 : BIP-32 / 67 / 143 / 327 / 341 / 352 / 370 / 379 / 388<br/>+ machines d'état BOLOS & Vanadium"]
         Kernel["Noyaux freestanding zero-alloc<br/>BitcoinLedger/FreestandingKernels.lean<br/>(45 exports C-ABI · 0 import runtime · 0 allocation tas)"]
         Turbo["turbo-lean : Lean → LLVM IR 32-bit<br/>(thumbv6m, thumbv8m.main, riscv32imac)"]
-        Spec -->|"preuves / oracle différentiel"| Kernel
+        Spec -->|"preuves + tests comparés"| Kernel
         Kernel --> Turbo
     end
 
