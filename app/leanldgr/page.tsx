@@ -153,7 +153,7 @@ export default function LeanLedgerReportPage() {
         <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
           <code>Th0rgal/lean-ledger-bitcoin</code>
         </a>
-        , combine deux livrables :
+        , contient deux choses intéressantes pour vous :
       </p>
       <ul>
         <li>
@@ -328,8 +328,7 @@ export default function LeanLedgerReportPage() {
       <p>
         En essayant de formaliser les implémentations C et Vanadium, on a repéré{' '}
         <strong>11 bugs ou écarts de spec</strong>. On ne les a pas vérifiés manuellement, mais ils
-        semblent corrects, le bug étant du côté Vanadium à chaque fois (
-        <code>LedgerHQ/vanadium</code> <code>ace8e969</code>).
+        semblent corrects, le bug étant du côté Vanadium à chaque fois.
       </p>
 
       <div className="ldgr-issues-breakout not-prose">
