@@ -164,8 +164,10 @@ export default function LeanLedgerReportPage() {
         </li>
         <li>
           <strong>Un noyau freestanding zero-alloc</strong> (
-          <code>BitcoinLedger/FreestandingKernels.lean</code> : <code>45</code> exports C-ABI,{' '}
-          <code>0</code> import runtime, <code>0</code> allocation tas), compilé par{' '}
+          <code>BitcoinLedger/FreestandingKernels.lean</code> : <code>45</code> exports C-ABI dont{' '}
+          <code>31</code> appelés — <code>19</code> côté C, <code>23</code> côté Rust,{' '}
+          <code>11</code> communs —, <code>0</code> import runtime, <code>0</code> allocation tas),
+          compilé par{' '}
           <a href={TURBO_LEAN_URL} target="_blank" rel="noopener noreferrer">
             <code>turbo-lean</code>
           </a>{' '}
@@ -176,11 +178,14 @@ export default function LeanLedgerReportPage() {
           Dual-UTXO et bornes <code>MAX_MONEY</code>, validation de chemins <code>BIP-32</code>,{' '}
           <code>CompactSize</code> canonique, tri lexicographique <code>O(1)</code>-stack des clés
           publiques MuSig2/<code>sortedmulti</code>, et formatage ASCII des montants sans division.
-          Les parseurs PSBT/Script, la crypto et l&apos;UI restent en C/Rust.
+          Les parseurs PSBT/Script, la crypto et l&apos;UI restent en C/Rust. <code>27</code> des{' '}
+          <code>45</code> exports sont prouvés égaux à la spec ; le typechecker Miniscript, les deux
+          tris et le formateur de montants sont pour l&apos;instant couverts par tests
+          différentiels, pas par un théorème de bout en bout.
         </li>
       </ul>
       <p>
-        Les intégrations sont des patchs minimalistes :{' '}
+        Les intégrations tiennent en deux patchs :{' '}
         <a href={BOLOS_PATCH_URL} target="_blank" rel="noopener noreferrer">
           <code>app-bitcoin-lean-opt.patch</code>
         </a>{' '}
@@ -188,7 +193,9 @@ export default function LeanLedgerReportPage() {
         <a href={VANADIUM_PATCH_URL} target="_blank" rel="noopener noreferrer">
           <code>vanadium-bitcoin-lean-opt.patch</code>
         </a>{' '}
-        côté Vanadium.
+        côté Vanadium (environ <code>1 150</code> lignes écrites à la main côté C, le reste du
+        patch étant l&apos;IR LLVM généré, et <code>1 400</code> côté Rust, dont la moitié de
+        tests).
       </p>
 
       <Mermaid chart={MERMAID_ARCHITECTURE} />
@@ -258,14 +265,37 @@ export default function LeanLedgerReportPage() {
         </div>
       </div>
 
+      <p>Ce qui nous semble le plus intéressant :</p>
+      <ul>
+        <li>
+          La machine d&apos;état <code>nLockTime</code> <code>BIP-370</code> tient dans un seul{' '}
+          <code>u64</code> et est prouvée égale à la spec de bout en bout, pour toute liste
+          d&apos;inputs.
+        </li>
+        <li>
+          Un seul noyau Lean sert trois ISA et deux apps : il est émis en LLVM IR puis compilé avec
+          les flags de chaque app, avec une frame de pile maximale de <code>96 B</code>.
+        </li>
+        <li>
+          Sur Vanadium, une signature exécute <code>14,6 %</code> d&apos;instructions RV32 en moins
+          et charge <code>5 %</code> de pages en moins, à profil de compilation identique.
+        </li>
+        <li>
+          La formalisation croisée des deux apps a suffi à faire ressortir les 9 bugs de la section
+          4.
+        </li>
+      </ul>
+
       <p>
         Précisions de lecture. Mesures sous Speculos, référence et variante sur le même hôte ; pas
         de mesure sur matériel. <strong>Vanadium</strong> : la « RAM réservée » est un budget
         statique, réduit de <code>64+64 KiB</code> à <code>32+32 KiB</code>, pas un pic mesuré
         (pic heap mesuré côté Lean : <code>5 318 B</code> sur une signature). À profil Cargo
-        identique, le code baisse de <code>4,55 %</code> et les instructions exécutées de{' '}
-        <code>14,6 %</code> ; le reste du gain de taille vient du profil de link (LTO,{' '}
-        <code>panic = &quot;abort&quot;</code>, strip). <strong>BOLOS</strong> : tailles mesurées
+        identique, le segment de code baisse de <code>4,55 %</code> (moins de chaînes de panic et de tables
+        d&apos;unwind ; le <code>.text</code> lui-même grossit de <code>6 KiB</code>) et les
+        instructions exécutées de <code>14,6 %</code>, gain partagé entre le code Lean et des
+        réécritures Rust faites en même temps ; le reste du gain de taille vient du profil de link
+        (LTO, <code>panic = &quot;abort&quot;</code>, strip). <strong>BOLOS</strong> : tailles mesurées
         sur le dernier build (cycle 1 T7, encore expérimental), latences sur le build précédent
         (T6).
       </p>
