@@ -241,7 +241,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
   {
     id: 'VND-01',
     severity: 'High',
-    severityLabel: 'Critical',
+    severityLabel: 'High',
     locations: [
       {
         label: 'common/src/script.rs:367',
@@ -250,12 +250,12 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     ],
     reportedStatus: 'Unreported',
     description:
-      'andor(X, Y, Z) compiles to OP_NOTIF [Y] OP_ELSE [Z] OP_ENDIF instead of [Z] then [Y] (BIP-379), inverting the true/false spending branches relative to Bitcoin Core and app-bitcoin — a wrong-script / funds-locking consensus bug.'
+      'andor(X, Y, Z) is compiled as [X] OP_NOTIF [Y] OP_ELSE [Z] OP_ENDIF instead of the BIP-379 [X] OP_NOTIF [Z] OP_ELSE [Y] OP_ENDIF. The device derives a different script and address than Bitcoin Core and app-bitcoin for the same policy, and the spending branches are swapped.'
   },
   {
     id: 'VND-02',
-    severity: 'Medium',
-    severityLabel: 'Medium',
+    severity: 'Low',
+    severityLabel: 'Low',
     locations: [
       {
         label: 'fastpsbt.rs:1052',
@@ -266,7 +266,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
         url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/sign_psbt/analyze.rs#L433-L470`
       }
     ],
-    reportedStatus: 'Unreported',
+    reportedStatus: 'Unreported · fixed upstream since (PR #301)',
     description:
       'Unbounded u64 satoshi sums (missing MAX_MONEY bounds) and unchecked u64 as i64 casts on per-account balances — a defense-in-depth / specification gap reachable under a malformed host PSBT, now bounded in the patched kernel.'
   },
@@ -286,7 +286,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     ],
     reportedStatus: 'Unreported',
     description:
-      'When both non_witness_utxo and witness_utxo are supplied on an input, their prevout equality is never checked (CVE-2020-14199 class), unlike app-bitcoin.'
+      'For SegWit v0 inputs carrying both non_witness_utxo and witness_utxo, only the txid is checked: the witness_utxo amount and script are never compared with the referenced output (CVE-2020-14199 class), unlike app-bitcoin. Taproot inputs are unaffected.'
   },
   {
     id: 'VND-04',
@@ -300,7 +300,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
     ],
     reportedStatus: 'Unreported',
     description:
-      'Non-compliant BIP-370 nLockTime computation: accepts zero height locks, rejects dual-locked inputs, and lets fallback_locktime overwrite a block-height lock into a timestamp.'
+      'Non-compliant BIP-370 nLockTime computation: accepts zero height locks, rejects dual-locked inputs, and lets fallback_locktime overwrite a block-height lock into a timestamp. Impact is interoperability, not loss of funds.'
   },
   {
     id: 'VND-05',
@@ -324,20 +324,16 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
       {
         label: 'bip388/src/lib.rs:5',
         url: `${BIP388_BLOB}/src/lib.rs#L5-L8`
-      },
-      {
-        label: 'register_account.rs:189',
-        url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/register_account.rs#L189-L190`
       }
     ],
-    reportedStatus: 'Partial TODO (0 issues)',
+    reportedStatus: 'Known gap (upstream TODO)',
     description:
       'Missing BIP-379 Miniscript B/V/K/W typechecking, non-malleability enforcement, height/time timelock mixing checks, and BIP-68 older(n) flag masking — now fully enforced in the patched V-App via llb_miniscript_check_postfix.'
   },
   {
     id: 'VND-07',
-    severity: 'Medium',
-    severityLabel: 'Medium',
+    severity: 'Low',
+    severityLabel: 'Low',
     locations: [
       {
         label: 'get_extended_pubkey.rs:138',
@@ -348,7 +344,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
         url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/get_extended_pubkey.rs#L161`
       }
     ],
-    reportedStatus: 'Unreported',
+    reportedStatus: 'Unreported · fixed upstream since (PR #301)',
     description:
       'Off-by-one len() > 256 guard followed by u8 cast: a 256-step BIP-32 path wraps to depth = 0 in the serialized xpub.'
   },
@@ -362,7 +358,7 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
         url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/musig_signing.rs#L463-L466`
       }
     ],
-    reportedStatus: 'Unreported',
+    reportedStatus: 'Unreported · fixed upstream since (PR #301)',
     description:
       'In MuSig2 Round 2, the recomputed local pubnonce is not verified against PSBT_IN_MUSIG2_PUB_NONCE before emitting a partial signature.'
   },
@@ -382,15 +378,11 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
       {
         label: 'fastpsbt.rs:231',
         url: `${VANADIUM_BLOB}/apps/bitcoin/common/src/fastpsbt.rs#L231-L250`
-      },
-      {
-        label: 'fastpsbt.rs:1046',
-        url: `${VANADIUM_BLOB}/apps/bitcoin/common/src/fastpsbt.rs#L1046-L1048`
       }
     ],
-    reportedStatus: 'todo!() on GetVersion (0 issues)',
+    reportedStatus: 'todo!() on GetVersion · GetVersion and CompactSize fixed upstream since (PR #301)',
     description:
-      'Request::GetVersion panics via todo!(), OP_RETURN outputs are rejected during display, non-canonical CompactSize encodings are accepted, and witness_utxo scripts > 252 B fail.'
+      'Three small items: Request::GetVersion panics via todo!(), any PSBT with an OP_RETURN output is rejected during display, and non-canonical CompactSize encodings are accepted.'
   }
 ]
 
@@ -447,7 +439,7 @@ export function renderMarkdown(): string {
     '',
     '## 4. Bugs et anomalies trouvés dans Vanadium',
     '',
-    'La formalisation croisée entre `app-bitcoin` et `vanadium` a fait ressortir **9 bugs et écarts de spec** dans `LedgerHQ/vanadium` (`ace8e969`). **7 sur 9 n\'étaient documentés nulle part** (les 2 autres n\'avaient qu\'un `TODO` ou `todo!()` partiel dans le code, et `0` issue GitHub ouverte). Nous n\'avons ouvert aucune issue publique ; tout est fixé dans le patch.',
+    'La formalisation croisée entre `app-bitcoin` et `vanadium` a fait ressortir **9 bugs et écarts de spec** dans `LedgerHQ/vanadium` (`ace8e969`). Chacun a été revérifié à la main dans le code upstream. Aucune issue publique n\'existait ; deux étaient signalés par un `TODO` ou un `todo!()` dans le code. Depuis, la [PR upstream #301](https://github.com/LedgerHQ/vanadium/pull/301) du 13 novembre en corrige quatre (montants, profondeur xpub, pubnonce MuSig2, GetVersion et CompactSize) ; `andor`, double UTXO, `nLockTime`, `sh(wsh)` et `OP_RETURN` restent ouverts. Notre patch les corrige tous.',
     '',
     '| ID | Severity | Location | Upstream status | Description |',
     '|---|---|---|---|---|',

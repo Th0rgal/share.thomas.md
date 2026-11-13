@@ -298,10 +298,16 @@ export default function LeanLedgerReportPage() {
       <p>
         La formalisation croisée entre <code>app-bitcoin</code> et <code>vanadium</code> a fait
         ressortir <strong>9 bugs et écarts de spec</strong> dans <code>LedgerHQ/vanadium</code> (
-        <code>ace8e969</code>). <strong>7 sur 9 n&apos;étaient documentés nulle part</strong> (les 2
-        autres n&apos;avaient qu&apos;un <code>TODO</code> ou <code>todo!()</code> partiel dans le
-        code, et <code>0</code> issue GitHub ouverte). Nous n&apos;avons ouvert aucune issue
-        publique ; tout est fixé dans le patch.
+        <code>ace8e969</code>). Chacun a été revérifié à la main dans le code upstream. Aucune issue
+        publique n&apos;existait ; deux étaient signalés par un <code>TODO</code> ou un{' '}
+        <code>todo!()</code> dans le code. Depuis, la{' '}
+        <a href="https://github.com/LedgerHQ/vanadium/pull/301" target="_blank" rel="noopener noreferrer">
+          PR upstream #301
+        </a>{' '}
+        du 13 novembre en corrige quatre (montants, profondeur xpub, pubnonce MuSig2, GetVersion et
+        CompactSize) ; <code>andor</code>, double UTXO, <code>nLockTime</code>,{' '}
+        <code>sh(wsh)</code> et <code>OP_RETURN</code> restent ouverts. Notre patch les corrige
+        tous.
       </p>
 
       <div className="ldgr-issues-breakout not-prose">
