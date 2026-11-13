@@ -7,12 +7,14 @@ export const VANADIUM_PATCH_URL =
   'https://github.com/Th0rgal/lean-ledger-bitcoin/blob/96deef7c795358b82a37831bf3b1ace2741cbf24/ffi/vanadium/patches/vanadium-bitcoin-lean-opt.patch'
 export const TURBO_LEAN_URL = 'https://github.com/Th0rgal/turbo-lean'
 
-export const PROOF_SCOPE = 'L’audit T2 précédent rapporte 0 sorryAx et zéro axiome ajouté/non standard (axiomes Lean standard propext et Quot.sound autorisés), sans nouvelle vérification ici. Il compte 2 585 constantes .thmInfo au total, déclarations générées incluses, dont 879 dans Proofs.* : ce total ne désigne pas autant de preuves indépendantes écrites à la main. Le jumeau formel complet est distinct du sous-ensemble exécutable : 45 exports ABI llb_*, à ne pas confondre avec les symboles internes émis par le compilateur.'
-export const TCB_SCOPE = 'Transparence sur la TCB : lowerModuleForTarget_sound porte sur la transformation de LLVMAst, pas sur une preuve de bout en bout du binaire. La commande emit-freestanding-c-lib impose le garde codeHasHeapOps=false ; ce contrôle exclut les opérations de tas reconnues dans ce périmètre, sans prouver une pile nulle ni l’absence de heap dans toute l’application. L’extraction LCNF et les frontières clang/rustc/lld restent non vérifiées dans la TCB. Les tests différentiels C-ABI, llvm-nm et les rapports de pile .su apportent des contrôles complémentaires, non une preuve de ces frontières. Absence de récursion ne signifie pas absence de frames de pile : le JSON Vanadium rapporte une frame kernel maximale de 96 B sur RV32 (120 frames analysées), sans borner toute l’application ; le JSON BOLOS ne fournit pas de maximum de frame kernel thumbv6m.'
-export const BENCHMARK_STATUS = 'T6 — mesures publiées dans benchmarks/bolos_results.json (commit 222e139) et benchmarks/vanadium_results.json (commit 90ba9da). Provenance Option2 : Serveur dédié de la flotte, même hôte pour référence et Lean. Ces résultats ne démontrent pas un gain uniforme : BOLOS augmente la Flash et les instructions émises ; plusieurs latences régressent. Les patchs liés restent épinglés sur 96deef7, distinct des commits de publication des mesures.'
-export const BENCHMARK_READING = 'Précisions de lecture. Les tailles de sections et comptes statiques ARM sont déterministes pour ces artefacts ; les instructions ARM émises ne sont pas des instructions exécutées. Les compteurs RV32, pages et échanges VM décrivent le travail exécuté du scénario, pas sa durée. Le wall-clock Speculos dépend du bruit hôte, du transport et du scénario, sans mesure sur matériel physique. BOLOS : contrôle lean_sameflags séparé du patch lean_opt, Nano S+ ARMv8-M et Nano X thumbv6m selon les cibles publiées. Vanadium : plain (production) et autoapprove (E2E) ne sont pas interchangeables. Le profil Cargo/link optimisé inclut LTO, panic = "abort" (arrêt sans déroulement de pile), retrait de .eh_frame et stripping ; réduire le fichier ELF ne signifie pas réduire autant le code chargé RX. Le contrôle same_profile_lean conserve panic = "unwind", strip = "none" et les budgets heap/stack de 64+64 KiB, contre 32+32 KiB optimisés. RW + pile est une réservation statique (514 → 258 pages de 256 B), pas peak_heap_bytes. Le pic heap Lean est instrumenté ; la référence ne fournit aucun pic heap, donc aucun pourcentage de gain heap ne peut être calculé. Les latences Vanadium référence/optimisé suivent ABBA : une paire de chauffe exclue, 5 cycles, 10 échantillons par variante et workload ; les durées same-profile sont des observations uniques, pas une comparaison ABBA équivalente. Les cycles RDTSCP et nanosecondes hôte restent des mesures empiriques, pas des cycles ARM/RV32 déterministes. La frame kernel maximale RV32 publiée est de 96 B ; ce n’est pas la pile maximale de l’application ni une chaîne d’appels complète. Le maximum de frame kernel thumbv6m n’est pas fourni par ces JSON.'
-export const RUST_TEST_HISTORY = 'Historique : 176 tests workspace et 16 tests C-ABI rapportés séparément ; aucune nouvelle validation.'
-export const C_TEST_HISTORY = 'Résultats hôte précédemment rapportés, non relancés ici : référence 30/30 ctest, Lean 31/31. Historique Ragger non relancé : Nano S+ 277 passed, 5 skipped ; Nano X 53 passed, 2 skipped.'
+export const PROOF_SCOPE = 'Les audits formels (relancés en T7 sur 752aa9a et turbo-lean@8c3503f) rapportent 0 sorryAx, 0 Classical.choice et zéro axiome non standard (seuls propext et Quot.sound autorisés). On compte 2 585 constantes .thmInfo au total (253 Spec dont 53 thm, 6 564 InternalSpec dont 1 653 thm, 1 089 Proofs dont 879 thm), déclarations générées incluses : ce total ne désigne pas autant de preuves indépendantes écrites à la main. Le jumeau formel complet est distinct du sous-ensemble exécutable : 45 exports ABI llb_*, à ne pas confondre avec les symboles internes émis par le compilateur.'
+export const TCB_SCOPE = 'Transparence sur la TCB : lowerModuleForTarget_sound porte sur la transformation de LLVMAst, pas sur une preuve de bout en bout du binaire. La commande emit-freestanding-c-lib impose le garde codeHasHeapOps=false ; ce contrôle exclut les opérations de tas reconnues dans ce périmètre, sans prouver une pile nulle ni l’absence de heap dans toute l’application. L’extraction LCNF et les frontières clang/rustc/lld restent non vérifiées dans la TCB. Les tests différentiels C-ABI, llvm-nm et les rapports de pile .su apportent des contrôles complémentaires, non une preuve de ces frontières. Absence de récursion ne signifie pas absence de frames de pile : l’audit build-freestanding.sh mesure une frame kernel maximale de 96 B sur RV32, 176 B sur thumbv6m (Nano X) et 136 B sur thumbv8m.main (Nano S+), toutes sous la borne de 1 024 B, sans borner toute l’application.'
+export const BENCHMARK_STATUS = 'T6 / T7 — baseline publiée dans benchmarks/bolos_results.json (commit 222e139) et benchmarks/vanadium_results.json (commit 90ba9da), complétée par la campagne d’optimisation T7 (commits 8c3503f sur turbo-lean et 752aa9a sur lean-ledger-bitcoin, artefact benchmarks/t7-cycle1.pinned-complete.experimental.json). Provenance T6 Option2 : serveur dédié de la flotte, même hôte pour référence et Lean. Provenance cycle 1 T7 : hôte partagé CPU0, distinct de la campagne candidat A sur VM Boat large. Le cycle 1 T7 (suppression de !llvm.loop sur .seqFor en embarqué et préservation de minsize/optsize en LTO) réduit la Flash BOLOS sous la référence C (Nano S+ 91 231 → 89 695 B, soit -1 536 B / -1,68 % vs réf. et -4 096 B vs baseline T6 93 791 B ; Nano X 91 231 → 90 463 B, soit -768 B / -0,84 % vs réf. et -4 096 B vs T6 94 559 B) ainsi que les instructions ARM Thumb émises (30 364 → 29 898 sur Nano S+, 30 460 → 30 205 sur Nano X). Les cycles 2 et 3 n’apportant aucun gain Flash (0 B puis +512/+768 B) ont été annulés et documentés séparément. Les liens de patchs restent épinglés sur 96deef7 ; leurs versions synchronisées T7 sont sur 752aa9a.'
+export const BENCHMARK_READING = 'Précisions de lecture. Les tailles de sections et comptes statiques ARM sont déterministes pour ces artefacts ; les instructions ARM émises ne sont pas des instructions exécutées. Les compteurs RV32, pages et échanges VM décrivent le travail exécuté du scénario, pas sa durée. Le wall-clock Speculos dépend du bruit hôte, du transport et du scénario, sans mesure sur matériel physique. BOLOS : contrôle lean_sameflags séparé du patch lean_opt, Nano S+ ARMv8-M et Nano X thumbv6m selon les cibles publiées (l’étiquette statique API_LEVEL 22 sur Nano X diffère d’API 27 détecté au runtime par Speculos). Vanadium : plain (production) et autoapprove (E2E) ne sont pas interchangeables. Le profil Cargo/link optimisé inclut LTO, panic = "abort" (arrêt sans déroulement de pile), retrait de .eh_frame et stripping ; réduire le fichier ELF ne signifie pas réduire autant le code chargé RX. Le contrôle same_profile_lean conserve panic = "unwind", strip = "none" et les budgets heap/stack de 64+64 KiB, contre 32+32 KiB optimisés. RW + pile est une réservation statique (514 → 258 pages de 256 B), pas peak_heap_bytes. Le pic heap Lean est instrumenté ; la référence ne fournit aucun pic heap, donc aucun pourcentage de gain heap ne peut être calculé. Les latences Vanadium référence/optimisé suivent ABBA : une paire de chauffe exclue, 5 cycles, 10 échantillons par variante et workload ; les durées same-profile sont des observations uniques, pas une comparaison ABBA équivalente. Les cycles RDTSCP et nanosecondes hôte restent des mesures empiriques, pas des cycles ARM/RV32 déterministes. La frame kernel maximale mesurée par build-freestanding.sh est de 96 B sur RV32, 176 B sur thumbv6m et 136 B sur thumbv8m.main ; ce n’est pas la pile maximale de l’application ni une chaîne d’appels complète.'
+export const RUST_TEST_HISTORY = 'Validé en T7 : 176 tests workspace en série (app 90/90 dont bug_006, common 81/81 + 4 doc/int, client 5/5), Speculos E2E 4/4, FFI Rust 2/2 et différentiel Vanadium 15/15.'
+export const C_TEST_HISTORY = 'Validé en T7 : ctest 31/31 (réf. 30/30), FFI C 129/129 et différentiel BOLOS 9/9 (1 561 décl.). Historique Ragger non relancé : Nano S+ 277 passed, 5 skipped ; Nano X 53 passed, 2 skipped.'
+export const CANDIDATE_A_READING = "T7 · candidat A contre baseline Lean — amélioration statique uniquement, validée pour Fable (claude-fable-5-2). Source : benchmarks/t7-candidate-a.boat-large.experimental.json, dont le statut reste experimental_nonvalidated. Provenance : VM Boat large (8 vCPU, 16 GiB), même VM pour les 16 ELF appariés et les mesures Speculos ; les références C héritées du cycle 1 ne sont pas reconstruites sur cette VM. Baseline Lean f68864d1f2af8fd9f2ca26acddb5f0abd3e80bcb ; candidat A : cette baseline + candidate.patch (SHA-256 77996b8d3bb47cd5619a5a2b2e6affca61fc8a5506755c5b14f502b5dd3a6662), noyau identique à 6518e152d7fe3a9af980714ced46c536e4090bf3 ; turbo-lean 8c3503fa0df74fafcd7a3b91e4319606985b7198. Le changement remplace trois decide (x ≠ 0) par bnot (decide (x = 0)) dans le formatage des montants. Les deltas ci-dessous comparent A à Lean, pas à C, sur les quatre variantes de chaque cible. Les instructions ARM Thumb sont émises, pas exécutées. La baisse de .text ne se traduit pas nécessairement en baisse de Flash chargée, en raison de l’alignement. RAM statique et pile maximale globale analysée inchangées : 12 496 B sur Nano S+, 11 248 B sur Nano X. Le sous-arbre format_sats_amount reste à 124 B sur Nano S+ mais augmente de 132 à 140 B (+8 B) sur Nano X ; ce n’est pas une hausse de la pile globale. Vitesse : 6 cycles A/A et ABBA/BAAB, 672 échantillons Speculos sur testnet-perf, |t| ≤ 1,61 ; aucune différence statistiquement significative, aucun gain ni régression de vitesse revendiqués. Le bruit hôte est élevé (CV 8–44 %, deltas médians A/A de −10,7 % à +14,2 %) et de petites différences ne sont pas exclues. Aucune mesure sur matériel physique, ni mesure d’énergie ou de coût pour cette campagne. Les mesures T6 et cycle 1 T7 ci-dessous conservent leur provenance historique distincte."
+
 export const RAM_CURVE_NOTICE = 'La courbe RAM a été retirée faute de compteurs réels comparables entre référence et Lean. Les JSON ne fournissent pas de pic heap pour la référence ; RW + pile décrit une réservation statique, pas une consommation RAM observée au cours du temps. Aucune courbe ni vidéo synthétique ne remplace ces mesures manquantes.'
 
 export const MERMAID_ARCHITECTURE = `flowchart TB
@@ -70,10 +72,10 @@ export const RUST_BENCH_BARS: BenchmarkChartItem[] = [
 ]
 
 export const C_BENCH_BARS: BenchmarkChartItem[] = [
-  measure('Flash chargée · Nano S+ mainnet', 91231, 93791, 'B'),
+  measure('Flash chargée · Nano S+ mainnet', 91231, 89695, 'B'),
   measure('RAM statique · Nano S+ mainnet', 6376, 6232, 'B'),
   measure('RAM statique + pile maximale analysée · Nano S+', 18872, 18728, 'B'),
-  measure('Instructions ARM Thumb émises · Nano S+', 30364, 31169, 'insns'),
+  measure('Instructions ARM Thumb émises · Nano S+', 30364, 29898, 'insns'),
   measure('Latence médiane · SIGN_PSBT_TR_3IN · Nano S+', 2436.324, 2435.271, 'ms'),
   measure('Latence médiane · SIGN_PSBT_TR_3IN · Nano X', 2437.73, 2592.269, 'ms'),
   measure('Latence médiane · WSH3OF5_3IN · Nano S+', 7304.089, 7598.486, 'ms'),
@@ -99,16 +101,16 @@ export const BENCHMARK_ROWS: BenchmarkRow[] = [
   },
   {
     metric: 'Flash / code (PT_LOAD RX)',
-    origC: '91 231 B (89,1 KiB · Nano S+)',
-    patchedC: '93 791 B (+2,81 % · Nano S+)',
+    origC: '91 231 B (89,1 KiB · Nano S+ / X)',
+    patchedC: '89 695 B (-1,68 % · Nano S+ ; Nano X : 90 463 B / -0,84 % ; baseline T6 : 93 791 / 94 559 B)',
     origRust: '306 522 B (plain, 1 198 pages, depth 11)',
     patchedRust: '267 954 B (-12,58 %, plain, 1 047 pages, depth 11)',
     sameProfileRust: '292 560 B (-4,55 %, plain, 1 143 pages, depth 11)'
   },
   {
     metric: 'Taille du fichier ELF',
-    origC: '158 004 B (154,3 KiB, stripped)',
-    patchedC: '160 564 B (+2 560 B, stripped)',
+    origC: '158 004 B (154,3 KiB, stripped · Nano S+)',
+    patchedC: '156 468 B (-1 536 B / -0,97 %, stripped · Nano S+ ; Nano X : 157 232 B)',
     origRust: '542 552 B (plain)',
     patchedRust: '268 384 B (-50,53 %, plain)',
     sameProfileRust: '538 860 B (-0,68 %, plain)'
@@ -124,7 +126,7 @@ export const BENCHMARK_ROWS: BenchmarkRow[] = [
   {
     metric: 'Stack',
     origC: '12 496 B max Nano S+ / 11 248 B Nano X (qsort récursif)',
-    patchedC: '12 496 B max Nano S+ / 11 248 B Nano X (qsort récursif absent ; frame kernel max non fournie)',
+    patchedC: '12 496 B max Nano S+ / 11 248 B Nano X (qsort récursif absent ; frame kernel max 136 B S+ / 176 B X)',
     origRust: '65 536 B (64 KiB) alloués',
     patchedRust: '32 768 B réservés ; frame kernel max 96 B RV32, pas une borne de chaîne complète',
     sameProfileRust: '65 536 B réservés'
@@ -155,8 +157,8 @@ export const BENCHMARK_ROWS: BenchmarkRow[] = [
   },
   {
     metric: 'Instructions',
-    origC: '30 364 insns ARM émises',
-    patchedC: '31 169 insns ARM émises (+2,65 %)',
+    origC: '30 364 insns ARM émises (Nano S+)',
+    patchedC: '29 898 insns ARM émises (-1,53 % · Nano S+ ; Nano X : 30 205 / -0,84 %)',
     origRust: '234 214 insns RV32 exécutées (sign_transaction)',
     patchedRust: '200 029 insns RV32 (-14,60 %)',
     sameProfileRust: '199 963 insns RV32 (sign_transaction)'
@@ -164,7 +166,7 @@ export const BENCHMARK_ROWS: BenchmarkRow[] = [
   {
     metric: 'Latence médiane Speculos (BOLOS TR_3IN ; Vanadium sign_transaction)',
     origC: '2 436,324 ms (Nano S+) / 2 437,730 ms (Nano X)',
-    patchedC: '2 435,271 ms (-0,04 %) / 2 592,269 ms (+6,34 %)',
+    patchedC: '2 435,271 ms (-0,04 %) / 2 592,269 ms (+6,34 %) [T6 ; cycle 1 T7 : 2 912,530 ms S+ / 2 797,147 ms X]',
     origRust: '4 976,32 ms (1 325 page_loads)',
     patchedRust: '4 249,16 ms (-14,61 %, 1 232 page_loads)',
     sameProfileRust: '4 099,36 ms (1 observation, 1 258 page_loads ; pas un ABBA équivalent)'
@@ -172,25 +174,25 @@ export const BENCHMARK_ROWS: BenchmarkRow[] = [
   {
     metric: 'Latence médiane SIGN_PSBT_WSH3OF5_3IN · Nano S+ (Speculos)',
     origC: '7 304,089 ms',
-    patchedC: '7 598,486 ms (+4,03 %)',
+    patchedC: '7 598,486 ms (+4,03 % · T6 ; cycle 1 T7 : 8 203,392 ms vs réf. 8 706,171 ms / -5,77 %)',
     origRust: 'scénario absent du JSON Vanadium',
     patchedRust: 'non mesuré, ne pas substituer sign_transaction'
   },
   {
     metric: 'Latence médiane SIGN_PSBT_WSH3OF5_3IN · Nano X (Speculos)',
     origC: '7 944,300 ms',
-    patchedC: '8 065,090 ms (+1,52 %)',
+    patchedC: '8 065,090 ms (+1,52 % · T6 ; cycle 1 T7 : 8 064,053 ms vs réf. 10 168,386 ms / -20,69 %)',
     origRust: 'scénario absent du JSON Vanadium',
     patchedRust: 'non mesuré, ne pas substituer sign_transaction'
   },
   {
     metric: 'Test suites & preuves',
-    origC: 'Historique hôte, non relancé ici : 30/30 ctest ; Ragger historique non relancé',
+    origC: '30/30 ctest hôte ; Ragger historique non relancé',
     patchedC:
-      'Historique hôte, non relancé ici : 31/31 ctest ; historique Ragger non relancé : Nano S+ 277 passed / 5 skipped, Nano X 53 passed / 2 skipped ; 2 585 .thmInfo (879 Proofs.*)',
+      'Validé en T7 : 31/31 ctest, FFI C 129/129, diff BOLOS 9/9 (1 561 décl.), 2 585 .thmInfo (879 Proofs.*, 0 sorryAx, 0 Classical.choice) ; Ragger historique : S+ 277/5, X 53/2',
     origRust: 'Historique : 166 tests workspace',
     patchedRust:
-      'Historique : 176 tests workspace et 16 tests C-ABI rapportés séparément ; pas de relance validée'
+      'Validé en T7 : 176 tests workspace (app 90/90 dont bug_006, common 81/81 + 4, client 5/5), Speculos E2E 4/4, FFI Rust 2/2, diff Vanadium 15/15'
   }
 ]
 
@@ -202,29 +204,44 @@ export interface MeasurementTable {
 
 export const MEASUREMENT_TABLES: MeasurementTable[] = [
   {
-    title: 'BOLOS · mainnet · contrôle lean_sameflags distinct de lean_opt',
+    title: 'T7 · candidat A − baseline Lean · VM Boat large · deltas statiques',
+    headers: ['Cible / variantes', 'Δ .text B', 'Δ instructions Thumb émises', 'Δ load_flash_bytes B', 'Δ RAM statique B', 'Δ pile globale B', 'Sous-arbre format_sats_amount B'],
+    rows: [
+      ['Nano S+ · mainnet, mainnet-sameflags, testnet', -228, -79, 0, 0, 0, '124 → 124 (0)'],
+      ['Nano S+ · testnet-perf', -228, -79, -512, 0, 0, '124 → 124 (0)'],
+      ['Nano X · mainnet, mainnet-sameflags, testnet, testnet-perf', -270, -89, -256, 0, 0, '132 → 140 (+8)']
+    ]
+  },
+  {
+    title: 'BOLOS · mainnet · T7 cycle 1 et baseline T6 · contrôle lean_sameflags distinct de lean_opt',
     headers: ['Cible / variante', 'Flash B', 'ELF stripped B', 'RAM statique B', 'Pile max analysée B', 'ARM émises'],
     rows: [
       ['Nano S+ référence', 91231, 158004, 6376, 12496, 30364],
-      ['Nano S+ lean_opt', 93791, 160564, 6232, 12496, 31169],
-      ['Nano S+ lean_sameflags', 94303, 161076, 6232, 12496, 31507],
+      ['Nano S+ lean_opt (T7 cycle 1)', 89695, 156468, 6232, 12496, 29898],
+      ['Nano S+ lean_sameflags (T7 cycle 1)', 90719, 157492, 6232, 12496, 30236],
+      ['Nano S+ lean_opt (baseline T6)', 93791, 160564, 6232, 12496, 31169],
+      ['Nano S+ lean_sameflags (baseline T6)', 94303, 161076, 6232, 12496, 31507],
       ['Nano X référence', 91231, 158000, 4212, 11248, 30460],
-      ['Nano X lean_opt', 94559, 161328, 4068, 11248, 31574],
-      ['Nano X lean_sameflags', 95327, 162096, 4068, 11248, 31912]
+      ['Nano X lean_opt (T7 cycle 1)', 90463, 157232, 4068, 11248, 30205],
+      ['Nano X lean_sameflags (T7 cycle 1)', 91487, 158256, 4068, 11248, 30543],
+      ['Nano X lean_opt (baseline T6)', 94559, 161328, 4068, 11248, 31574],
+      ['Nano X lean_sameflags (baseline T6)', 95327, 162096, 4068, 11248, 31912]
     ]
   },
   {
-    title: 'BOLOS · testnet · pas de contrôle sameflags publié',
+    title: 'BOLOS · testnet · T7 cycle 1 et baseline T6 · pas de contrôle sameflags publié',
     headers: ['Cible / variante', 'Flash B', 'ELF stripped B', 'RAM statique B', 'Pile max analysée B', 'ARM émises'],
     rows: [
       ['Nano S+ référence', 91236, 158016, 6376, 12496, 30364],
-      ['Nano S+ lean_opt', 93796, 160576, 6232, 12496, 31169],
+      ['Nano S+ lean_opt (T7 cycle 1)', 89700, 156480, 6232, 12496, 29898],
+      ['Nano S+ lean_opt (baseline T6)', 93796, 160576, 6232, 12496, 31169],
       ['Nano X référence', 91236, 158012, 4212, 11248, 30460],
-      ['Nano X lean_opt', 94308, 161084, 4068, 11248, 31574]
+      ['Nano X lean_opt (T7 cycle 1)', 90468, 157244, 4068, 11248, 30205],
+      ['Nano X lean_opt (baseline T6)', 94308, 161084, 4068, 11248, 31574]
     ]
   },
   {
-    title: 'BOLOS · latences wall-clock Speculos · référence → lean_opt (ms)',
+    title: 'BOLOS · latences wall-clock Speculos · baseline T6 (bolos_results.json, ms)',
     headers: ['Cible / scénario', 'Rounds', 'Minimum réf.', 'Minimum Lean', 'Médiane réf.', 'Médiane Lean'],
     rows: [
       ['Nano S+ GET_VERSION', 26, 1.679, 1.734, 1.829, 1.855],
@@ -241,6 +258,26 @@ export const MEASUREMENT_TABLES: MeasurementTable[] = [
       ['Nano X REGISTER_WALLET', 10, 1334.971, 1358.028, 1344.669, 1461.584],
       ['Nano X SIGN_PSBT_TR_3IN', 8, 2297.971, 2269.222, 2437.73, 2592.269],
       ['Nano X SIGN_PSBT_WSH3OF5_3IN', 6, 6832.232, 6630.962, 7944.3, 8065.09]
+    ]
+  },
+  {
+    title: 'BOLOS · latences wall-clock Speculos · T7 cycle 1 (t7-cycle1.pinned-complete.experimental.json, hôte partagé CPU0, ms)',
+    headers: ['Cible / scénario', 'Rounds', 'Minimum réf.', 'Minimum Lean', 'Médiane réf.', 'Médiane Lean'],
+    rows: [
+      ['Nano S+ GET_VERSION', 26, 1.866, 2.56, 2.331, 2.788],
+      ['Nano S+ GET_MASTER_FINGERPRINT', 22, 31.169, 33.657, 33.882, 37.156],
+      ['Nano S+ GET_EXTENDED_PUBKEY', 18, 60.455, 64.185, 64.77, 69.673],
+      ['Nano S+ GET_WALLET_ADDRESS', 14, 208.662, 227.645, 230.715, 236.673],
+      ['Nano S+ REGISTER_WALLET', 10, 1364.462, 1455.238, 1568.562, 1525.039],
+      ['Nano S+ SIGN_PSBT_TR_3IN', 8, 2596.802, 2429.755, 3308.156, 2912.53],
+      ['Nano S+ SIGN_PSBT_WSH3OF5_3IN', 6, 7230.509, 7360.302, 8706.171, 8203.392],
+      ['Nano X GET_VERSION', 26, 1.932, 2.482, 2.043, 2.58],
+      ['Nano X GET_MASTER_FINGERPRINT', 22, 31.233, 33.388, 32.167, 42.578],
+      ['Nano X GET_EXTENDED_PUBKEY', 18, 60.305, 63.36, 62.242, 67.613],
+      ['Nano X GET_WALLET_ADDRESS', 14, 214.497, 222.412, 216.358, 231.76],
+      ['Nano X REGISTER_WALLET', 10, 1362.366, 1443.174, 1385.25, 1584.956],
+      ['Nano X SIGN_PSBT_TR_3IN', 8, 2315.42, 2631.307, 2537.255, 2797.147],
+      ['Nano X SIGN_PSBT_WSH3OF5_3IN', 6, 6805.412, 7413.174, 10168.386, 8064.053]
     ]
   },
   {
@@ -304,7 +341,7 @@ export const MEASUREMENT_TABLES: MeasurementTable[] = [
     ]
   },
   {
-    title: 'BOLOS · workloads unitaires hôte · wall-clock (ms)',
+    title: 'BOLOS · workloads unitaires hôte · baseline T6 (ms)',
     headers: ['Workload', 'Minimum réf.', 'Minimum Lean', 'Médiane réf.', 'Médiane Lean'],
     rows: [
       ['test_display_utils', 1.328, 1.307, 1.452, 1.355],
@@ -315,6 +352,20 @@ export const MEASUREMENT_TABLES: MeasurementTable[] = [
       ['test_get_wallet_address', 69.662, 59.058, 70.725, 59.751],
       ['test_get_extended_pubkey', 138.57, 130.751, 139.901, 132.274],
       ['test_psbt_fields', 42.025, 32.913, 42.943, 33.664]
+    ]
+  },
+  {
+    title: 'BOLOS · workloads unitaires hôte · T7 cycle 1 (CPU0, ms)',
+    headers: ['Workload', 'Minimum réf.', 'Minimum Lean', 'Médiane réf.', 'Médiane Lean', 'Accélération médiane (×)'],
+    rows: [
+      ['test_display_utils', 1.519, 1.435, 1.669, 1.554, 1.074],
+      ['test_get_merkle_leaf_index', 31.171, 20.631, 34.022, 21.356, 1.593],
+      ['test_musig', 77.454, 72.161, 99.733, 99.584, 1.001],
+      ['test_wallet', 4.77, 3.076, 5.507, 3.577, 1.54],
+      ['test_register_wallet', 99.077, 76.911, 118.179, 99.92, 1.183],
+      ['test_get_wallet_address', 80.319, 66.913, 103.06, 86.781, 1.188],
+      ['test_get_extended_pubkey', 231.999, 240.502, 274.125, 253.828, 1.08],
+      ['test_psbt_fields', 69.39, 56.266, 72.467, 60.148, 1.205]
     ]
   },
   {
@@ -331,7 +382,7 @@ export const MEASUREMENT_TABLES: MeasurementTable[] = [
   }
 ]
 
-export const BENCHMARK_CONCLUSIONS = 'Régressions et contrôles : BOLOS mainnet Flash +2 560 B sur Nano S+ et +3 328 B sur Nano X ; lean_sameflags monte à 94 303 B et 95 327 B. La RAM statique baisse de 144 B, mais la pile maximale analysée reste 12 496 B / 11 248 B ; register_wallet baisse de 256 B tandis que get_extended_pubkey augmente de 8 B. qsort récursif disparaît, mais __udivmoddi4 reste présent en sameflags. La suite de hotspots hôte régresse (217 096 156 → 224 373 258 cycles, ratio 0,968×), malgré le formatage à 4,795× ; Merkle, MuSig2 et SegWit ralentissent. Vanadium plain same-profile réduit RX de 4,55 % et ELF de 0,68 %, mais RW + pile augmente de 8 B (131 372 → 131 380 B) : la baisse optimisée de réservation ne vient pas du seul code Lean. La médiane get_fingerprint régresse de 0,17 % malgré moins d’instructions ; les médianes sign_transaction, send_to_silent_payment et silent_payment_account baissent respectivement de 14,61 %, 5,15 % et 9,76 %. Aucun gain wall-clock universel ni attribution intégrale au compilateur ne peut en être déduit.'
+export const BENCHMARK_CONCLUSIONS = 'Synthèse T6 / T7 et contrôles : après le cycle 1 T7 (suppression des métadonnées !llvm.loop sur .seqFor en embarqué et préservation de minsize/optsize en LTO), la Flash BOLOS mainnet passe sous la référence C : 91 231 → 89 695 B sur Nano S+ (-1 536 B / -1,68 % vs réf., -4 096 B vs baseline T6 93 791 B) et 91 231 → 90 463 B sur Nano X (-768 B / -0,84 % vs réf., -4 096 B vs baseline T6 94 559 B) ; en contrôle lean_sameflags, Nano S+ est à 90 719 B (-512 B vs réf., contre 94 303 B en T6) et Nano X à 91 487 B (+256 B vs réf., contre 95 327 B en T6). Les instructions ARM Thumb émises baissent à 29 898 (-466 vs réf.) sur Nano S+ et 30 205 (-255 vs réf.) sur Nano X. Les cycles 2 et 3 n’apportant aucun gain Flash (0 B puis +512/+768 B) ont été annulés. La RAM statique baisse de 144 B, la pile maximale analysée reste à 12 496 B / 11 248 B (frame kernel max 136 B S+ / 176 B X) ; register_wallet baisse de 256 B et format_sats_amount passe de 268 B à 124/132 B (99 → 34 insns), tandis que get_extended_pubkey augmente de 8 B. qsort récursif disparaît, mais __udivmoddi4 reste présent en sameflags. Sur hôte x86_64, les 8 suites unitaires C sont toutes entre 1,001× et 1,593× en médiane, mais la suite de microbenchmarks RDTSCP agrégée régresse (0,968× en T6, 0,872× en T7) malgré format_sats_amount (4,795× / 5,463×) et bip32_pubkey_export_check (1,149× / 1,235×), car Merkle, MuSig2 et SegWit ralentissent. Vanadium plain same-profile réduit RX de 4,55 % et ELF de 0,68 %, mais RW + pile augmente de 8 B (131 372 → 131 380 B) : la baisse optimisée de réservation ne vient pas du seul code Lean. La médiane get_fingerprint régresse de 0,17 % malgré moins d’instructions ; les médianes sign_transaction, send_to_silent_payment et silent_payment_account baissent respectivement de 14,61 %, 5,15 % et 9,76 %. Aucun gain wall-clock universel ni attribution intégrale au compilateur ne peut en être déduit.'
 
 export function formatMeasurement(value: string | number, header = ''): string {
   const format = (n: number) => n.toLocaleString('fr-FR', { maximumFractionDigits: 4 })
@@ -556,6 +607,10 @@ export function renderMarkdown(): string {
     '## 3. Résultats et limites des mesures',
     '',
     BENCHMARK_STATUS,
+    '',
+    '### T7 · delta candidat A contre baseline Lean · VM Boat large',
+    '',
+    CANDIDATE_A_READING,
     '',
     '| Métrique | Baseline C (`app-bitcoin`) | Lean 4 + C | Baseline Rust (`vanadium`) | Lean 4 + Rust | Contrôle Rust same_profile_lean |',
     '|---|---|---|---|---|---|',

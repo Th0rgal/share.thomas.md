@@ -3,6 +3,7 @@ import Mermaid from '../components/Mermaid'
 import OrbResourcesEmbed from './OrbResourcesEmbed'
 import {
   BENCHMARK_CONCLUSIONS,
+  CANDIDATE_A_READING,
   BENCHMARK_ROWS,
   MEASUREMENT_TABLES,
   formatMeasurement,
@@ -240,6 +241,8 @@ export default function LeanLedgerReportPage() {
 
       <h2 className="section-heading">3. Résultats et limites des mesures</h2>
       <p>{BENCHMARK_STATUS}</p>
+      <h3>T7 · delta candidat A contre baseline Lean · VM Boat large</h3>
+      <p>{CANDIDATE_A_READING}</p>
 
       <div className="ldgr-bench-breakout not-prose">
         <div className="ldgr-bench-grid">
@@ -252,7 +255,7 @@ export default function LeanLedgerReportPage() {
           />
           <BenchmarkColumn
             title="BOLOS App (C → + Lean 4)"
-            sub="ARM Thumb · Nano S+ / X · T6"
+            sub="ARM Thumb · Nano S+ / X · tailles cycle 1 T7, latences T6"
             items={C_BENCH_BARS}
             variant="c"
             footer={C_TEST_HISTORY}
@@ -267,7 +270,7 @@ export default function LeanLedgerReportPage() {
       <div className="ldgr-measures-breakout not-prose">
         <div className="ldgr-measures-scroll">
           <table className="ldgr-issues-table">
-            <caption>Synthèse T6 · BOLOS Nano S+ mainnet et Vanadium plain, sauf scénario indiqué</caption>
+            <caption>Synthèse T6 / cycle 1 T7 · BOLOS Nano S+ mainnet et Vanadium plain, sauf scénario indiqué</caption>
             <thead>
               <tr>
                 <th>Métrique</th><th>Référence C</th><th>Lean + C</th><th>Référence Rust</th><th>Lean + Rust</th><th>Contrôle Rust same_profile_lean</th>
