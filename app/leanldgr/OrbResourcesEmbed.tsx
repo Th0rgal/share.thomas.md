@@ -528,7 +528,7 @@ export default function OrbResourcesEmbed() {
           <span>
             {isolated
               ? isolated.note
-              : "Fenêtre complète : 10 nov. 15:15 UTC → 11 nov. 11:15 UTC (19,9 h wall-clock dont 2 heures de pause à cause d'un problème d'approvisionnement d'inférence réglé à la main)"}
+              : "Fenêtre complète (19,9 h wall-clock dont 2 heures de pause à cause d'un problème d'approvisionnement d'inférence réglé à la main)"}
           </span>
           <span className="ldgr-orb-foot-mono">
             Inférence : ~$520 (API Google + OrcaRouter) · Compute : ~$17 AWS (hors serveur dédié)

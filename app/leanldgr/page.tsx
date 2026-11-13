@@ -296,6 +296,25 @@ export default function LeanLedgerReportPage() {
         </div>
       </div>
 
+      <figure className="not-prose" style={{ margin: '1.75rem 0 2.2rem 0' }}>
+        <video
+          src="/leanldgr/vanadium-trace.mp4"
+          poster="/leanldgr/vanadium-trace-poster.png"
+          controls
+          loop
+          muted
+          playsInline
+          style={{ display: 'block', width: '100%', height: 'auto', borderRadius: 6 }}
+        />
+        <figcaption style={{ padding: '0.7rem 0', fontSize: '0.8rem', lineHeight: 1.45, opacity: 0.75 }}>
+          Une signature Taproot sur Vanadium (Speculos Flex), référence à gauche, variante Lean à
+          droite. En bas, les instructions RV32 exécutées, cumulées, un point par échange APDU :
+          234 214 contre 200 692 (−14,3 %), et 1 307 chargements de page contre 1 240. Tout est
+          mesuré ; les runs sont instrumentés et en auto-approbation, donc la durée affichée
+          n&apos;est pas une latence.
+        </figcaption>
+      </figure>
+
       <p>Ce qui nous semble le plus intéressant :</p>
       <ul>
         <li>
@@ -319,10 +338,10 @@ export default function LeanLedgerReportPage() {
 
       <p>
         Précisions de lecture. Mesures sous émulateur (Speculos), pas sur matériel. Sur Vanadium,
-        la baisse de RAM et de taille de fichier vient surtout des réglages de build (budgets
-        mémoire réduits, strip) ; le gain propre au code est de <code>4,55 %</code> sur le segment
-        de code et de <code>14,6 %</code> sur les instructions exécutées. Sur BOLOS, tailles et
-        latences viennent de deux builds successifs.
+        la baisse de RAM et de taille de fichier vient surtout des réglages de build ; le gain
+        propre au code est de <code>14,6 %</code> sur les instructions exécutées. Sur BOLOS,
+        tailles et latences ont été mesurées sur deux builds différents : on relance un benchmark
+        complet pour lever l&apos;ambiguïté.
       </p>
 
       <h2 className="section-heading">4. Bugs et anomalies trouvés dans Vanadium</h2>
