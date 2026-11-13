@@ -190,10 +190,10 @@ export default function LeanLedgerReportPage() {
         côté Vanadium. Le C/Rust qui reste est le code d&apos;origine, légèrement patché (environ 200 lignes
         modifiées côté C et 700 côté Rust, hors tests). Il fait trois choses : appeler le noyau Lean à la place des
         vérifications d&apos;origine, parser les PSBT et les scripts, et parler au matériel (clés,
-        crypto, écran et transport passent par les appels système de BOLOS). Cette dernière partie
-        ne peut pas être du Lean : elle est fournie par l&apos;OS du Secure Element. Les parseurs,
-        eux, pourraient l&apos;être : c&apos;est plus de travail, mais cela vaudrait le coût car
-        ils se prêtent bien à la vérification formelle.
+        crypto, écran et transport passent par les appels système de BOLOS). Pour cette partie, qui
+        vient de l&apos;OS, ça n&apos;aurait pas de sens de faire du Lean ; par contre, pour les
+        parseurs, je pense que ce serait une bonne idée. C&apos;est plus de travail, mais cela
+        vaudrait le coût car ils se prêtent bien à la vérification formelle.
       </p>
 
       <Mermaid chart={MERMAID_ARCHITECTURE} />
