@@ -109,8 +109,9 @@ export default function LeanLedgerReportPage() {
 
       <p>
         <strong>Important :</strong> il s&apos;agit d&apos;une POC d&apos;une journée, les
-        specs ne sont pas complètes et cela demanderait davantage de review de notre côté en plus de
-        la validation de nos choix de modélisation du vôtre.
+        specs ne sont pas complètes, il y a d&apos;autres points importants qu&apos;il serait
+        intéressant de vérifier formellement et cela demanderait davantage de review de notre côté
+        en plus de la validation de nos choix de modélisation du vôtre.
       </p>
 
       <h2 className="section-heading">1. Méthodologie et architecture</h2>
@@ -129,17 +130,16 @@ export default function LeanLedgerReportPage() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <code>app-bitcoin@f010982d</code>
+          <code>app-bitcoin</code>
         </a>
-        ), compilée nativement en ARM Thumb (le jeu d&apos;instructions compact des microcontrôleurs
-        ARM) directement au-dessus de BOLOS, l&apos;OS du Secure Element, et la nouvelle V-App en
+        ), compilée nativement vers le jeu d&apos;instructions du microcontrôleur, au-dessus de BOLOS, et la nouvelle V-App en
         Rust (
         <a
           href="https://github.com/LedgerHQ/vanadium/tree/ace8e96982408959dea9e7fbc59ee36e8c54e645"
           target="_blank"
           rel="noopener noreferrer"
         >
-          <code>vanadium@ace8e969</code>
+          <code>vanadium</code>
         </a>
         ), compilée en RISC-V 32-bit (<code>RV32IMAC</code>) et exécutée dans une VM
         tournant sur BOLOS (pour streamer le code et les données de
@@ -193,8 +193,8 @@ export default function LeanLedgerReportPage() {
         vérifications d&apos;origine, parser les PSBT et les scripts, et parler au matériel (clés,
         crypto, écran et transport passent par les appels système de BOLOS). Cette dernière partie
         ne peut pas être du Lean : elle est fournie par l&apos;OS du Secure Element. Les parseurs,
-        eux, pourraient l&apos;être ; c&apos;est la suite logique, ils manipulent des buffers que
-        notre backend ne sait pas encore couvrir par des preuves.
+        eux, pourraient l&apos;être : c&apos;est plus de travail, mais cela vaudrait le coût car
+        ils se prêtent bien à la vérification formelle.
       </p>
 
       <Mermaid chart={MERMAID_ARCHITECTURE} />
@@ -202,82 +202,71 @@ export default function LeanLedgerReportPage() {
       <h2 className="section-heading">2. Plan d&apos;exécution</h2>
       <ol>
         <li>
-          <strong>Specs formelles et cross-backtesting</strong> : formalisation des BIPs en Lean 4
-          à partir du cadrage haut niveau, puis implémentation du kernel exécutable en bouclant sur
-          les test suites des deux repos (<code>ctest</code>/Ragger côté C,{' '}
-          <code>cargo test</code>/Speculos côté Rust) pour affiner la spec jusqu&apos;à convergence.
+          <strong>Specs et tests croisés</strong> : formalisation en Lean 4, puis noyau exécutable
+          affiné en bouclant sur les suites de tests des deux repos.
         </li>
         <li>
-          <strong>Backend LLVM 32-bit dans <code>turbo-lean</code></strong> : ajout du support
-          freestanding 32-bit zero-alloc (<code>thumbv6m</code>, <code>thumbv8m.main</code>,{' '}
-          <code>riscv32imac</code>) dans notre compilateur{' '}
+          <strong>Backend LLVM 32-bit dans{' '}
           <a href={TURBO_LEAN_URL} target="_blank" rel="noopener noreferrer">
             <code>turbo-lean</code>
-          </a>
-          . Passer par LLVM IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct
-          m&apos;a semblé plus sûr (la sémantique LLVM est déjà largement formalisée) et ne
-          demandait qu&apos;un patch ciblé. Notez qu&apos;il reste donc encore de la marge
-          d&apos;optimisation avec plus de compute. Transparence sur la TCB :{' '}
-          <code>turbo-lean</code> contient une traduction prouvée de son IR vers LLVM, mais le{' '}
-          <code>.ll</code> livré sort pour l&apos;instant de son émetteur généraliste, non prouvé.
-          L&apos;extraction du Lean vers l&apos;IR, cet émetteur et <code>clang</code>/
-          <code>lld</code> sont donc dans la TCB de compilation, auditée par tests différentiels C-ABI, contrôle d&apos;absence de
-          symboles indéfinis (<code>llvm-nm</code>) et bornage statique des frames de pile (
-          <code>.su</code>).
+          </a></strong>{' '}
+          : support sans allocation pour <code>thumbv6m</code>, <code>thumbv8m.main</code> et{' '}
+          <code>riscv32imac</code>. Passer par LLVM IR m&apos;a semblé plus sûr que d&apos;émettre
+          de l&apos;assembleur. Cette chaîne de compilation n&apos;est pas encore prouvée de bout
+          en bout : elle est contrôlée par tests différentiels.
         </li>
         <li>
-          <strong>Intégration dans les deux apps</strong> : shim FFI minimal dans{' '}
-          <code>app-bitcoin</code> et <code>vnd-bitcoin</code> conservant l&apos;UI/IO
-          d&apos;origine et linkant les kernels Lean en LTO.
+          <strong>Intégration</strong> : shim FFI minimal dans chaque app, UI et IO d&apos;origine
+          conservées, noyau lié en LTO.
         </li>
         <li>
-          <strong>Boucle d&apos;optimisation <code>maxwell</code></strong> : itérations pilotées
-          selon notre méthodologie <code>maxwell</code> avec des scripts de benchmark
-          reproductibles (<code>bolos_benchmark.sh</code>, <code>vanadium_benchmark.sh</code>) sous
-          contrainte stricte du noyau Lean (<code>0 sorryAx</code>) et des tests au vert, pour
-          passer sous les baselines Flash, RAM et latence : c&apos;est acquis sur Vanadium, et sur
-          BOLOS pour la taille seulement.
+          <strong>Boucle d&apos;optimisation <code>maxwell</code></strong> : itérations sur des
+          benchmarks reproductibles, preuves et tests au vert, pour passer sous les baselines.
         </li>
       </ol>
 
       <h2 className="section-heading">3. Résultats</h2>
       <p>
-        D&apos;abord la spec. Elle ne parle que du code compilé dans les apps, et dit en clair :
+        Voici la spec. Elle ne correspond qu&apos;au code effectivement compilé dans les apps et
+        n&apos;est pas complète, mais elle montre ce qu&apos;il est possible de faire (chaque point
+        ouvre les lignes correspondantes) :
       </p>
       <ul>
         <li>
-          Un montant est accepté exactement quand il vaut au plus 21 millions de BTC. Une somme ou
-          une différence est acceptée exactement quand le vrai résultat reste entre 0 et ce
-          plafond, et la valeur renvoyée est alors le vrai résultat.
+          <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L32-L51" target="_blank" rel="noopener noreferrer">
+            Un montant est accepté exactement quand il vaut au plus 21 millions de BTC. Une somme ou une différence est acceptée exactement quand le vrai résultat reste entre 0 et ce plafond, et la valeur renvoyée est alors le vrai résultat.
+          </a>
         </li>
         <li>
-          Le découpage BTC / satoshis, fait sans division, est exact pour tout montant 64 bits.
+          <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L53-L57" target="_blank" rel="noopener noreferrer">
+            Le découpage BTC / satoshis, fait sans division, est exact pour tout montant 64 bits.
+          </a>
         </li>
         <li>
-          Un élément de chemin <code>BIP-32</code> est « hardened » exactement quand il vaut au
-          moins 2<sup>31</sup> ; la profondeur est limitée à 10 sur BOLOS et 16 sur Vanadium.
+          <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L61-L72" target="_blank" rel="noopener noreferrer">
+            Un élément de chemin BIP-32 est « hardened » exactement quand il vaut au moins 2<sup>31</sup> ; la profondeur est limitée à 10 sur BOLOS et 16 sur Vanadium.
+          </a>
         </li>
         <li>
-          Un programme SegWit est accepté exactement dans les cas prévus : 20 ou 32 octets en
-          version 0, 2 à 40 octets en versions 1 à 16.
+          <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L76-L82" target="_blank" rel="noopener noreferrer">
+            Un programme SegWit est accepté exactement dans les cas prévus : 20 ou 32 octets en version 0, 2 à 40 octets en versions 1 à 16.
+          </a>
         </li>
         <li>
-          Les types de sighash acceptés sont exactement ALL, NONE et SINGLE, avec ou sans
-          ANYONECANPAY, plus DEFAULT pour Taproot.
+          <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L93-L104" target="_blank" rel="noopener noreferrer">
+            Les types de sighash acceptés sont exactement ALL, NONE et SINGLE, avec ou sans ANYONECANPAY, plus DEFAULT pour Taproot.
+          </a>
         </li>
         <li>
-          Un préfixe CompactSize est accepté exactement quand c&apos;est celui de
-          l&apos;encodage le plus court.
+          <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L108-L116" target="_blank" rel="noopener noreferrer">
+            Un préfixe CompactSize est accepté exactement quand c&apos;est celui de l&apos;encodage le plus court.
+          </a>
         </li>
       </ul>
       <p>
-        Chaque énoncé est un « si et seulement si » ou une égalité, donc un code qui refuserait
-        tout ne le satisfait pas, et il vient avec un exemple accepté et un exemple refusé. Ce
-        qui n&apos;est pas encore couvert : les fonctions qui lisent ou écrivent un buffer
-        (contrôle Miniscript, tris, formatage), faute de modèle mémoire, et la machine{' '}
-        <code>nLockTime</code>, prouvée seulement contre un modèle Lean des apps. Côté compilateur, rien
-        n&apos;est encore prouvé de bout en bout : voir la note sur la TCB plus haut. Ce modèle Lean des deux apps
-        sert par ailleurs d&apos;oracle de test ; il ne tourne pas sur l&apos;appareil.
+        Chaque énoncé est un « si et seulement si » ou une égalité, avec un exemple accepté et un
+        exemple refusé. Ne sont pas encore couvertes : les fonctions qui lisent ou écrivent un
+        buffer (contrôle Miniscript, tris, formatage) et la chaîne de compilation.
       </p>
 
       <p>
@@ -326,17 +315,11 @@ export default function LeanLedgerReportPage() {
       </ul>
 
       <p>
-        Précisions de lecture. Mesures sous Speculos, référence et variante sur le même hôte ; pas
-        de mesure sur matériel. <strong>Vanadium</strong> : la « RAM réservée » est un budget
-        statique, réduit de <code>64+64 KiB</code> à <code>32+32 KiB</code>, pas un pic mesuré
-        (pic heap mesuré côté Lean : <code>5 318 B</code> sur une signature). À profil Cargo
-        identique, le segment de code baisse de <code>4,55 %</code> (moins de chaînes de panic et de tables
-        d&apos;unwind ; le <code>.text</code> lui-même grossit de <code>6 KiB</code>) et les
-        instructions exécutées de <code>14,6 %</code>, gain partagé entre le code Lean et des
-        réécritures Rust faites en même temps ; le reste du gain de taille vient du profil de link
-        (LTO, <code>panic = &quot;abort&quot;</code>, strip). <strong>BOLOS</strong> : tailles mesurées
-        sur le dernier build (cycle 1 T7, encore expérimental), latences sur le build précédent
-        (T6).
+        Précisions de lecture. Mesures sous émulateur (Speculos), pas sur matériel. Sur Vanadium,
+        la baisse de RAM et de taille de fichier vient surtout des réglages de build (budgets
+        mémoire réduits, strip) ; le gain propre au code est de <code>4,55 %</code> sur le segment
+        de code et de <code>14,6 %</code> sur les instructions exécutées. Sur BOLOS, tailles et
+        latences viennent de deux builds successifs.
       </p>
 
       <h2 className="section-heading">4. Bugs et anomalies trouvés dans Vanadium</h2>
