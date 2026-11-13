@@ -108,9 +108,9 @@ export default function LeanLedgerReportPage() {
       </p>
 
       <p>
-        <strong>Important :</strong> il s&apos;agit d&apos;une POC d&apos;une journée, un
-        déploiement demanderait davantage de review de notre côté et la validation des choix de
-        modélisation du vôtre.
+        <strong>Important :</strong> il s&apos;agit d&apos;une POC d&apos;une journée, les
+        specs ne sont pas complètes et cela demanderait davantage de review de notre côté en plus de
+        la validation de nos choix de modélisation du vôtre.
       </p>
 
       <h2 className="section-heading">1. Méthodologie et architecture</h2>
@@ -131,7 +131,8 @@ export default function LeanLedgerReportPage() {
         >
           <code>app-bitcoin@f010982d</code>
         </a>
-        ), compilée nativement en ARM Thumb directement au-dessus de BOLOS, et la nouvelle V-App en
+        ), compilée nativement en ARM Thumb (le jeu d&apos;instructions compact des microcontrôleurs
+        ARM) directement au-dessus de BOLOS, l&apos;OS du Secure Element, et la nouvelle V-App en
         Rust (
         <a
           href="https://github.com/LedgerHQ/vanadium/tree/ace8e96982408959dea9e7fbc59ee36e8c54e645"
@@ -187,7 +188,8 @@ export default function LeanLedgerReportPage() {
         <a href={VANADIUM_PATCH_URL} target="_blank" rel="noopener noreferrer">
           <code>vanadium-bitcoin-lean-opt.patch</code>
         </a>{' '}
-        côté Vanadium. Le C/Rust qui reste fait trois choses : appeler le noyau Lean à la place des
+        côté Vanadium. Le C/Rust qui reste est le code d&apos;origine, légèrement patché (environ 200 lignes
+        modifiées côté C et 700 côté Rust, hors tests). Il fait trois choses : appeler le noyau Lean à la place des
         vérifications d&apos;origine, parser les PSBT et les scripts, et parler au matériel (clés,
         crypto, écran et transport passent par les appels système de BOLOS). Cette dernière partie
         ne peut pas être du Lean : elle est fournie par l&apos;OS du Secure Element. Les parseurs,
