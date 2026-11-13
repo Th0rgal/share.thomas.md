@@ -217,10 +217,11 @@ export default function LeanLedgerReportPage() {
           . Passer par LLVM IR plutôt que d&apos;émettre du bytecode ou de l&apos;assembleur direct
           m&apos;a semblé plus sûr (la sémantique LLVM est déjà largement formalisée) et ne
           demandait qu&apos;un patch ciblé. Notez qu&apos;il reste donc encore de la marge
-          d&apos;optimisation avec plus de compute. Transparence sur la TCB : les théorèmes de
-          préservation sémantique couvrent les passes IR de <code>turbo-lean</code>, tandis que le
-          front-end d&apos;extraction LCNF et <code>clang</code>/<code>lld</code> restent dans la
-          TCB de compilation, auditée par tests différentiels C-ABI, contrôle d&apos;absence de
+          d&apos;optimisation avec plus de compute. Transparence sur la TCB :{' '}
+          <code>turbo-lean</code> contient une traduction prouvée de son IR vers LLVM, mais le{' '}
+          <code>.ll</code> livré sort pour l&apos;instant de son émetteur généraliste, non prouvé.
+          L&apos;extraction du Lean vers l&apos;IR, cet émetteur et <code>clang</code>/
+          <code>lld</code> sont donc dans la TCB de compilation, auditée par tests différentiels C-ABI, contrôle d&apos;absence de
           symboles indéfinis (<code>llvm-nm</code>) et bornage statique des frames de pile (
           <code>.su</code>).
         </li>
@@ -274,10 +275,8 @@ export default function LeanLedgerReportPage() {
         tout ne le satisfait pas, et il vient avec un exemple accepté et un exemple refusé. Ce
         qui n&apos;est pas encore couvert : les fonctions qui lisent ou écrivent un buffer
         (contrôle Miniscript, tris, formatage), faute de modèle mémoire, et la machine{' '}
-        <code>nLockTime</code>, prouvée seulement contre un modèle Lean des apps. Côté compilateur,{' '}
-        <code>turbo-lean</code> prouve la traduction de son IR vers LLVM pour les trois targets ;
-        l&apos;extraction du Lean vers cet IR, le support des pointeurs et des boucles, et
-        clang/lld restent de confiance. Ce modèle Lean des deux apps
+        <code>nLockTime</code>, prouvée seulement contre un modèle Lean des apps. Côté compilateur, rien
+        n&apos;est encore prouvé de bout en bout : voir la note sur la TCB plus haut. Ce modèle Lean des deux apps
         sert par ailleurs d&apos;oracle de test ; il ne tourne pas sur l&apos;appareil.
       </p>
 
