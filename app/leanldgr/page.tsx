@@ -5,6 +5,7 @@ import {
   BENCHMARK_CONCLUSIONS,
   CANDIDATE_A_READING,
   CANDIDATE_A_SOURCE_URL,
+  RESOURCE_WINDOW_NOTICE,
   BENCHMARK_ROWS,
   MEASUREMENT_TABLES,
   formatMeasurement,
@@ -361,9 +362,10 @@ export default function LeanLedgerReportPage() {
         </div>
       </div>
 
-      <h2 className="section-heading">5. Résumé des ressources investies</h2>
+      <h2 className="section-heading">5. Ressources investies · fenêtre historique du run initial</h2>
+      <p>{RESOURCE_WINDOW_NOTICE}</p>
       <p>
-        L&apos;ensemble du run autonome (formalisation, patch compilateur <code>turbo-lean</code>,
+        Le run autonome initial (formalisation, patch compilateur <code>turbo-lean</code>,
         preuves et vérifications Lean 4 (<code>2 585</code> constantes <code>.thmInfo</code> dont{' '}
         <code>879</code> dans <code>Proofs.*</code>, <code>0 sorryAx</code>), intégration C/Rust et boucles{' '}
         <code>maxwell</code>) a tourné en <strong>19,9 h</strong> wall-clock sur la fenêtre capturée
