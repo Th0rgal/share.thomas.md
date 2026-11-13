@@ -274,8 +274,10 @@ export default function LeanLedgerReportPage() {
         tout ne le satisfait pas, et il vient avec un exemple accepté et un exemple refusé. Ce
         qui n&apos;est pas encore couvert : les fonctions qui lisent ou écrivent un buffer
         (contrôle Miniscript, tris, formatage), faute de modèle mémoire, et la machine{' '}
-        <code>nLockTime</code>, prouvée seulement contre un modèle Lean des apps. La compilation
-        par <code>turbo-lean</code> et clang reste de confiance. Ce modèle Lean des deux apps
+        <code>nLockTime</code>, prouvée seulement contre un modèle Lean des apps. Côté compilateur,{' '}
+        <code>turbo-lean</code> prouve la traduction de son IR vers LLVM pour les trois targets ;
+        l&apos;extraction du Lean vers cet IR, le support des pointeurs et des boucles, et
+        clang/lld restent de confiance. Ce modèle Lean des deux apps
         sert par ailleurs d&apos;oracle de test ; il ne tourne pas sur l&apos;appareil.
       </p>
 
