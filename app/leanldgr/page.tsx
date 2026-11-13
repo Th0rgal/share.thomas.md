@@ -324,18 +324,10 @@ export default function LeanLedgerReportPage() {
 
       <h2 className="section-heading">4. Bugs et anomalies trouvés dans Vanadium</h2>
       <p>
-        La formalisation croisée entre <code>app-bitcoin</code> et <code>vanadium</code> a fait
-        ressortir <strong>11 bugs et écarts de spec</strong> dans <code>LedgerHQ/vanadium</code> (
-        <code>ace8e969</code>). Chacun a été revérifié dans le code upstream. Aucune issue
-        publique n&apos;existait ; deux étaient signalés par un <code>TODO</code> ou un{' '}
-        <code>todo!()</code> dans le code. Depuis, la{' '}
-        <a href="https://github.com/LedgerHQ/vanadium/pull/301" target="_blank" rel="noopener noreferrer">
-          PR upstream #301
-        </a>{' '}
-        du 13 novembre en corrige cinq (montants, profondeur xpub, pubnonce MuSig2, GetVersion,
-        CompactSize) ; <code>andor</code>, double UTXO, <code>nLockTime</code>,{' '}
-        <code>sh(wsh)</code>, les contrôles Miniscript et <code>OP_RETURN</code> restent ouverts. Notre patch les corrige
-        tous.
+        En croisant les implémentations C et Vanadium, on a repéré{' '}
+        <strong>11 bugs ou écarts de spec</strong>. On ne les a pas vérifiés manuellement, mais ils
+        semblent corrects, le bug étant du côté Vanadium à chaque fois (
+        <code>LedgerHQ/vanadium</code> <code>ace8e969</code>).
       </p>
 
       <div className="ldgr-issues-breakout not-prose">
