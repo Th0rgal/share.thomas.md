@@ -434,7 +434,7 @@ export function renderMarkdown(): string {
     '## 2. Plan d\'exécution',
     '',
     '1) **Specs et tests croisés** : formalisation en Lean 4, puis noyau exécutable affiné en bouclant sur les suites de tests des deux repos.',
-    '2) **Backend LLVM 32-bit dans [`turbo-lean`](https://github.com/Th0rgal/turbo-lean)** : support sans allocation pour `thumbv6m`, `thumbv8m.main` et `riscv32imac`. Passer par LLVM IR m\'a semblé plus sûr que d\'émettre de l\'assembleur. Cette chaîne de compilation n\'est pas encore prouvée de bout en bout : elle est contrôlée par tests différentiels.',
+    '2) **Backend LLVM 32-bit dans [`turbo-lean`](https://github.com/Th0rgal/turbo-lean)** : support sans allocation pour `thumbv6m`, `thumbv8m.main` et `riscv32imac`. Passer par LLVM IR m\'a semblé plus sûr que d\'émettre de l\'assembleur. Cette chaîne de compilation n\'est pas encore prouvée de bout en bout (elle est contrôlée par tests différentiels). Ça coûterait relativement cher en inférence, mais ce serait un bon investissement car on n\'aurait à le faire qu\'une fois.',
     '3) **Intégration** : shim FFI minimal dans chaque app, UI et IO d\'origine conservées, noyau lié en LTO.',
     '4) **Boucle d\'optimisation `maxwell`** : itérations sur des benchmarks reproductibles, preuves et tests au vert, pour passer sous les baselines.',
     '',

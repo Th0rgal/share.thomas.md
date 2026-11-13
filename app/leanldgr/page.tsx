@@ -212,7 +212,9 @@ export default function LeanLedgerReportPage() {
           : support sans allocation pour <code>thumbv6m</code>, <code>thumbv8m.main</code> et{' '}
           <code>riscv32imac</code>. Passer par LLVM IR m&apos;a semblé plus sûr que d&apos;émettre
           de l&apos;assembleur. Cette chaîne de compilation n&apos;est pas encore prouvée de bout
-          en bout : elle est contrôlée par tests différentiels.
+          en bout (elle est contrôlée par tests différentiels). Ça coûterait relativement cher en
+          inférence, mais ce serait un bon investissement car on n&apos;aurait à le faire
+          qu&apos;une fois.
         </li>
         <li>
           <strong>Intégration</strong> : shim FFI minimal dans chaque app, UI et IO d&apos;origine
