@@ -9,10 +9,10 @@ export const TURBO_LEAN_URL = 'https://github.com/Th0rgal/turbo-lean'
 
 export const MERMAID_ARCHITECTURE = `flowchart TB
     subgraph Lean["lean-ledger-bitcoin (0 sorryAx)"]
-        Spec["Spec exécutable Lean 4 : BIP-32 / 67 / 143 / 327 / 341 / 352 / 370 / 379 / 388<br/>+ machines d'état BOLOS & Vanadium"]
+        Spec["Spec.lean : 12 énoncés sur le noyau compilé"]
         Kernel["Noyaux freestanding zero-alloc<br/>BitcoinLedger/FreestandingKernels.lean<br/>(45 exports C-ABI · 0 import runtime · 0 allocation tas)"]
         Turbo["turbo-lean : Lean → LLVM IR 32-bit<br/>(thumbv6m, thumbv8m.main, riscv32imac)"]
-        Spec -->|"preuves + tests comparés"| Kernel
+        Spec -->|"preuves"| Kernel
         Kernel --> Turbo
     end
 
@@ -422,8 +422,8 @@ export function renderMarkdown(): string {
     '',
     'Plutôt que de toucher à l\'UI ou au transport APDU/ECALL (réécrire l\'UI en Lean 4 aurait peu d\'intérêt), on a gardé l\'UI et l\'IO d\'origine dans chaque app et concentré l\'effort sur la logique partagée qui concentre l\'essentiel de la surface d\'attaque. Le résultat, [Th0rgal/lean-ledger-bitcoin](https://github.com/Th0rgal/lean-ledger-bitcoin), combine deux livrables :',
     '',
-    '- **Une spec exécutable en Lean 4** des `BIP-32/67/143/327/341/352/370/379/388` et des deux machines d\'état BOLOS/Vanadium, avec ses preuves (`0 sorryAx`). Elle ne va pas dans le binaire : on la fait tourner sur les suites de tests des deux repos pour vérifier qu\'elle répond comme les apps.',
-    '- **Un noyau Lean compilé dans les deux apps** (`BitcoinLedger/FreestandingKernels.lean`) : c\'est le code Lean réellement exécuté sur l\'appareil. [`turbo-lean`](https://github.com/Th0rgal/turbo-lean) le compile en LLVM IR 32-bit et il remplace dans chaque app les vérifications sensibles : policies Miniscript, `nLockTime`, montants, chemins `BIP-32`, tri des clés et formatage des montants. `27` de ses `45` fonctions sont prouvées égales à la spec, les autres sont testées contre elle.',
+    '- **Un noyau Lean compilé dans les deux apps** ([`FreestandingKernels.lean`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/main/BitcoinLedger/FreestandingKernels.lean)) : c\'est le code Lean réellement exécuté sur l\'appareil. [`turbo-lean`](https://github.com/Th0rgal/turbo-lean) le compile en LLVM IR 32-bit et il remplace dans chaque app les vérifications sensibles : policies Miniscript, `nLockTime`, montants, chemins `BIP-32`, tri des clés et formatage des montants.',
+    '- **Une spec courte sur ce noyau** ([`Spec.lean`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/main/Spec.lean), 12 énoncés) : chaque énoncé porte sur une fonction compilée, et sa preuve est vérifiée par Lean (`0 sorryAx`). Elle couvre pour l\'instant `17` des `45` fonctions du noyau.',
     '',
     'Les intégrations tiennent en deux patchs : [`app-bitcoin-lean-opt.patch`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/752aa9a/ffi/bolos/patches/app-bitcoin-lean-opt.patch) côté BOLOS et [`vanadium-bitcoin-lean-opt.patch`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/752aa9a/ffi/vanadium/patches/vanadium-bitcoin-lean-opt.patch) côté Vanadium. Le C/Rust qui reste fait trois choses : appeler le noyau Lean à la place des vérifications d\'origine, parser les PSBT et les scripts, et parler au matériel (clés, crypto, écran et transport passent par les appels système de BOLOS). Cette dernière partie ne peut pas être du Lean : elle est fournie par l\'OS du Secure Element. Les parseurs, eux, pourraient l\'être ; c\'est la suite logique, ils manipulent des buffers que notre backend ne sait pas encore couvrir par des preuves.',
     '',
@@ -440,15 +440,16 @@ export function renderMarkdown(): string {
     '',
     '## 3. Résultats',
     '',
-    'D\'abord la spec. Elle tient en 800 lignes de Lean ([`Spec/`](https://github.com/Th0rgal/lean-ledger-bitcoin/tree/main/Spec)) et dit, en clair :',
+    'D\'abord la spec. Elle ne parle que du code compilé dans les apps, et dit en clair :',
     '',
-    '- Aucune signature ne sort sans approbation à l\'écran, sauf pour un échange pré-approuvé dont le destinataire, le montant et les frais correspondent exactement.',
-    '- Entrées = sorties + frais, sans dépassement arithmétique ni frais négatifs.',
-    '- Une sortie n\'est masquée comme « monnaie rendue » que si elle appartient à la branche de change du portefeuille ; toute autre sortie est affichée.',
-    '- Un nonce MuSig2 ne sert qu\'une fois, quelle que soit la suite de commandes.',
-    '- Une commande de lecture ne modifie rien, et une commande qui échoue ne laisse aucune trace dans l\'état de l\'app.',
+    '- Un montant est accepté exactement quand il vaut au plus 21 millions de BTC. Une somme ou une différence est acceptée exactement quand le vrai résultat reste entre 0 et ce plafond, et la valeur renvoyée est alors le vrai résultat.',
+    '- Le découpage BTC / satoshis, fait sans division, est exact pour tout montant 64 bits.',
+    '- Un élément de chemin `BIP-32` est « hardened » exactement quand il vaut au moins 2^31 ; la profondeur est limitée à 10 sur BOLOS et 16 sur Vanadium.',
+    '- Un programme SegWit est accepté exactement dans les cas prévus : 20 ou 32 octets en version 0, 2 à 40 octets en versions 1 à 16.',
+    '- Les types de sighash acceptés sont exactement ALL, NONE et SINGLE, avec ou sans ANYONECANPAY, plus DEFAULT pour Taproot.',
+    '- Un préfixe CompactSize est accepté exactement quand c\'est celui de l\'encodage le plus court.',
     '',
-    'Ces propriétés sont prouvées sur un modèle Lean des deux apps, que l\'on compare aux apps C/Rust par tests. Le Lean réellement embarqué est le noyau décrit plus haut ; l\'affichage et la crypto ne sont pas modélisés.',
+    'Chaque énoncé est un « si et seulement si » ou une égalité, donc un code qui refuserait tout ne le satisfait pas, et il vient avec un exemple accepté et un exemple refusé. Ce qui n\'est pas encore couvert : les fonctions qui lisent ou écrivent un buffer (contrôle Miniscript, tris, formatage), faute de modèle mémoire, et la machine `nLockTime`, prouvée seulement contre un modèle Lean des apps. La compilation par `turbo-lean` et clang reste de confiance. Ce modèle Lean des deux apps sert par ailleurs d\'oracle de test ; il ne tourne pas sur l\'appareil.',
     '',
     'Ensuite l\'optimisation. Le binaire patché avec Lean 4 est plus léger sur les deux targets. Il est plus rapide sur Vanadium ; sur BOLOS la latence est inchangée sur Nano S+ et en hausse sur Nano X :',
     '',
@@ -460,7 +461,7 @@ export function renderMarkdown(): string {
     '',
     'Ce qui nous semble le plus intéressant :',
     '',
-    '- La machine d\'état `nLockTime` `BIP-370` tient dans un seul `u64` et est prouvée égale à la spec de bout en bout, pour toute liste d\'inputs.',
+    '- La machine d\'état `nLockTime` `BIP-370` tient dans un seul `u64` et est prouvée égale à la règle du modèle, pour toute liste d\'inputs.',
     '- Un seul noyau Lean sert trois ISA et deux apps : il est émis en LLVM IR puis compilé avec les flags de chaque app, avec une frame de pile maximale de `96 B`.',
     '- Sur Vanadium, une signature exécute `14,6 %` d\'instructions RV32 en moins et charge `5 %` de pages en moins, à profil de compilation identique.',
     '- La formalisation croisée des deux apps a suffi à faire ressortir les 11 bugs de la section 4.',

@@ -156,23 +156,26 @@ export default function LeanLedgerReportPage() {
       </p>
       <ul>
         <li>
-          <strong>Une spec exécutable en Lean 4</strong> des{' '}
-          <code>BIP-32/67/143/327/341/352/370/379/388</code> et des deux machines d&apos;état
-          BOLOS/Vanadium, avec ses preuves (<code>0 sorryAx</code>). Elle ne va pas dans le
-          binaire : on la fait tourner sur les suites de tests des deux repos pour vérifier
-          qu&apos;elle répond comme les apps.
-        </li>
-        <li>
           <strong>Un noyau Lean compilé dans les deux apps</strong> (
-          <code>BitcoinLedger/FreestandingKernels.lean</code>) : c&apos;est le code Lean réellement
-          exécuté sur l&apos;appareil.{' '}
+          <a href={`${REPO_URL}/blob/main/BitcoinLedger/FreestandingKernels.lean`} target="_blank" rel="noopener noreferrer">
+            <code>FreestandingKernels.lean</code>
+          </a>
+          ) : c&apos;est le code Lean réellement exécuté sur l&apos;appareil.{' '}
           <a href={TURBO_LEAN_URL} target="_blank" rel="noopener noreferrer">
             <code>turbo-lean</code>
           </a>{' '}
           le compile en LLVM IR 32-bit et il remplace dans chaque app les vérifications sensibles :
           policies Miniscript, <code>nLockTime</code>, montants, chemins <code>BIP-32</code>, tri
-          des clés et formatage des montants. <code>27</code> de ses <code>45</code> fonctions sont
-          prouvées égales à la spec, les autres sont testées contre elle.
+          des clés et formatage des montants.
+        </li>
+        <li>
+          <strong>Une spec courte sur ce noyau</strong> (
+          <a href={`${REPO_URL}/blob/main/Spec.lean`} target="_blank" rel="noopener noreferrer">
+            <code>Spec.lean</code>
+          </a>
+          , 12 énoncés) : chaque énoncé porte sur une fonction compilée, et sa preuve est vérifiée
+          par Lean (<code>0 sorryAx</code>). Elle couvre pour l&apos;instant <code>17</code> des{' '}
+          <code>45</code> fonctions du noyau.
         </li>
       </ul>
       <p>
@@ -236,34 +239,42 @@ export default function LeanLedgerReportPage() {
 
       <h2 className="section-heading">3. Résultats</h2>
       <p>
-        D&apos;abord la spec. Elle tient en 800 lignes de Lean (
-        <a href={`${REPO_URL}/tree/main/Spec`} target="_blank" rel="noopener noreferrer">
-          <code>Spec/</code>
-        </a>
-        ) et dit, en clair :
+        D&apos;abord la spec. Elle ne parle que du code compilé dans les apps, et dit en clair :
       </p>
       <ul>
         <li>
-          Aucune signature ne sort sans approbation à l&apos;écran, sauf pour un échange
-          pré-approuvé dont le destinataire, le montant et les frais correspondent exactement.
+          Un montant est accepté exactement quand il vaut au plus 21 millions de BTC. Une somme ou
+          une différence est acceptée exactement quand le vrai résultat reste entre 0 et ce
+          plafond, et la valeur renvoyée est alors le vrai résultat.
         </li>
         <li>
-          Entrées = sorties + frais, sans dépassement arithmétique ni frais négatifs.
+          Le découpage BTC / satoshis, fait sans division, est exact pour tout montant 64 bits.
         </li>
         <li>
-          Une sortie n&apos;est masquée comme « monnaie rendue » que si elle appartient à la
-          branche de change du portefeuille ; toute autre sortie est affichée.
+          Un élément de chemin <code>BIP-32</code> est « hardened » exactement quand il vaut au
+          moins 2<sup>31</sup> ; la profondeur est limitée à 10 sur BOLOS et 16 sur Vanadium.
         </li>
-        <li>Un nonce MuSig2 ne sert qu&apos;une fois, quelle que soit la suite de commandes.</li>
         <li>
-          Une commande de lecture ne modifie rien, et une commande qui échoue ne laisse aucune
-          trace dans l&apos;état de l&apos;app.
+          Un programme SegWit est accepté exactement dans les cas prévus : 20 ou 32 octets en
+          version 0, 2 à 40 octets en versions 1 à 16.
+        </li>
+        <li>
+          Les types de sighash acceptés sont exactement ALL, NONE et SINGLE, avec ou sans
+          ANYONECANPAY, plus DEFAULT pour Taproot.
+        </li>
+        <li>
+          Un préfixe CompactSize est accepté exactement quand c&apos;est celui de
+          l&apos;encodage le plus court.
         </li>
       </ul>
       <p>
-        Ces propriétés sont prouvées sur un modèle Lean des deux apps, que l&apos;on compare aux
-        apps C/Rust par tests. Le Lean réellement embarqué est le noyau décrit plus haut ;
-        l&apos;affichage et la crypto ne sont pas modélisés.
+        Chaque énoncé est un « si et seulement si » ou une égalité, donc un code qui refuserait
+        tout ne le satisfait pas, et il vient avec un exemple accepté et un exemple refusé. Ce
+        qui n&apos;est pas encore couvert : les fonctions qui lisent ou écrivent un buffer
+        (contrôle Miniscript, tris, formatage), faute de modèle mémoire, et la machine{' '}
+        <code>nLockTime</code>, prouvée seulement contre un modèle Lean des apps. La compilation
+        par <code>turbo-lean</code> et clang reste de confiance. Ce modèle Lean des deux apps
+        sert par ailleurs d&apos;oracle de test ; il ne tourne pas sur l&apos;appareil.
       </p>
 
       <p>
@@ -294,7 +305,7 @@ export default function LeanLedgerReportPage() {
       <ul>
         <li>
           La machine d&apos;état <code>nLockTime</code> <code>BIP-370</code> tient dans un seul{' '}
-          <code>u64</code> et est prouvée égale à la spec de bout en bout, pour toute liste
+          <code>u64</code> et est prouvée égale à la règle du modèle, pour toute liste
           d&apos;inputs.
         </li>
         <li>
