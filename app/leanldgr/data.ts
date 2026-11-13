@@ -406,7 +406,7 @@ export function renderMarkdown(): string {
     '',
     'Côté temps humain, j\'avais déjà regardé un peu quand Charles m\'en avait parlé et j\'avais une idée de la stack Ledger : il m\'a donc fallu environ **1 h** au départ pour cadrer le problème, poser les specs haut niveau et designer le pipeline, **15 min** ce matin pour débloquer un souci de routing d\'inférence, et **1 h** à la fin pour review et polir l\'ensemble. Tout le reste a tourné en autonomie.',
     '',
-    'Ledger maintient deux apps Bitcoin : l\'app historique en C (`LedgerHQ/app-bitcoin@f010982d`), compilée nativement en ARM Thumb directement au-dessus de BOLOS, et la nouvelle V-App en Rust (`LedgerHQ/vanadium@ace8e969`), compilée en RISC-V 32-bit (`RV32IMAC`) et exécutée dans une VM tournant sur BOLOS (je crois que c\'est pour streamer le code et les données de l\'app depuis le host).',
+    'Ledger maintient deux apps Bitcoin : l\'app historique en C (`LedgerHQ/app-bitcoin@f010982d`), compilée nativement en ARM Thumb directement au-dessus de BOLOS, et la nouvelle V-App en Rust (`LedgerHQ/vanadium@ace8e969`), compilée en RISC-V 32-bit (`RV32IMAC`) et exécutée dans une VM tournant sur BOLOS (pour streamer le code et les données de l\'app depuis le host, si j\'ai bien compris).',
     '',
     'Plutôt que de toucher à l\'UI ou au transport APDU/ECALL (réécrire l\'UI en Lean 4 aurait peu d\'intérêt), on a gardé l\'UI et l\'IO d\'origine dans chaque app et concentré l\'effort sur la logique partagée qui concentre l\'essentiel de la surface d\'attaque. Le résultat, [Th0rgal/lean-ledger-bitcoin](https://github.com/Th0rgal/lean-ledger-bitcoin), combine deux livrables :',
     '',
