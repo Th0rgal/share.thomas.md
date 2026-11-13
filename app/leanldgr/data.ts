@@ -214,7 +214,7 @@ export const BENCHMARK_ROWS: BenchmarkRow[] = [
     origC: '30 ctest + Ragger',
     patchedC: '31/31 ctest + mainnet 2/2 + suite testnet (282 tests) en cours',
     origRust: '—',
-    patchedRust: 'app 90/90 + common 85/85 + 9 correctifs'
+    patchedRust: 'app 90/90 + common 85/85 + 11 correctifs'
   }
 ]
 
@@ -370,19 +370,39 @@ export const VANADIUM_ISSUES: VanadiumIssue[] = [
       {
         label: 'main.rs:26',
         url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/main.rs#L26`
-      },
+      }
+    ],
+    reportedStatus: 'todo!() in code · fixed upstream since (PR #301)',
+    description:
+      'Request::GetVersion panics via todo!(): a host can crash the app with a single request.'
+  },
+  {
+    id: 'VND-10',
+    severity: 'Low',
+    severityLabel: 'Low',
+    locations: [
       {
         label: 'display.rs:167',
         url: `${VANADIUM_BLOB}/apps/bitcoin/app/src/handlers/sign_psbt/display.rs#L167`
-      },
+      }
+    ],
+    reportedStatus: 'Unreported',
+    description:
+      'Any PSBT with an OP_RETURN output is rejected during display, so such transactions cannot be signed.'
+  },
+  {
+    id: 'VND-11',
+    severity: 'Low',
+    severityLabel: 'Low',
+    locations: [
       {
         label: 'fastpsbt.rs:231',
         url: `${VANADIUM_BLOB}/apps/bitcoin/common/src/fastpsbt.rs#L231-L250`
       }
     ],
-    reportedStatus: 'todo!() on GetVersion · GetVersion and CompactSize fixed upstream since (PR #301)',
+    reportedStatus: 'Unreported · fixed upstream since (PR #301)',
     description:
-      'Three small items: Request::GetVersion panics via todo!(), any PSBT with an OP_RETURN output is rejected during display, and non-canonical CompactSize encodings are accepted.'
+      'Non-canonical CompactSize encodings are accepted by the PSBT parser.'
   }
 ]
 
@@ -443,13 +463,13 @@ export function renderMarkdown(): string {
     '- La machine d\'état `nLockTime` `BIP-370` tient dans un seul `u64` et est prouvée égale à la spec de bout en bout, pour toute liste d\'inputs.',
     '- Un seul noyau Lean sert trois ISA et deux apps : il est émis en LLVM IR puis compilé avec les flags de chaque app, avec une frame de pile maximale de `96 B`.',
     '- Sur Vanadium, une signature exécute `14,6 %` d\'instructions RV32 en moins et charge `5 %` de pages en moins, à profil de compilation identique.',
-    '- La formalisation croisée des deux apps a suffi à faire ressortir les 9 bugs de la section 4.',
+    '- La formalisation croisée des deux apps a suffi à faire ressortir les 11 bugs de la section 4.',
     '',
     'Précisions de lecture. Mesures sous Speculos, référence et variante sur le même hôte ; pas de mesure sur matériel. **Vanadium** : la « RAM réservée » est un budget statique, réduit de `64+64 KiB` à `32+32 KiB`, pas un pic mesuré (pic heap mesuré côté Lean : `5 318 B` sur une signature). À profil Cargo identique, le segment de code baisse de `4,55 %` (moins de chaînes de panic et de tables d\'unwind ; le `.text` lui-même grossit de `6 KiB`) et les instructions exécutées de `14,6 %`, gain partagé entre le code Lean et des réécritures Rust faites en même temps ; le reste du gain de taille vient du profil de link (LTO, `panic = "abort"`, strip). **BOLOS** : tailles mesurées sur le dernier build (cycle 1 T7, encore expérimental), latences sur le build précédent (T6).',
     '',
     '## 4. Bugs et anomalies trouvés dans Vanadium',
     '',
-    'La formalisation croisée entre `app-bitcoin` et `vanadium` a fait ressortir **9 bugs et écarts de spec** dans `LedgerHQ/vanadium` (`ace8e969`). Chacun a été revérifié dans le code upstream. Aucune issue publique n\'existait ; deux étaient signalés par un `TODO` ou un `todo!()` dans le code. Depuis, la [PR upstream #301](https://github.com/LedgerHQ/vanadium/pull/301) du 13 novembre en corrige quatre (montants, profondeur xpub, pubnonce MuSig2, GetVersion et CompactSize) ; `andor`, double UTXO, `nLockTime`, `sh(wsh)` et `OP_RETURN` restent ouverts. Notre patch les corrige tous.',
+    'La formalisation croisée entre `app-bitcoin` et `vanadium` a fait ressortir **11 bugs et écarts de spec** dans `LedgerHQ/vanadium` (`ace8e969`). Chacun a été revérifié dans le code upstream. Aucune issue publique n\'existait ; deux étaient signalés par un `TODO` ou un `todo!()` dans le code. Depuis, la [PR upstream #301](https://github.com/LedgerHQ/vanadium/pull/301) du 13 novembre en corrige quatre (montants, profondeur xpub, pubnonce MuSig2, GetVersion et CompactSize) ; `andor`, double UTXO, `nLockTime`, `sh(wsh)` et `OP_RETURN` restent ouverts. Notre patch les corrige tous.',
     '',
     '| ID | Severity | Location | Upstream status | Description |',
     '|---|---|---|---|---|',

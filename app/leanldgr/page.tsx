@@ -278,7 +278,7 @@ export default function LeanLedgerReportPage() {
             sub="RV32IMAC · Ledger Flex"
             items={RUST_BENCH_BARS}
             variant="rust"
-            footer="Tests app 90/90 · common 85/85 · 9 bugs corrigés"
+            footer="Tests app 90/90 · common 85/85 · 11 bugs corrigés"
           />
           <BenchmarkColumn
             title="BOLOS App (C → + Lean 4)"
@@ -306,7 +306,7 @@ export default function LeanLedgerReportPage() {
           et charge <code>5 %</code> de pages en moins, à profil de compilation identique.
         </li>
         <li>
-          La formalisation croisée des deux apps a suffi à faire ressortir les 9 bugs de la section
+          La formalisation croisée des deux apps a suffi à faire ressortir les 11 bugs de la section
           4.
         </li>
       </ul>
@@ -328,7 +328,7 @@ export default function LeanLedgerReportPage() {
       <h2 className="section-heading">4. Bugs et anomalies trouvés dans Vanadium</h2>
       <p>
         La formalisation croisée entre <code>app-bitcoin</code> et <code>vanadium</code> a fait
-        ressortir <strong>9 bugs et écarts de spec</strong> dans <code>LedgerHQ/vanadium</code> (
+        ressortir <strong>11 bugs et écarts de spec</strong> dans <code>LedgerHQ/vanadium</code> (
         <code>ace8e969</code>). Chacun a été revérifié dans le code upstream. Aucune issue
         publique n&apos;existait ; deux étaient signalés par un <code>TODO</code> ou un{' '}
         <code>todo!()</code> dans le code. Depuis, la{' '}
