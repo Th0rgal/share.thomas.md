@@ -166,7 +166,7 @@ export default function LeanLedgerReportPage() {
             <code>turbo-lean</code>
           </a>{' '}
           le compile en LLVM IR 32-bit et il remplace dans chaque app les chemins sensibles
-          qu&apos;on a améliorés.
+          qu&apos;on a réécrits.
         </li>
         <li>
           <strong>Une spec courte sur ce noyau</strong> (
