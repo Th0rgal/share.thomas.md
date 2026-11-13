@@ -230,9 +230,7 @@ export default function LeanLedgerReportPage() {
       <p>
         Voici la spec. Elle ne correspond qu&apos;au code effectivement compilé dans les apps et
         n&apos;est pas complète, mais elle montre ce qu&apos;il est possible de faire (chaque point
-        ouvre les lignes correspondantes). Les données viennent de l&apos;ordinateur, qui n&apos;est
-        pas de confiance : l&apos;app les passe au noyau, et rejette la requête quand il répond
-        non.
+        ouvre les lignes correspondantes) :
       </p>
       <ul>
         <li>

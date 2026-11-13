@@ -440,7 +440,7 @@ export function renderMarkdown(): string {
     '',
     '## 3. Résultats',
     '',
-    'Voici la spec. Elle ne correspond qu\'au code effectivement compilé dans les apps et n\'est pas complète, mais elle montre ce qu\'il est possible de faire (chaque point ouvre les lignes correspondantes). Les données viennent de l\'ordinateur, qui n\'est pas de confiance : l\'app les passe au noyau, et rejette la requête quand il répond non.',
+    'Voici la spec. Elle ne correspond qu\'au code effectivement compilé dans les apps et n\'est pas complète, mais elle montre ce qu\'il est possible de faire (chaque point ouvre les lignes correspondantes) :',
     '',
     '- [Montants de la transaction : le noyau répond « valide » exactement quand le montant vaut au plus 21 millions de BTC. Pour une somme ou une différence, il répond « valide » exactement quand le vrai résultat reste entre 0 et ce plafond, et renvoie alors ce vrai résultat.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L32-L51)',
     '- [Affichage : le découpage d\'un montant en BTC et satoshis, fait sans division, est exact pour tout montant 64 bits.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L53-L57)',
