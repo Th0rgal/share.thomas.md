@@ -140,11 +140,9 @@ export default function LeanLedgerReportPage() {
         >
           <code>vanadium@ace8e969</code>
         </a>
-        ), compilée en RISC-V 32-bit (<code>RV32IMAC</code>) et exécutée par la VM{' '}
-        <code>app-vanadium</code> : 100 % de l&apos;exécution RISC-V reste confinée dans le Secure
-        Element, seule la mémoire paginée — code et données en pages de <code>256 B</code> chiffrées
-        et authentifiées par arbre de Merkle — est déportée sur le host, pour dépasser la limite de
-        RAM/Flash interne du SE.
+        ), compilée en RISC-V 32-bit (<code>RV32IMAC</code>) et exécutée dans une VM
+        tournant sur BOLOS (je crois que c&apos;est pour streamer le code et les données de
+        l&apos;app depuis le host).
       </p>
       <p>
         Plutôt que de toucher à l&apos;UI ou au transport APDU/ECALL (réécrire l&apos;UI en Lean 4
@@ -158,10 +156,11 @@ export default function LeanLedgerReportPage() {
       </p>
       <ul>
         <li>
-          <strong>Un jumeau formel en Lean 4</strong> des specs{' '}
+          <strong>Une spec exécutable en Lean 4</strong> des{' '}
           <code>BIP-32/67/143/327/341/352/370/379/388</code> et des deux machines d&apos;état
-          BOLOS/Vanadium, prouvé avec <code>0 sorryAx</code>. Il tourne sur l&apos;hôte, pas dans
-          le binaire : il sert d&apos;oracle différentiel sur les suites de tests des deux repos.
+          BOLOS/Vanadium, avec ses preuves (<code>0 sorryAx</code>). Elle ne va pas dans le
+          binaire : on la fait tourner sur les suites de tests des deux repos pour vérifier
+          qu&apos;elle répond comme les apps.
         </li>
         <li>
           <strong>Un noyau freestanding zero-alloc</strong> (
