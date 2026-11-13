@@ -4,6 +4,7 @@ import OrbResourcesEmbed from './OrbResourcesEmbed'
 import {
   BENCHMARK_CONCLUSIONS,
   CANDIDATE_A_READING,
+  CANDIDATE_A_SOURCE_URL,
   BENCHMARK_ROWS,
   MEASUREMENT_TABLES,
   formatMeasurement,
@@ -243,6 +244,7 @@ export default function LeanLedgerReportPage() {
       <p>{BENCHMARK_STATUS}</p>
       <h3>T7 · delta candidat A contre baseline Lean · VM Boat large</h3>
       <p>{CANDIDATE_A_READING}</p>
+      <p><a href={CANDIDATE_A_SOURCE_URL}>Source JSON épinglée · résultats Boat du candidat A</a></p>
 
       <div className="ldgr-bench-breakout not-prose">
         <div className="ldgr-bench-grid">
