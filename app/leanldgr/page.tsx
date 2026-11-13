@@ -298,7 +298,7 @@ export default function LeanLedgerReportPage() {
       <p>
         La formalisation croisée entre <code>app-bitcoin</code> et <code>vanadium</code> a fait
         ressortir <strong>9 bugs et écarts de spec</strong> dans <code>LedgerHQ/vanadium</code> (
-        <code>ace8e969</code>). Chacun a été revérifié à la main dans le code upstream. Aucune issue
+        <code>ace8e969</code>). Chacun a été revérifié dans le code upstream. Aucune issue
         publique n&apos;existait ; deux étaient signalés par un <code>TODO</code> ou un{' '}
         <code>todo!()</code> dans le code. Depuis, la{' '}
         <a href="https://github.com/LedgerHQ/vanadium/pull/301" target="_blank" rel="noopener noreferrer">
