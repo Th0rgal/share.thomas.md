@@ -298,7 +298,7 @@ export default function LeanLedgerReportPage() {
 
       <figure className="not-prose" style={{ margin: '1.75rem 0 2.2rem 0' }}>
         <video
-          src="/leanldgr/vanadium-trace.mp4"
+          src="/leanldgr/vanadium-trace-v2.mp4"
           poster="/leanldgr/vanadium-trace-poster.png"
           controls
           loop

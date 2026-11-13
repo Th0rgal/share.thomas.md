@@ -468,7 +468,7 @@ export function renderMarkdown(): string {
     '',
     'Précisions de lecture. Mesures sous émulateur (Speculos), pas sur matériel. Sur Vanadium, la baisse de RAM et de taille de fichier vient surtout des réglages de build ; le gain propre au code est de `14,6 %` sur les instructions exécutées. Sur BOLOS, tailles et latences ont été mesurées sur deux builds différents : on relance un benchmark complet pour lever l\'ambiguïté.',
     '',
-    'Vidéo (une signature Taproot sur Speculos Flex, instructions RV32 exécutées cumulées : 234 214 contre 200 692, −14,3 %) : https://share.thomas.md/leanldgr/vanadium-trace.mp4',
+    'Vidéo (une signature Taproot sur Speculos Flex, instructions RV32 exécutées cumulées : 234 214 contre 200 692, −14,3 %) : https://share.thomas.md/leanldgr/vanadium-trace-v2.mp4',
     '',
     '## 4. Bugs et anomalies trouvés dans Vanadium',
     '',
