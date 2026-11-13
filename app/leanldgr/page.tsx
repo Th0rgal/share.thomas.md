@@ -326,7 +326,7 @@ export default function LeanLedgerReportPage() {
 
       <h2 className="section-heading">4. Bugs et anomalies trouvés dans Vanadium</h2>
       <p>
-        En croisant les implémentations C et Vanadium, on a repéré{' '}
+        En essayant de formaliser les implémentations C et Vanadium, on a repéré{' '}
         <strong>11 bugs ou écarts de spec</strong>. On ne les a pas vérifiés manuellement, mais ils
         semblent corrects, le bug étant du côté Vanadium à chaque fois (
         <code>LedgerHQ/vanadium</code> <code>ace8e969</code>).
