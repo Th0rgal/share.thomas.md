@@ -165,9 +165,8 @@ export default function LeanLedgerReportPage() {
           <a href={TURBO_LEAN_URL} target="_blank" rel="noopener noreferrer">
             <code>turbo-lean</code>
           </a>{' '}
-          le compile en LLVM IR 32-bit et il remplace dans chaque app les vérifications sensibles :
-          policies Miniscript, <code>nLockTime</code>, montants, chemins <code>BIP-32</code>, tri
-          des clés et formatage des montants.
+          le compile en LLVM IR 32-bit et il remplace dans chaque app les chemins sensibles
+          qu&apos;on a améliorés.
         </li>
         <li>
           <strong>Une spec courte sur ce noyau</strong> (
