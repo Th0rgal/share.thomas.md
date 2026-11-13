@@ -451,7 +451,7 @@ export function renderMarkdown(): string {
     '',
     'Chaque énoncé est un « si et seulement si » ou une égalité, avec un exemple accepté et un exemple refusé.',
     '',
-    'Côté performances, on n\'a pas spécialement cherché à optimiser, d\'autant qu\'on passe par LLVM sans cibler directement le matériel final, mais on obtient quand même des résultats intéressants. Le binaire patché avec Lean 4 est plus léger sur les deux targets et plus rapide sur Vanadium ; sur BOLOS la latence est inchangée sur Nano S+ et en hausse sur Nano X :',
+    'Côté performances, on n\'a pas spécialement cherché à optimiser, d\'autant qu\'on passe par LLVM sans cibler directement le matériel final, mais on obtient quand même des résultats intéressants grâce à quelques itérations de mesure et de réglage. Le binaire patché avec Lean 4 est plus léger sur les deux targets et plus rapide sur Vanadium ; sur BOLOS la latence est inchangée sur Nano S+ et en hausse sur Nano X :',
     '',
     '| Métrique | Baseline C (`app-bitcoin`) | Lean 4 + C | Baseline Rust (`vanadium`) | Lean 4 + Rust |',
     '|---|---|---|---|---|',

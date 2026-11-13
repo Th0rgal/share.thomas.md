@@ -272,7 +272,7 @@ export default function LeanLedgerReportPage() {
       <p>
         Côté performances, on n&apos;a pas spécialement cherché à optimiser, d&apos;autant qu&apos;on
         passe par LLVM sans cibler directement le matériel final, mais on obtient quand même des
-        résultats intéressants. Le binaire patché avec Lean 4 est plus léger sur les deux targets
+        résultats intéressants grâce à quelques itérations de mesure et de réglage. Le binaire patché avec Lean 4 est plus léger sur les deux targets
         et plus rapide sur Vanadium ; sur BOLOS la latence est inchangée sur Nano S+ et en hausse
         sur Nano X :
       </p>
