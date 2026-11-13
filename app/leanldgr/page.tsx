@@ -102,22 +102,23 @@ export default function LeanLedgerReportPage() {
 
       <p>
         Notre thèse est qu&apos;il est déjà viable aujourd&apos;hui de réécrire un logiciel existant
-        en Lean4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide. Hier
-        Charles m&apos;a proposé de commencer avec l&apos;application Bitcoin de Ledger, voici le
-        résultat.
+        en Lean4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide. Hier,
+        Vincent et Guillaume m&apos;ont proposé de commencer avec l&apos;application Bitcoin de
+        Ledger, voici le résultat.
       </p>
 
       <p>
-        <strong>Important :</strong> il s&apos;agit d&apos;une POC de quelques jours, un
+        <strong>Important :</strong> il s&apos;agit d&apos;une POC d&apos;une journée, un
         déploiement demanderait davantage de review de notre côté et la validation des choix de
         modélisation du vôtre.
       </p>
 
       <h2 className="section-heading">1. Méthodologie et architecture</h2>
       <p>
-        Côté temps humain, j&apos;ai passé environ <strong>1 h</strong> au départ pour cadrer le
-        problème, poser les specs haut niveau et designer le pipeline (j&apos;avais déjà une idée de
-        la stack Ledger donc j&apos;ai gagné un peu de temps), <strong>15 min</strong> ce matin pour
+        Côté temps humain, j&apos;avais déjà regardé un peu quand Charles m&apos;en avait parlé et
+        j&apos;avais une idée de la stack Ledger : il m&apos;a donc fallu environ{' '}
+        <strong>1 h</strong> au départ pour cadrer le problème, poser les specs haut niveau et
+        designer le pipeline, <strong>15 min</strong> ce matin pour
         débloquer un souci de routing d&apos;inférence, et <strong>1 h</strong> à la fin pour review
         et polir l&apos;ensemble. Tout le reste a tourné en autonomie.
       </p>
