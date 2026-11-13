@@ -229,37 +229,39 @@ export default function LeanLedgerReportPage() {
       <p>
         Voici la spec. Elle ne correspond qu&apos;au code effectivement compilé dans les apps et
         n&apos;est pas complète, mais elle montre ce qu&apos;il est possible de faire (chaque point
-        ouvre les lignes correspondantes) :
+        ouvre les lignes correspondantes). Les données viennent de l&apos;ordinateur, qui n&apos;est
+        pas de confiance : l&apos;app les passe au noyau, et rejette la requête quand il répond
+        non.
       </p>
       <ul>
         <li>
           <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L32-L51" target="_blank" rel="noopener noreferrer">
-            Un montant est accepté exactement quand il vaut au plus 21 millions de BTC. Une somme ou une différence est acceptée exactement quand le vrai résultat reste entre 0 et ce plafond, et la valeur renvoyée est alors le vrai résultat.
+            Montants de la transaction : le noyau répond « valide » exactement quand le montant vaut au plus 21 millions de BTC. Pour une somme ou une différence, il répond « valide » exactement quand le vrai résultat reste entre 0 et ce plafond, et renvoie alors ce vrai résultat.
           </a>
         </li>
         <li>
           <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L53-L57" target="_blank" rel="noopener noreferrer">
-            Le découpage BTC / satoshis, fait sans division, est exact pour tout montant 64 bits.
+            Affichage : le découpage d&apos;un montant en BTC et satoshis, fait sans division, est exact pour tout montant 64 bits.
           </a>
         </li>
         <li>
           <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L61-L72" target="_blank" rel="noopener noreferrer">
-            Un élément de chemin BIP-32 est « hardened » exactement quand il vaut au moins 2<sup>31</sup> ; la profondeur est limitée à 10 sur BOLOS et 16 sur Vanadium.
+            Chemins de dérivation : le noyau classe un élément comme « hardened » exactement quand il vaut au moins 2<sup>31</sup>, et refuse les chemins de plus de 10 éléments sur BOLOS, 16 sur Vanadium.
           </a>
         </li>
         <li>
           <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L76-L82" target="_blank" rel="noopener noreferrer">
-            Un programme SegWit est accepté exactement dans les cas prévus : 20 ou 32 octets en version 0, 2 à 40 octets en versions 1 à 16.
+            Adresses : le noyau répond « valide » pour un programme SegWit exactement dans les cas prévus, soit 20 ou 32 octets en version 0 et 2 à 40 octets en versions 1 à 16.
           </a>
         </li>
         <li>
           <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L93-L104" target="_blank" rel="noopener noreferrer">
-            Les types de sighash acceptés sont exactement ALL, NONE et SINGLE, avec ou sans ANYONECANPAY, plus DEFAULT pour Taproot.
+            Types de signature demandés : le noyau répond « valide » exactement pour ALL, NONE et SINGLE, avec ou sans ANYONECANPAY, plus DEFAULT pour Taproot.
           </a>
         </li>
         <li>
           <a href="https://github.com/Th0rgal/lean-ledger-bitcoin/blob/a4ef3a2617e5c30eaa8d7842a981a26849c34910/Spec.lean#L108-L116" target="_blank" rel="noopener noreferrer">
-            Un préfixe CompactSize est accepté exactement quand c&apos;est celui de l&apos;encodage le plus court.
+            Lecture de la transaction : le noyau répond « valide » pour un préfixe de longueur (CompactSize) exactement quand c&apos;est celui de l&apos;encodage le plus court.
           </a>
         </li>
       </ul>
