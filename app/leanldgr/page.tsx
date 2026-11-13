@@ -229,8 +229,7 @@ export default function LeanLedgerReportPage() {
       <h2 className="section-heading">3. Résultats</h2>
       <p>
         Voici la spec. Elle ne correspond qu&apos;au code effectivement compilé dans les apps et
-        n&apos;est pas complète, mais elle montre ce qu&apos;il est possible de faire (chaque point
-        ouvre les lignes correspondantes) :
+        n&apos;est pas complète, mais elle montre ce qu&apos;il est possible de faire :
       </p>
       <ul>
         <li>
