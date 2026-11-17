@@ -1,3 +1,3 @@
-import { createMarkdownRoute } from '../glamsterdam/_shared/markdown'
+import { GLAMSTERDAM_PAGES, markdownRoute } from '../glamsterdam/content'
 
-export const GET = createMarkdownRoute('eip8246')
+export const GET = markdownRoute(GLAMSTERDAM_PAGES.eip8246)
