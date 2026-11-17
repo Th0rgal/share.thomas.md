@@ -1,7 +1,3 @@
-import { renderMarkdown } from '../glamsterdam/data'
+import { createMarkdownRoute } from '../glamsterdam/_shared/markdown'
 
-export async function GET() {
-  return new Response(renderMarkdown(), {
-    headers: { 'Content-Type': 'text/markdown; charset=utf-8' }
-  })
-}
+export const GET = createMarkdownRoute('overview')
