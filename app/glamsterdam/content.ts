@@ -23,7 +23,7 @@ const overview: GlamsterdamPage = {
   markdown: `
 # Glamsterdam formal verification
 
-We are formally verifying three parts of Glamsterdam with the Ethereum Foundation. For each one we translate the Python reference spec into Lean 4, prove the properties the EIP authors care about, and write a concrete counterexample when a property fails. Every result is tied to a pinned spec commit: it says what that version of the spec does, not what the EIP text intends, so review by the spec authors is what confirms the two match.
+We formally verified three parts of Glamsterdam with the Ethereum Foundation. For each one we translated the Python reference spec into Lean 4, proved the properties the EIP authors care about, and wrote a concrete counterexample whenever a property failed. Every result is tied to a pinned spec commit: it says what that version of the spec does, not what the EIP text intends, so review by the spec authors is what confirms the two match.
 
 - [2D state gas](/glamsterdam_gas) (EIP-8037, 8038, 2780, 7778): the gas accounting holds on the current spec, and we compare the proposed refill fixes (EIPs#12581 and #12582) on multi-frame calls. Three spec edge cases, and one divergence in the Nethermind prototype of #12582.
 - [SELFDESTRUCT burn removal](/glamsterdam_8246) (EIP-8246): ETH is conserved and cleared accounts behave as intended, but storage cleared by 8246 is missing from the block access list of EIP-7928.
@@ -34,6 +34,13 @@ We are formally verifying three parts of Glamsterdam with the Ethereum Foundatio
 - Glamsterdam has been live on Sepolia since 6 Oct. Hoodi is on hold until the 8037/8038 issues are settled, and there is no mainnet date yet ([EF post, 6 Nov](https://blog.ethereum.org/2026/11/06/glamsterdam-8037-8038)).
 - [ACDT #103](https://github.com/ethereum/pm/issues/2299) on 16 Nov went through the audit results on 8037/8038. No decision was taken there; the path forward is expected at [ACDE #249](https://github.com/ethereum/pm/issues/2285) on 19 Nov.
 - On the consensus side, one of the bugs we found, the fork-slot availability bit, was fixed in [consensus-specs#5808](${CS}/pull/5808). The next spec release waits on the payload binding choice ([#5770](${CS}/pull/5770) or [#5820](${CS}/pull/5820)).
+
+## How we did it
+
+- **Translating the specs.** We translated the executable Python specs (execution-specs for the execution layer, the consensus-specs pyspec for Gloas) into Lean 4, function by function. To check the translation, we compiled the Lean code and ran it against the original Python on generated inputs.
+- **Choosing what to prove.** This is the part that matters most. We started from the bugs and issues already found on these EIPs, including those raised during the EF review of 8037/8038 with the audit teams, and reviewed client implementations such as the Nethermind prototype of #12582. Above all, we discussed with the spec authors in each group which properties were worth proving: Maria Silva and Marius van der Wijden for the gas EIPs, Paweł Bylica for 8246, and Potuz for ePBS.
+- **Checking the properties themselves.** A proof is only as useful as its statement, so every property also has checks on the property (meta specs): a reachable example showing it is not vacuously true, and a mutated spec that reintroduces a known bug, on which the property must fail.
+- **Contributing to the shared gas model.** We also completed the remaining proof obligations of the shared Lean model of the Amsterdam gas rules started by EF researchers.
 
 ## What the proofs cover
 
@@ -53,7 +60,7 @@ const gas: GlamsterdamPage = {
 
 Part of the [Glamsterdam notes](/glamsterdam).
 
-We model the Amsterdam gas code of [execution-specs at 16898000](${EELS}) as a gas meter in Lean, together with the two proposed changes to how state gas flows back on refills: [EIPs#12581](${EIPS}/12581) and [EIPs#12582](${EIPS}/12582), which adds a per-frame state gas allowance on top of #12581.
+We modelled the Amsterdam gas code of [execution-specs at 16898000](${EELS}) as a gas meter in Lean, together with the two proposed changes to how state gas flows back on refills: [EIPs#12581](${EIPS}/12581) and [EIPs#12582](${EIPS}/12582), which adds a per-frame state gas allowance on top of #12581.
 
 ## Status (17 Nov 2026)
 
@@ -98,7 +105,7 @@ const eip8246: GlamsterdamPage = {
 
 Part of the [Glamsterdam notes](/glamsterdam).
 
-We model the account cleanup of [execution-specs at 16898000](${EELS}) (\`state_tracker.py\`, \`fork.py\`, \`block_access_lists.py\`) and how it interacts with the block access list (BAL) of EIP-7928.
+We modelled the account cleanup of [execution-specs at 16898000](${EELS}) (\`state_tracker.py\`, \`fork.py\`, \`block_access_lists.py\`) and how it interacts with the block access list (BAL) of EIP-7928.
 
 ## Status (17 Nov 2026)
 
@@ -128,7 +135,7 @@ const epbs: GlamsterdamPage = {
 
 Part of the [Glamsterdam notes](/glamsterdam).
 
-We model the Gloas state transition of [consensus-specs v1.7.0-beta.4](${GLOAS}) (\`beacon-chain.md\` and \`fork.md\`), organised around the invariants Potuz listed: supply neutrality, payment to the proposer, no double counting, untouched existing operations, and same-slot unbundling.
+We modelled the Gloas state transition of [consensus-specs v1.7.0-beta.4](${GLOAS}) (\`beacon-chain.md\` and \`fork.md\`), organised around the invariants Potuz listed with us: supply neutrality, payment to the proposer, no double counting, untouched existing operations, and same-slot unbundling.
 
 ## Status (17 Nov 2026)
 
