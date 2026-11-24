@@ -9,23 +9,23 @@ export const TURBO_LEAN_URL = 'https://github.com/Th0rgal/turbo-lean'
 
 export const MERMAID_ARCHITECTURE = `flowchart TB
     subgraph Lean["lean-ledger-bitcoin (0 sorryAx)"]
-        Spec["Spec.lean : 12 énoncés sur le noyau compilé"]
-        Kernel["Noyaux freestanding zero-alloc<br/>BitcoinLedger/FreestandingKernels.lean<br/>(45 exports C-ABI · 0 import runtime · 0 allocation tas)"]
-        Turbo["turbo-lean : Lean → LLVM IR 32-bit<br/>(thumbv6m, thumbv8m.main, riscv32imac)"]
-        Spec -->|"preuves"| Kernel
+        Spec["Spec.lean: 12 statements on the compiled kernel"]
+        Kernel["Zero-alloc freestanding kernels<br/>BitcoinLedger/FreestandingKernels.lean<br/>(45 C-ABI exports · 0 runtime imports · 0 heap allocations)"]
+        Turbo["turbo-lean: Lean → 32-bit LLVM IR<br/>(thumbv6m, thumbv8m.main, riscv32imac)"]
+        Spec -->|"proofs"| Kernel
         Kernel --> Turbo
     end
 
-    subgraph Bolos["App historique C (LedgerHQ/app-bitcoin)"]
-        BUI["UI NBGL + transport APDU + syscalls BOLOS<br/>(conservés en C)"]
-        BELF["Clang / LLD LTO (-Oz -fropi -frwpi)<br/>ELF natif ARM Thumb (Nano S+ / Nano X)"]
+    subgraph Bolos["Legacy C App (LedgerHQ/app-bitcoin)"]
+        BUI["NBGL UI + APDU transport + BOLOS syscalls<br/>(kept in C)"]
+        BELF["Clang / LLD LTO (-Oz -fropi -frwpi)<br/>Native ARM Thumb ELF (Nano S+ / Nano X)"]
         BUI --> BELF
     end
 
-    subgraph Vanadium["Nouvelle V-App Rust (LedgerHQ/vanadium)"]
-        VUI["UI Ledger Flex + client ECALLs<br/>(conservés en Rust)"]
-        VELF["rustc + LLD (riscv32imac-unknown-none-elf)<br/>ELF en pages de 256 B chiffrées / authentifiées (arbre de Merkle)"]
-        VVM["VM RISC-V app-vanadium dans le Secure Element<br/>(mémoire paginée déportée sur le host)"]
+    subgraph Vanadium["New Rust V-App (LedgerHQ/vanadium)"]
+        VUI["Ledger Flex UI + client ECALLs<br/>(kept in Rust)"]
+        VELF["rustc + LLD (riscv32imac-unknown-none-elf)<br/>Encrypted / authenticated 256 B paged ELF (Merkle tree)"]
+        VVM["app-vanadium RISC-V VM in the Secure Element<br/>(paged memory offloaded to the host)"]
         VUI --> VELF --> VVM
     end
 
@@ -43,83 +43,83 @@ export interface BenchmarkChartItem {
 export const RUST_BENCH_BARS: BenchmarkChartItem[] = [
   {
     label: 'Flash / code (PT_LOAD RX)',
-    origValue: '299,3 KiB (1 198 pages)',
-    optValue: '261,7 KiB (1 047 pages)',
+    origValue: '299.3 KiB (1,198 pages)',
+    optValue: '261.7 KiB (1,047 pages)',
     optPct: 87.42,
-    delta: '-12,58 %'
+    delta: '-12.58%'
   },
   {
-    label: 'RAM réservée (budget statique RW + stack)',
-    origValue: '128,3 KiB (514 pages)',
-    optValue: '64,3 KiB (258 pages)',
+    label: 'Reserved RAM (static RW + stack budget)',
+    origValue: '128.3 KiB (514 pages)',
+    optValue: '64.3 KiB (258 pages)',
     optPct: 50.12,
-    delta: '-49,88 %'
+    delta: '-49.88%'
   },
   {
-    label: 'Taille du binaire ELF',
-    origValue: '529,8 KiB',
-    optValue: '262,1 KiB',
+    label: 'ELF binary size',
+    origValue: '529.8 KiB',
+    optValue: '262.1 KiB',
     optPct: 49.47,
-    delta: '-50,53 %'
+    delta: '-50.53%'
   },
   {
-    label: 'Instructions exécutées (RV32 · signature)',
-    origValue: '234,2 k insns',
-    optValue: '200,0 k insns',
+    label: 'Executed instructions (RV32 · signing)',
+    origValue: '234.2k insns',
+    optValue: '200.0k insns',
     optPct: 85.4,
-    delta: '-14,60 %'
+    delta: '-14.60%'
   },
   {
-    label: 'Latence signature PSBT (Flex · médiane)',
-    origValue: '4 976 ms (1 325 page_loads)',
-    optValue: '4 249 ms (1 232 page_loads)',
+    label: 'PSBT signing latency (Flex · median)',
+    origValue: '4,976 ms (1,325 page_loads)',
+    optValue: '4,249 ms (1,232 page_loads)',
     optPct: 85.39,
-    delta: '-14,61 %'
+    delta: '-14.61%'
   }
 ]
 
 export const C_BENCH_BARS: BenchmarkChartItem[] = [
   {
     label: 'Flash / code (PT_LOAD RX · Nano S+)',
-    origValue: '89,1 KiB (91 231 B)',
-    optValue: '87,6 KiB (89 695 B)',
+    origValue: '89.1 KiB (91,231 B)',
+    optValue: '87.6 KiB (89,695 B)',
     optPct: 98.32,
-    delta: '-1,68 %'
+    delta: '-1.68%'
   },
   {
-    label: 'RAM statique (.bss + .data · Nano S+)',
-    origValue: '6 376 B',
-    optValue: '6 232 B',
+    label: 'Static RAM (.bss + .data · Nano S+)',
+    origValue: '6,376 B',
+    optValue: '6,232 B',
     optPct: 97.74,
-    delta: '-2,26 %'
+    delta: '-2.26%'
   },
   {
-    label: 'RAM totale (RW + worst-case stack · Nano S+)',
-    origValue: '18 872 B',
-    optValue: '18 728 B (0 récursion)',
+    label: 'Total RAM (RW + worst-case stack · Nano S+)',
+    origValue: '18,872 B',
+    optValue: '18,728 B (0 recursion)',
     optPct: 99.24,
-    delta: '-0,76 %'
+    delta: '-0.76%'
   },
   {
-    label: 'Instructions ARM Thumb émises (Nano S+)',
-    origValue: '30 364 insns',
-    optValue: '29 898 insns',
+    label: 'Emitted ARM Thumb instructions (Nano S+)',
+    origValue: '30,364 insns',
+    optValue: '29,898 insns',
     optPct: 98.47,
-    delta: '-1,53 %'
+    delta: '-1.53%'
   },
   {
-    label: 'Latence PSBT Taproot (Nano S+ · ARMv8-M · médiane)',
-    origValue: '2 436 ms',
-    optValue: '2 435 ms',
+    label: 'Taproot PSBT latency (Nano S+ · ARMv8-M · median)',
+    origValue: '2,436 ms',
+    optValue: '2,435 ms',
     optPct: 99.96,
-    delta: '-0,04 %'
+    delta: '-0.04%'
   },
   {
-    label: 'Latence PSBT Taproot (Nano X · ARMv6-M · médiane)',
-    origValue: '2 438 ms',
-    optValue: '2 592 ms',
+    label: 'Taproot PSBT latency (Nano X · ARMv6-M · median)',
+    origValue: '2,438 ms',
+    optValue: '2,592 ms',
     optPct: 106.34,
-    delta: '+6,34 %'
+    delta: '+6.34%'
   }
 ]
 
@@ -134,87 +134,87 @@ export interface BenchmarkRow {
 export const BENCHMARK_ROWS: BenchmarkRow[] = [
   {
     metric: 'Target / runtime',
-    origC: 'BOLOS natif ARM Thumb (Nano S+ / X)',
-    patchedC: 'BOLOS natif ARM Thumb (Nano S+ / X)',
-    origRust: 'VM Vanadium RV32IMAC (Flex)',
-    patchedRust: 'VM Vanadium RV32IMAC (Flex)'
+    origC: 'Native BOLOS ARM Thumb (Nano S+ / X)',
+    patchedC: 'Native BOLOS ARM Thumb (Nano S+ / X)',
+    origRust: 'Vanadium RV32IMAC VM (Flex)',
+    patchedRust: 'Vanadium RV32IMAC VM (Flex)'
   },
   {
     metric: 'Flash / code (PT_LOAD RX)',
-    origC: '91 231 B (89,1 KiB · Nano S+)',
-    patchedC: '89 695 B (87,6 KiB, -1,68 % · Nano S+)',
-    origRust: '306 522 B (299,3 KiB, 1 198 pages)',
-    patchedRust: '267 954 B (261,7 KiB, -12,58 %, 1 047 pages)'
+    origC: '91,231 B (89.1 KiB · Nano S+)',
+    patchedC: '89,695 B (87.6 KiB, -1.68% · Nano S+)',
+    origRust: '306,522 B (299.3 KiB, 1,198 pages)',
+    patchedRust: '267,954 B (261.7 KiB, -12.58%, 1,047 pages)'
   },
   {
-    metric: 'Taille du fichier ELF',
-    origC: '158 004 B (154,3 KiB, stripped)',
-    patchedC: '156 468 B (152,8 KiB, -0,97 %)',
-    origRust: '542 552 B (529,8 KiB)',
-    patchedRust: '268 384 B (262,1 KiB, -50,53 %)'
+    metric: 'ELF file size',
+    origC: '158,004 B (154.3 KiB, stripped)',
+    patchedC: '156,468 B (152.8 KiB, -0.97%)',
+    origRust: '542,552 B (529.8 KiB)',
+    patchedRust: '268,384 B (262.1 KiB, -50.53%)'
   },
   {
-    metric: 'RAM statique (.bss + .data)',
-    origC: '6 376 B (Nano S+)',
-    patchedC: '6 232 B (-2,26 % · Nano S+)',
-    origRust: '65 836 B (64,3 KiB, heap 64 KiB)',
-    patchedRust: '33 076 B (32,3 KiB, -49,76 %, heap 32 KiB)'
+    metric: 'Static RAM (.bss + .data)',
+    origC: '6,376 B (Nano S+)',
+    patchedC: '6,232 B (-2.26% · Nano S+)',
+    origRust: '65,836 B (64.3 KiB, 64 KiB heap)',
+    patchedRust: '33,076 B (32.3 KiB, -49.76%, 32 KiB heap)'
   },
   {
     metric: 'Stack',
-    origC: '12 496 B max (qsort récursif)',
-    patchedC: '12 496 B max (0 récursion)',
-    origRust: '65 536 B (64 KiB) alloués',
-    patchedRust: '32 768 B (32 KiB) alloués (-50 %)'
+    origC: '12,496 B max (recursive qsort)',
+    patchedC: '12,496 B max (0 recursion)',
+    origRust: '65,536 B (64 KiB) allocated',
+    patchedRust: '32,768 B (32 KiB) allocated (-50%)'
   },
   {
-    metric: 'RAM totale réservée (budget statique RW + stack)',
-    origC: '18 872 B (Nano S+)',
-    patchedC: '18 728 B (-0,76 % · Nano S+)',
-    origRust: '131 372 B (128,3 KiB, 514 pages)',
-    patchedRust: '65 844 B (64,3 KiB, -49,88 %, 258 pages)'
+    metric: 'Total reserved RAM (static RW + stack budget)',
+    origC: '18,872 B (Nano S+)',
+    patchedC: '18,728 B (-0.76% · Nano S+)',
+    origRust: '131,372 B (128.3 KiB, 514 pages)',
+    patchedRust: '65,844 B (64.3 KiB, -49.88%, 258 pages)'
   },
   {
-    metric: 'Pic d’allocation heap (peak_heap_bytes · signature)',
+    metric: 'Peak heap allocation (peak_heap_bytes · signing)',
     origC: '—',
     patchedC: '—',
-    origRust: 'non mesuré',
-    patchedRust: '5 318 B'
+    origRust: 'not measured',
+    patchedRust: '5,318 B'
   },
   {
-    metric: 'Pages VM commitées (vm_page_commits · signature)',
+    metric: 'Committed VM pages (vm_page_commits · signing)',
     origC: '—',
     patchedC: '—',
     origRust: '169',
-    patchedRust: '155 (-8,28 %)'
+    patchedRust: '155 (-8.28%)'
   },
   {
     metric: 'Instructions',
-    origC: '30 364 insns ARM émises',
-    patchedC: '29 898 insns ARM (-1,53 %)',
-    origRust: '234 214 insns RV32 exécutées',
-    patchedRust: '200 029 insns RV32 (-14,60 %)'
+    origC: '30,364 emitted ARM insns',
+    patchedC: '29,898 ARM insns (-1.53%)',
+    origRust: '234,214 executed RV32 insns',
+    patchedRust: '200,029 RV32 insns (-14.60%)'
   },
   {
-    metric: 'Latence médiane signature Taproot (Speculos)',
-    origC: '2 436 ms (Nano S+) / 2 438 ms (Nano X)',
-    patchedC: '2 435 ms (-0,04 %) / 2 592 ms (+6,34 %)',
-    origRust: '4 976 ms (1 325 page_loads)',
-    patchedRust: '4 249 ms (-14,61 %, 1 232 page_loads)'
+    metric: 'Median Taproot signing latency (Speculos)',
+    origC: '2,436 ms (Nano S+) / 2,438 ms (Nano X)',
+    patchedC: '2,435 ms (-0.04%) / 2,592 ms (+6.34%)',
+    origRust: '4,976 ms (1,325 page_loads)',
+    patchedRust: '4,249 ms (-14.61%, 1,232 page_loads)'
   },
   {
-    metric: 'Latence médiane SIGN_PSBT multisig wsh(3-of-5) (3 in, Speculos)',
-    origC: '7 304 ms (Nano S+) / 7 944 ms (Nano X)',
-    patchedC: '7 598 ms (+4,03 %) / 8 065 ms (+1,52 %)',
+    metric: 'Median SIGN_PSBT multisig wsh(3-of-5) latency (3 in, Speculos)',
+    origC: '7,304 ms (Nano S+) / 7,944 ms (Nano X)',
+    patchedC: '7,598 ms (+4.03%) / 8,065 ms (+1.52%)',
     origRust: '—',
     patchedRust: '—'
   },
   {
-    metric: 'Test suites & preuves',
+    metric: 'Test suites & proofs',
     origC: '30 ctest + Ragger',
-    patchedC: '31/31 ctest + mainnet 2/2 + suite testnet (282 tests) en cours',
+    patchedC: '31/31 ctest + mainnet 2/2 + testnet suite (282 tests) running',
     origRust: '—',
-    patchedRust: 'app 90/90 + common 85/85 + 11 correctifs'
+    patchedRust: 'app 90/90 + common 85/85 + 11 fixes'
   }
 ]
 
@@ -410,69 +410,69 @@ export function renderMarkdown(): string {
   const lines: string[] = [
     '# Lean 4 Ledger',
     '',
-    'Notre thèse est qu\'il est déjà viable aujourd\'hui de réécrire un logiciel existant en Lean4 pour obtenir un binaire prouvé formellement, plus compact et plus rapide. Hier, Vincent et Guillaume m\'ont proposé de commencer avec l\'application Bitcoin de Ledger, voici le résultat.',
+    'Our thesis is that it is already viable today to rewrite existing software in Lean 4 to obtain a formally proved binary that is both more compact and faster. Yesterday, Vincent and Guillaume suggested starting with Ledger\'s Bitcoin application; here is the result.',
     '',
-    '**Important :** il s\'agit d\'une POC d\'une journée, les specs ne sont pas complètes, il y a d\'autres points importants qu\'il serait intéressant de vérifier formellement et cela demanderait davantage de review de notre côté en plus de la validation de nos choix de modélisation du vôtre.',
+    '**Important:** this is a one-day POC—the specs are not complete, there are other important properties worth formally verifying, and this would require more review on our side as well as validation of our modeling choices on yours.',
     '',
-    '## 1. Méthodologie et architecture',
+    '## 1. Methodology and Architecture',
     '',
-    'Côté temps humain, j\'avais déjà regardé un peu quand Charles m\'en avait parlé et j\'avais une idée de la stack Ledger : il m\'a donc fallu environ **1 h** au départ pour cadrer le problème, poser les specs haut niveau et designer le pipeline, **15 min** ce matin pour débloquer un souci de routing d\'inférence, et **1 h** à la fin pour review et polir l\'ensemble. Tout le reste a tourné en autonomie.',
+    'In terms of human time, I had already looked into it a bit when Charles mentioned it to me and had a rough idea of the Ledger stack: it took me about **1 h** upfront to frame the problem, lay down the high-level specs, and design the pipeline, **15 min** this morning to unblock an inference routing issue, and **1 h** at the end to review and polish everything. Everything else ran autonomously.',
     '',
-    'Ledger maintient deux apps Bitcoin : l\'app historique en C (`LedgerHQ/app-bitcoin`), compilée nativement vers le jeu d\'instructions du microcontrôleur, au-dessus de BOLOS, et la nouvelle V-App en Rust (`LedgerHQ/vanadium`), compilée en RISC-V 32-bit (`RV32IMAC`) et exécutée dans une VM tournant sur BOLOS (pour streamer le code et les données de l\'app depuis le host, si j\'ai bien compris).',
+    'Ledger maintains two Bitcoin apps: the legacy C app (`LedgerHQ/app-bitcoin`), compiled natively to the microcontroller\'s instruction set on top of BOLOS, and the new Rust V-App (`LedgerHQ/vanadium`), compiled to 32-bit RISC-V (`RV32IMAC`) and executed inside a VM running on BOLOS (to stream the app\'s code and data from the host, if I understood correctly).',
     '',
-    'Plutôt que de toucher à l\'UI ou au transport APDU/ECALL (réécrire l\'UI en Lean 4 aurait peu d\'intérêt), on a gardé l\'UI et l\'IO d\'origine dans chaque app et concentré l\'effort sur la logique partagée qui concentre l\'essentiel de la surface d\'attaque. Le résultat, [Th0rgal/lean-ledger-bitcoin](https://github.com/Th0rgal/lean-ledger-bitcoin), contient deux choses intéressantes pour vous :',
+    'Rather than touching the UI or APDU/ECALL transport (rewriting the UI in Lean 4 would have little value), we kept the original UI and I/O in each app and focused the effort on the shared logic where most of the attack surface lives. The result, [Th0rgal/lean-ledger-bitcoin](https://github.com/Th0rgal/lean-ledger-bitcoin), contains two things of interest for you:',
     '',
-    '- **Un noyau Lean compilé dans les deux apps** ([`FreestandingKernels.lean`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/main/BitcoinLedger/FreestandingKernels.lean)) : c\'est le code Lean réellement exécuté sur l\'appareil. [`turbo-lean`](https://github.com/Th0rgal/turbo-lean) le compile en LLVM IR 32-bit et il remplace dans chaque app les chemins sensibles qu\'on a réécrits.',
-    '- **Une spec courte sur ce noyau** ([`Spec.lean`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/main/Spec.lean), 12 énoncés) : chaque énoncé porte sur une fonction compilée, et sa preuve est vérifiée par Lean (`0 sorryAx`). Elle couvre pour l\'instant `17` des `45` fonctions du noyau.',
+    '- **A Lean kernel compiled into both apps** ([`FreestandingKernels.lean`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/main/BitcoinLedger/FreestandingKernels.lean)): this is the Lean code actually executed on the device. [`turbo-lean`](https://github.com/Th0rgal/turbo-lean) compiles it to 32-bit LLVM IR, replacing the sensitive paths we rewrote in each app.',
+    '- **A short spec on this kernel** ([`Spec.lean`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/main/Spec.lean), 12 statements): each statement targets a compiled function, and its proof is checked by Lean (`0 sorryAx`). It currently covers `17` of the kernel\'s `45` functions.',
     '',
-    'Les intégrations tiennent en deux patchs : [`app-bitcoin-lean-opt.patch`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/752aa9a/ffi/bolos/patches/app-bitcoin-lean-opt.patch) côté BOLOS et [`vanadium-bitcoin-lean-opt.patch`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/752aa9a/ffi/vanadium/patches/vanadium-bitcoin-lean-opt.patch) côté Vanadium. Le C/Rust qui reste est le code d\'origine, légèrement patché (environ 200 lignes modifiées côté C et 700 côté Rust, hors tests). Il fait trois choses : appeler le noyau Lean à la place des vérifications d\'origine, parser les PSBT et les scripts, et parler au matériel (clés, crypto, écran et transport passent par les appels système de BOLOS). Pour cette partie, qui vient de l\'OS, ça n\'aurait pas de sens de faire du Lean ; par contre, pour les parseurs, je pense que ce serait une bonne idée. C\'est plus de travail, mais cela vaudrait le coût car ils se prêtent bien à la vérification formelle.',
+    'The integrations fit into two patches: [`app-bitcoin-lean-opt.patch`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/752aa9a/ffi/bolos/patches/app-bitcoin-lean-opt.patch) on the BOLOS side and [`vanadium-bitcoin-lean-opt.patch`](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/752aa9a/ffi/vanadium/patches/vanadium-bitcoin-lean-opt.patch) on the Vanadium side. The remaining C/Rust is the original code, lightly patched (around 200 lines modified on the C side and 700 on the Rust side, excluding tests). It does three things: calls the Lean kernel in place of the original checks, parses PSBTs and scripts, and talks to the hardware (keys, crypto, screen, and transport go through BOLOS syscalls). For that OS-facing part, using Lean wouldn\'t make sense; for the parsers, however, I think it would be a good idea. It\'s more work, but it would be worth it since they lend themselves well to formal verification.',
     '',
     '```mermaid',
     MERMAID_ARCHITECTURE,
     '```',
     '',
-    '## 2. Plan d\'exécution',
+    '## 2. Execution Plan',
     '',
-    '1) **Specs et tests croisés** : formalisation en Lean 4, puis noyau exécutable affiné en bouclant sur les suites de tests des deux repos.',
-    '2) **Backend LLVM 32-bit dans [`turbo-lean`](https://github.com/Th0rgal/turbo-lean)** : support sans allocation pour `thumbv6m`, `thumbv8m.main` et `riscv32imac`. Passer par LLVM IR m\'a semblé plus sûr que d\'émettre de l\'assembleur. Cette chaîne de compilation n\'est pas encore prouvée de bout en bout (elle est contrôlée par tests différentiels). Ça coûterait relativement cher en inférence, mais ce serait un bon investissement car on n\'aurait à le faire qu\'une fois.',
-    '3) **Intégration** : shim FFI minimal dans chaque app, UI et IO d\'origine conservées, noyau lié en LTO.',
-    '4) **Boucle d\'optimisation `maxwell`** : itérations sur des benchmarks reproductibles, preuves et tests au vert, pour passer sous les baselines.',
+    '1) **Specs and cross-testing**: formalization in Lean 4, followed by an executable kernel refined in a loop against both repos\' test suites.',
+    '2) **32-bit LLVM backend in [`turbo-lean`](https://github.com/Th0rgal/turbo-lean)**: allocation-free support for `thumbv6m`, `thumbv8m.main`, and `riscv32imac`. Going through LLVM IR felt safer than emitting assembly directly. This compilation chain is not yet proved end-to-end (it is checked via differential testing). Proving it would be relatively expensive in inference, but it would be a good investment since it only needs to be done once.',
+    '3) **Integration**: minimal FFI shim in each app, original UI and I/O preserved, kernel linked with LTO.',
+    '4) **`maxwell` optimization loop**: iterations on reproducible benchmarks, with proofs and tests green, to get below the baselines.',
     '',
-    '## 3. Résultats',
+    '## 3. Results',
     '',
-    'Voici la spec. Elle ne correspond qu\'au code effectivement compilé dans les apps et n\'est pas complète, mais elle montre ce qu\'il est possible de faire :',
+    'Here is the spec. It only covers code actually compiled into the apps and is not complete, but it illustrates what is possible:',
     '',
-    '- [Montants de la transaction : le noyau répond « valide » exactement quand le montant vaut au plus 21 millions de BTC. Pour une somme ou une différence, il répond « valide » exactement quand le vrai résultat reste entre 0 et ce plafond, et renvoie alors ce vrai résultat.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L32-L51)',
-    '- [Affichage : le découpage d\'un montant en BTC et satoshis, fait sans division, est exact pour tout montant 64 bits.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L53-L57)',
-    '- [Chemins de dérivation : le noyau classe un élément comme « hardened » exactement quand il vaut au moins 2^31, et refuse les chemins de plus de 10 éléments sur BOLOS, 16 sur Vanadium.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L61-L72)',
-    '- [Adresses : le noyau répond « valide » pour un programme SegWit exactement dans les cas prévus, soit 20 ou 32 octets en version 0 et 2 à 40 octets en versions 1 à 16.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L76-L82)',
-    '- [Types de signature demandés : le noyau répond « valide » exactement pour ALL, NONE et SINGLE, avec ou sans ANYONECANPAY, plus DEFAULT pour Taproot.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L93-L104)',
-    '- [Lecture de la transaction : le noyau répond « valide » pour un préfixe de longueur (CompactSize) exactement quand c\'est celui de l\'encodage le plus court.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L108-L116)',
+    '- [Transaction amounts: the kernel returns "valid" if and only if the amount is at most 21 million BTC. For a sum or difference, it returns "valid" if and only if the exact mathematical result stays between 0 and this cap, and in that case returns the exact result.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L32-L51)',
+    '- [Display: splitting an amount into BTC and satoshis without division is exact for every 64-bit amount.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L53-L57)',
+    '- [Derivation paths: the kernel classifies a path element as "hardened" if and only if it is at least 2^31, and rejects paths longer than 10 elements on BOLOS or 16 on Vanadium.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L61-L72)',
+    '- [Addresses: the kernel returns "valid" for a SegWit program in the exact allowed cases—20 or 32 bytes for version 0, and 2 to 40 bytes for versions 1 through 16.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L76-L82)',
+    '- [Requested signature types: the kernel returns "valid" if and only if the sighash is ALL, NONE, or SINGLE, with or without ANYONECANPAY, plus DEFAULT for Taproot.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L93-L104)',
+    '- [Transaction parsing: the kernel returns "valid" for a length prefix (CompactSize) if and only if it uses the shortest canonical encoding.](https://github.com/Th0rgal/lean-ledger-bitcoin/blob/85ea35961b919bf1e2ff90644b5d0e6f858e5e74/Spec.lean#L108-L116)',
     '',
-    'Chaque énoncé est un « si et seulement si » ou une égalité, avec un exemple accepté et un exemple refusé.',
+    'Each statement is an "if and only if" or an equality, paired with one accepted example and one rejected example.',
     '',
-    'Côté performances, on n\'a pas spécialement cherché à optimiser, d\'autant qu\'on passe par LLVM sans cibler directement le matériel final, mais on obtient quand même des résultats intéressants grâce à quelques itérations de mesure et de réglage. Le binaire patché avec Lean 4 est plus léger sur les deux targets et plus rapide sur Vanadium ; sur BOLOS la latence est inchangée sur Nano S+ et en hausse sur Nano X :',
+    'On the performance side, we didn\'t go out of our way to optimize—especially since we go through LLVM rather than targeting the final hardware directly—yet we still get interesting numbers thanks to a few measurement and tuning iterations. The Lean 4 patched binary is smaller on both targets and faster on Vanadium; on BOLOS, latency is unchanged on Nano S+ and higher on Nano X:',
     '',
-    '| Métrique | Baseline C (`app-bitcoin`) | Lean 4 + C | Baseline Rust (`vanadium`) | Lean 4 + Rust |',
+    '| Metric | Baseline C (`app-bitcoin`) | Lean 4 + C | Baseline Rust (`vanadium`) | Lean 4 + Rust |',
     '|---|---|---|---|---|',
     ...BENCHMARK_ROWS.map(
       (r) => `| **${r.metric}** | ${r.origC} | **${r.patchedC}** | ${r.origRust} | **${r.patchedRust}** |`
     ),
     '',
-    'Ce qui nous semble le plus intéressant :',
+    'What stands out to us:',
     '',
-    '- Le calcul du `nLockTime` selon `BIP-370`, là où Vanadium semble avoir un bug (à confirmer avec vous), a été prouvé conforme à la règle pour n\'importe quelle liste d\'inputs sans intervention de notre côté.',
-    '- Un seul noyau Lean sert trois ISA et deux apps : il est émis en LLVM IR puis compilé avec les flags de chaque app, avec une frame de pile maximale de `96 B`.',
-    '- Sur Vanadium, une signature exécute `14,6 %` d\'instructions RV32 en moins et charge `5 %` de pages en moins, à profil de compilation identique.',
-    '- La formalisation croisée des deux apps a suffi à faire ressortir les 11 bugs de la section 4.',
+    '- The `BIP-370` `nLockTime` computation—where Vanadium appears to have a bug (to be confirmed with you)—was proved compliant with the rule for any list of inputs without intervention on our part.',
+    '- A single Lean kernel serves three ISAs and two apps: it is emitted as LLVM IR and compiled with each app\'s flags, with a maximum stack frame of `96 B`.',
+    '- On Vanadium, signing executes `14.6%` fewer RV32 instructions and loads `5%` fewer pages under an identical compiler profile.',
+    '- Cross-formalizing both apps was enough to surface the 11 bugs in Section 4.',
     '',
-    'Précisions de lecture. Mesures sous émulateur (Speculos), pas sur matériel. Sur Vanadium, la baisse de RAM et de taille de fichier vient surtout des réglages de build ; le gain propre au code est de `14,6 %` sur les instructions exécutées. Sur BOLOS, tailles et latences ont été mesurées sur deux builds différents : on relance un benchmark complet pour lever l\'ambiguïté.',
+    'Reading notes. Measurements were taken under an emulator (Speculos), not on hardware. On Vanadium, the RAM and file-size reductions come mostly from build settings; the gain attributable to the code itself is `14.6%` on executed instructions. On BOLOS, sizes and latencies were measured on two different builds: we are re-running a full benchmark to remove any ambiguity.',
     '',
-    'Vidéo (une signature Taproot sur Speculos Flex, instructions RV32 exécutées cumulées : 234 214 contre 200 692, −14,3 %) : https://share.thomas.md/leanldgr/vanadium-trace-v2.mp4',
+    'Video (a Taproot signature on Speculos Flex, cumulative executed RV32 instructions: 234,214 vs. 200,692, −14.3%): https://share.thomas.md/leanldgr/vanadium-trace-v2.mp4',
     '',
-    '## 4. Bugs et anomalies trouvés dans Vanadium',
+    '## 4. Bugs and Anomalies Found in Vanadium',
     '',
-    'En essayant de formaliser les implémentations C et Vanadium, on a repéré **11 bugs ou écarts de spec**. On ne les a pas vérifiés manuellement, mais ils semblent corrects, le bug étant du côté Vanadium à chaque fois.',
+    'While formalizing the C and Vanadium implementations, we spotted **11 bugs or spec divergences**. We haven\'t manually verified all of them, but they look solid—with the bug on the Vanadium side every time.',
     '',
     '| ID | Severity | Location | Upstream status | Description |',
     '|---|---|---|---|---|',
@@ -481,15 +481,15 @@ export function renderMarkdown(): string {
       return `| \`${i.id}\` | ${i.severityLabel} | ${locs} | ${i.reportedStatus} | ${i.description} |`
     }),
     '',
-    '## 5. Résumé des ressources investies (run initial)',
+    '## 5. Summary of Resources Invested (Initial Run)',
     '',
-    'L\'ensemble du run autonome (formalisation, patch compilateur `turbo-lean`, preuves des `2 494` théorèmes, intégration C/Rust et boucles `maxwell`) a tourné en **19,9 h** wall-clock sur la fenêtre capturée ci-dessous jusqu\'au merge du repo principal (dont 2 heures de pause à cause d\'un problème d\'approvisionnement d\'inférence que j\'ai réglé à la main) à travers **30 agents actifs** et **25 microVMs** :',
+    'The entire autonomous run (formalization, `turbo-lean` compiler patch, proofs of `2,494` theorems, C/Rust integration, and `maxwell` loops) ran in **19.9 h** wall-clock over the window captured below up to the main repo merge (including a 2-hour pause caused by an inference provisioning issue that I fixed manually) across **30 active agents** and **25 microVMs**:',
     '',
-    '- **379,0 CPU hours** de compute cumulé (`327,4 CPU-h` sur 25 microVMs cloud éphémères AMD Zen + `51,6 CPU-h` sur notre serveur dédié pendant les tours actifs).',
-    '- **654,9 GB RAM hours** sur les VMs cloud éphémères (`1 049,6 GB RAM-h` en comptant la RAM réservée sur notre serveur dédié durant les tours actifs).',
-    '- **23,2 M tokens / agent** en moyenne (`696,6 M` tokens cumulés sur `30` agents actifs : `1` coordinateur + `29` subagents).',
+    '- **379.0 CPU hours** of cumulative compute (`327.4 CPU-h` across 25 ephemeral AMD Zen cloud microVMs + `51.6 CPU-h` on our dedicated server during active turns).',
+    '- **654.9 GB RAM hours** on ephemeral cloud VMs (`1,049.6 GB RAM-h` when including RAM reserved on our dedicated server during active turns).',
+    '- **23.2M tokens / agent** on average (`696.6M` cumulative tokens across `30` active agents: `1` coordinator + `29` subagents).',
     '',
-    'Aux tarifs publics de l\'API Google et d\'OrcaRouter (pour `GLM 5.3 uncensored`) côté inférence, et d\'AWS EC2 On-Demand côté location des VMs, ce run reviendrait à environ **~$520 + ~$17** (soit **~$537** au total), hors infrastructure personnelle (notre serveur dédié et nos GPUs d\'entraînement amont pour optimiser le compilateur, dont la part amortie sur ce run reste relativement négligeable).',
+    'At public Google API and OrcaRouter (for `GLM 5.3 uncensored`) rates on the inference side, and AWS EC2 On-Demand rates for VM rental, this run would cost roughly **~$520 + ~$17** (about **~$537** total), excluding personal infrastructure (our dedicated server and upstream training GPUs used to optimize the compiler, whose amortized share for this run remains negligible).',
     ''
   ]
   return lines.join('\n')

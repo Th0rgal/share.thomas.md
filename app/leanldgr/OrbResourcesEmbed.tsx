@@ -41,10 +41,10 @@ interface IsolatedTarget {
 
 const WAVE_LABELS: Record<string, string> = {
   w1: 'Wave 1 · Specs & turbo-lean',
-  w15: 'Wave 1.5 · Audit & remédiation',
-  w2: 'Wave 2 · Noyaux Lean & preuves',
-  w3: 'Wave 3 · Link C/Rust & tests',
-  w4: 'Wave 4 · Boucle maxwell'
+  w15: 'Wave 1.5 · Audit & remediation',
+  w2: 'Wave 2 · Lean kernels & proofs',
+  w3: 'Wave 3 · C/Rust link & tests',
+  w4: 'Wave 4 · maxwell loop'
 }
 
 function formatClockAtBucket(idx: number): string {
@@ -55,8 +55,8 @@ function formatClockAtBucket(idx: number): string {
   return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')} UTC`
 }
 
-function fmtFr(n: number, digits = 1): string {
-  return n.toFixed(digits).replace('.', ',')
+function fmtNum(n: number, digits = 1): string {
+  return n.toFixed(digits)
 }
 
 export default function OrbResourcesEmbed() {
@@ -165,7 +165,7 @@ export default function OrbResourcesEmbed() {
                 className={`ldgr-orb-seg-btn ${submode === 'dag' ? 'is-active' : ''}`}
                 onClick={() => setSubmode('dag')}
               >
-                {lens === 'inference' ? 'DAG · Subagents (30)' : 'DAG · VMs cloud (25)'}
+                {lens === 'inference' ? 'DAG · Subagents (30)' : 'DAG · Cloud VMs (25)'}
               </button>
             </div>
 
@@ -191,20 +191,20 @@ export default function OrbResourcesEmbed() {
             <span className="ldgr-orb-stamp">
               {lens === 'inference' ? (
                 <>
-                  <strong>{fmtFr(totalVal, 1)}M tok</strong>
+                  <strong>{fmtNum(totalVal, 1)}M tok</strong>
                   <span>·</span>
                   <strong>~$520 API</strong>
                   <span>·</span>
-                  <span>pic {fmtFr(curve.peak, 1)} M tok/h</span>
+                  <span>peak {fmtNum(curve.peak, 1)} M tok/h</span>
                 </>
               ) : (
                 <>
-                  <strong>{fmtFr(totalVal, 1)} CPU-h</strong>
+                  <strong>{fmtNum(totalVal, 1)} CPU-h</strong>
                   <span>·</span>
                   <strong>~$17 AWS</strong>
-                  <span>(hors serveur dédié)</span>
+                  <span>(excl. dedicated server)</span>
                   <span>·</span>
-                  <span>pic {fmtFr(curve.peak, 0)} vCPU</span>
+                  <span>peak {fmtNum(curve.peak, 0)} vCPU</span>
                 </>
               )}
             </span>
@@ -221,8 +221,8 @@ export default function OrbResourcesEmbed() {
                     ? 'Inference Flow · Model Pools → Execution Waves'
                     : 'Compute Flow · Cloud VMs & Host → Execution Waves'
                   : lens === 'inference'
-                    ? 'Subagent Execution DAG · 1 coordinateur + 29 workers actifs'
-                    : 'Cloud MicroVM Leases · 25 machines éphémères (eq. AWS c7a)'}
+                    ? 'Subagent Execution DAG · 1 coordinator + 29 active workers'
+                    : 'Cloud MicroVM Leases · 25 ephemeral machines (AWS c7a eq.)'}
               </span>
               {isolated && submode === 'flow' && (
                 <button
@@ -242,8 +242,8 @@ export default function OrbResourcesEmbed() {
               ) : (
                 <span>
                   {submode === 'flow'
-                    ? 'Cliquer sur un pool, un ruban ou une wave pour isoler sa courbe'
-                    : 'Survoler une barre pour inspecter sa fenêtre et sa consommation'}
+                    ? 'Click a pool, ribbon, or wave to isolate its curve'
+                    : 'Hover a bar to inspect its window and usage'}
                 </span>
               )}
             </div>
@@ -260,8 +260,8 @@ export default function OrbResourcesEmbed() {
                 role="img"
                 aria-label={
                   lens === 'inference'
-                    ? 'Diagramme Sankey Inference par modèle et par vague'
-                    : 'Diagramme Sankey Compute par taille de VM et par vague'
+                    ? 'Inference Sankey diagram by model and execution wave'
+                    : 'Compute Sankey diagram by VM size and execution wave'
                 }
               >
                 <g>
@@ -284,7 +284,7 @@ export default function OrbResourcesEmbed() {
                         className="ldgr-orb-ribbon"
                         onMouseEnter={() =>
                           setHoverText(
-                            `${s.label} → ${t.label} · ${fmtFr(l.value, 1)} ${unitTotal} · ${l.costLabel}`
+                            `${s.label} → ${t.label} · ${fmtNum(l.value, 1)} ${unitTotal} · ${l.costLabel}`
                           )
                         }
                         onClick={() =>
@@ -327,7 +327,7 @@ export default function OrbResourcesEmbed() {
                         style={{ opacity: dimmed ? 0.32 : 1 }}
                         onMouseEnter={() =>
                           setHoverText(
-                            `${n.label} · ${fmtFr(n.value ?? 0, 1)} ${unitTotal} · ${n.costLabel}`
+                            `${n.label} · ${fmtNum(n.value ?? 0, 1)} ${unitTotal} · ${n.costLabel}`
                           )
                         }
                         onClick={() =>
@@ -369,7 +369,7 @@ export default function OrbResourcesEmbed() {
                           y={cy + 9}
                           textAnchor={isLeft ? 'end' : 'start'}
                         >
-                          {fmtFr(n.value ?? 0, 1)} {unitTotal} · {n.sub}
+                          {fmtNum(n.value ?? 0, 1)} {unitTotal} · {n.sub}
                         </text>
                       </g>
                     )
@@ -392,25 +392,25 @@ export default function OrbResourcesEmbed() {
           <div className="ldgr-orb-curve-head">
             <span className="ldgr-orb-col-title">
               {isolated ? isolated.label : lens === 'inference' ? 'All Inference' : 'All Compute'}{' '}
-              · {lens === 'inference' ? 'Débit (M tokens / h)' : 'Charge active (vCPU)'}
+              · {lens === 'inference' ? 'Throughput (M tokens / h)' : 'Active load (vCPU)'}
             </span>
             <span className="ldgr-orb-curve-meta">
               {hoverIdx !== null ? (
                 <>
                   {formatClockAtBucket(hoverIdx)} ·{' '}
                   <strong style={{ color: 'var(--fg-strong)' }}>
-                    {fmtFr(curve.pts[hoverIdx], 1)} {unitRate}
+                    {fmtNum(curve.pts[hoverIdx], 1)} {unitRate}
                   </strong>
                 </>
               ) : (
                 <>
-                  Pic {fmtFr(curve.peak, 1)} {unitRate} · Total{' '}
-                  {fmtFr(isolated ? isolated.value : totalVal, 1)} {unitTotal} ·{' '}
+                  Peak {fmtNum(curve.peak, 1)} {unitRate} · Total{' '}
+                  {fmtNum(isolated ? isolated.value : totalVal, 1)} {unitTotal} ·{' '}
                   {isolated
                     ? isolated.costLabel
                     : lens === 'inference'
-                      ? '~$520 eq. API Google + OrcaRouter'
-                      : '~$17 eq. AWS (hors serveur dédié)'}
+                      ? '~$520 Google API + OrcaRouter eq.'
+                      : '~$17 AWS eq. (excl. dedicated server)'}
                 </>
               )}
             </span>
@@ -420,7 +420,7 @@ export default function OrbResourcesEmbed() {
             className="ldgr-orb-svg"
             viewBox={`0 0 ${curve.W} 112`}
             role="img"
-            aria-label="Courbe temporelle synchronisée sur les 20 heures de la mission"
+            aria-label="Synchronized consumption curve over the 20-hour mission"
             onMouseMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect()
               const relX = ((e.clientX - r.left) / r.width) * curve.W
@@ -505,7 +505,7 @@ export default function OrbResourcesEmbed() {
               { idx: 0, lbl: '15:15 UTC' },
               { idx: 19, lbl: '20:00' },
               { idx: 39, lbl: '01:00' },
-              { idx: 56, lbl: 'pause inférence (04:06–06:09)' },
+              { idx: 56, lbl: 'inference pause (04:06–06:09)' },
               { idx: 79, lbl: '11:15 UTC' }
             ].map((tk, i, arr) => (
               <text
@@ -528,10 +528,10 @@ export default function OrbResourcesEmbed() {
           <span>
             {isolated
               ? isolated.note
-              : "Fenêtre complète (19,9 h wall-clock dont 2 heures de pause à cause d'un problème d'approvisionnement d'inférence réglé à la main)"}
+              : 'Full window (19.9 h wall-clock, including a 2-hour pause due to an inference provisioning issue fixed manually)'}
           </span>
           <span className="ldgr-orb-foot-mono">
-            Inférence : ~$520 (API Google + OrcaRouter) · Compute : ~$17 AWS (hors serveur dédié)
+            Inference: ~$520 (Google API + OrcaRouter) · Compute: ~$17 AWS (excl. dedicated server)
           </span>
         </div>
       </div>
@@ -571,13 +571,13 @@ function DagTimeline({
       let y = 18
       out.push({
         id: '734c3bb7',
-        label: 'root · coordinateur (smart)',
+        label: 'root · coordinator (smart)',
         wave: 'coord',
         header: 'Orchestration',
         startMin: 0,
         durMin: 1195,
         color: '#cf6a2d',
-        detail: 'Coordinateur racine (serveur dédié) · 141,0M tok · ~$163,36 eq. API Google (201 tours)',
+        detail: 'Root coordinator (dedicated server) · 141.0M tok · ~$163.36 Google API eq. (201 turns)',
         y: (y += 16)
       })
       y += 22
@@ -597,7 +597,7 @@ function DagTimeline({
               ? '#627eea'
               : '#129690'
         const stateNote =
-          a.state === 'capped' ? ' · budget de tour atteint, relayé' : ''
+          a.state === 'capped' ? ' · turn budget reached, handed off' : ''
         out.push({
           id: a.id,
           label: `${a.id.slice(0, 6)} · ${a.title.replace(/^Wave \d(\.\d)?\s*/i, '')}`,
@@ -606,7 +606,7 @@ function DagTimeline({
           startMin: a.startMin,
           durMin: a.durMin,
           color,
-          detail: `${a.title} · ${fmtFr(a.tokensM, 1)}M tok · ~$${fmtFr(a.apiEqUsd, 2)} eq. ${a.pool === 'carbon-4' ? 'API Google' : 'OrcaRouter'} (${a.pool}, ${a.durMin} min)${stateNote}`,
+          detail: `${a.title} · ${fmtNum(a.tokensM, 1)}M tok · ~$${fmtNum(a.apiEqUsd, 2)} ${a.pool === 'carbon-4' ? 'Google API' : 'OrcaRouter'} eq. (${a.pool}, ${a.durMin} min)${stateNote}`,
           y
         })
         y += 21
@@ -646,7 +646,7 @@ function DagTimeline({
               ? '#2f83bf'
               : '#627eea'
         const vmCostStr =
-          v.costUsd < 0.01 ? `<$0,01` : `~$${fmtFr(v.costUsd, 2)}`
+          v.costUsd < 0.01 ? `<$0.01` : `~$${fmtNum(v.costUsd, 2)}`
         out.push({
           id: `${v.id}-${v.startMin}`,
           label: `${v.name} (${v.cpu}c/${v.ramGb}G · ${vmCostStr})`,
@@ -655,7 +655,7 @@ function DagTimeline({
           startMin: v.startMin,
           durMin: v.durMin,
           color,
-          detail: `${v.name} (${v.cpu} vCPU / ${v.ramGb} GiB) · ~$${fmtFr(v.costUsd, 2)} eq. AWS c7a · ${fmtFr(v.cpuH, 1)} CPU-h · ${fmtFr(v.ramGh, 1)} GB·h — ${v.reason}`,
+          detail: `${v.name} (${v.cpu} vCPU / ${v.ramGb} GiB) · ~$${fmtNum(v.costUsd, 2)} AWS c7a eq. · ${fmtNum(v.cpuH, 1)} CPU-h · ${fmtNum(v.ramGh, 1)} GB·h — ${v.reason}`,
           y
         })
         y += 21
